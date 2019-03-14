@@ -21,6 +21,7 @@ class TcpClient;
 
 namespace ToriiGateway
 {
+class ConnectionTrigger;
 
 class Connection
 {
@@ -29,6 +30,7 @@ public:
 private:
     Kitsune::Network::TcpClient* m_client = nullptr;
     Kitsune::Network::TcpServer* m_server = nullptr;
+    ConnectionTrigger* m_trigger = nullptr;
 };
 
 }

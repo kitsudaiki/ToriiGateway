@@ -2,6 +2,7 @@
 
 #include <communicationEnums.h>
 #include <tcp/tcpClient.h>
+#include <iostream>
 
 namespace ToriiGateway
 {
@@ -22,55 +23,52 @@ ConnectionTrigger::runTask(uint8_t *buffer,
                            Kitsune::Network::TcpClient *client)
 {
     const uint8_t type = buffer[0];
-    //const uint8_t source = buffer[1];
+    const uint8_t source = buffer[1];
     const uint8_t target = buffer[2];
 
-    if(target == MIND_TARGET && m_mindClient != nullptr)
+    if(target == MIND && m_mindClient != nullptr)
     {
         m_mindClient->sendMessage(buffer, static_cast<uint32_t>(bufferSize));
     }
 
-    if(target == CLIENT_TARGET && m_clientClient != nullptr)
+    if(target == CLIENT && m_clientClient != nullptr)
     {
         m_clientClient->sendMessage(buffer, static_cast<uint32_t>(bufferSize));
     }
 
-    if(target == MONITORING_TARGET && m_monitoringClient != nullptr)
+    if(target == MONITORING && m_monitoringClient != nullptr)
     {
         m_monitoringClient->sendMessage(buffer, static_cast<uint32_t>(bufferSize));
     }
 
-    if(target == TORII_TARGET)
+    if(target == TORII)
     {
-        if(type == CLIENT_INIT_COM)
+        std::cout<<"poi"<<std::endl;
+        if(type == SESSION_INIT)
         {
-            m_clientClient = client;
-            return;
-        }
-        if(type == MONITORING_INIT_COM)
-        {
-            m_clientClient = client;
-            return;
-        }
-        if(type == MIND_INIT_COM)
-        {
-            m_clientClient = client;
+            if(source == CLIENT) {
+                m_clientClient = client;
+            }
+            if(source == MONITORING) {
+                m_monitoringClient = client;
+            }
+            if(source == MIND) {
+                m_mindClient = client;
+            }
             return;
         }
 
-        if(type == CLIENT_END_COM)
+        if(type == SESSION_END)
         {
-            m_clientClient = nullptr;
-            return;
-        }
-        if(type == MONITORING_END_COM)
-        {
-            m_clientClient = nullptr;
-            return;
-        }
-        if(type == MIND_END_COM)
-        {
-            m_clientClient = nullptr;
+            if(source == CLIENT) {
+                m_clientClient = nullptr;
+            }
+            if(source == MONITORING) {
+                m_monitoringClient = nullptr;
+            }
+            if(source == MIND) {
+                m_mindClient = nullptr;
+            }
             return;
         }
     }
