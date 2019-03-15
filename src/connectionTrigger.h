@@ -22,7 +22,9 @@ public:
     ConnectionTrigger();
     ~ConnectionTrigger();
 
-    void runTask(uint8_t* buffer, const long bufferSize, Kitsune::Network::TcpClient* client);
+    void runTask(uint8_t* buffer,
+                 const long bufferSize,
+                 Kitsune::Network::TcpClient* client);
 
 private:
     Kitsune::Network::TcpClient* m_mindClient = nullptr;

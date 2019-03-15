@@ -43,7 +43,6 @@ ConnectionTrigger::runTask(uint8_t *buffer,
 
     if(target == TORII)
     {
-        std::cout<<"poi"<<std::endl;
         if(type == SESSION_INIT)
         {
             if(source == CLIENT) {
