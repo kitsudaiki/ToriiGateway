@@ -26,9 +26,7 @@ INCLUDEPATH += $$PWD \
 
 SOURCES += \
         src/main.cpp \
-        src/connection.cpp \
-        src/connectionTrigger.cpp
+        src/connection.cpp
 
 HEADERS += \
-        src/connection.h \
-        src/connectionTrigger.h
+        src/connection.h

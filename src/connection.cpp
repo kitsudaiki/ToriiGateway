@@ -9,21 +9,15 @@
 
 #include "connection.h"
 
-#include <connectionTrigger.h>
-#include <tcp/tcpServer.h>
-#include <tcp/tcpClient.h>
+#include <gatewayServer.h>
 
 namespace ToriiGateway
 {
 
 Connection::Connection()
 {
-    m_trigger = new ConnectionTrigger();
-    m_server = new Kitsune::Network::TcpServer(m_trigger);
-
-    // TODO: configurable port-number
-    m_server->initSocket(1337);
-    m_server->start();
+    m_server = new GatewayServer();
+    m_server->initServer(1337);
 }
 
 }

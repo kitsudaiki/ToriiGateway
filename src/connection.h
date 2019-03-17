@@ -10,14 +10,15 @@
 #ifndef CONNECTION_H
 #define CONNECTION_H
 
-namespace Kitsune
-{
-namespace Network
-{
-class TcpServer;
-class TcpClient;
+namespace Kitsune {
+namespace Chan {
+namespace Communication {
+class GatewayServer;
 }
 }
+}
+
+using Kitsune::Chan::Communication::GatewayServer;
 
 namespace ToriiGateway
 {
@@ -27,10 +28,9 @@ class Connection
 {
 public:
     Connection();
+
 private:
-    Kitsune::Network::TcpClient* m_client = nullptr;
-    Kitsune::Network::TcpServer* m_server = nullptr;
-    ConnectionTrigger* m_trigger = nullptr;
+    GatewayServer* m_server = nullptr;
 };
 
 }
