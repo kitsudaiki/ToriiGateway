@@ -22,7 +22,7 @@ LIBS += -L../libKitsuneNetwork/src/release -lKitsuneNetwork
 INCLUDEPATH += ../libKitsuneNetwork/include/libKitsuneNetwork
 
 INCLUDEPATH += $$PWD \
-            src
+               src
 
 SOURCES += \
         src/main.cpp \
