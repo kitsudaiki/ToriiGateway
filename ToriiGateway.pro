@@ -6,15 +6,15 @@ CONFIG -= app_bundle
 
 TEMPLATE = app
 
-LIBS += -L../libKitsuneCommon -lKitsuneCommon
-LIBS += -L../libKitsuneCommon/debug -lKitsuneCommon
-LIBS += -L../libKitsuneCommon/release -lKitsuneCommon
+LIBS += -L../libKitsuneCommon/src -lKitsuneCommon
+LIBS += -L../libKitsuneCommon/src/debug -lKitsuneCommon
+LIBS += -L../libKitsuneCommon/src/release -lKitsuneCommon
 INCLUDEPATH += ../libKitsuneCommon/include/libKitsuneCommon
 
-LIBS += -L../libKitsuneChanCommunication -lKitsuneChanCommunication
-LIBS += -L../libKitsuneChanCommunication/debug -lKitsuneChanCommunication
-LIBS += -L../libKitsuneChanCommunication/release -lKitsuneChanCommunication
-INCLUDEPATH += ../libKitsuneChanCommunication/include/libKitsuneChanCommunication
+LIBS += -L../libKitsuneChanCommon -lKitsuneChanCommon
+LIBS += -L../libKitsuneChanCommon/debug -lKitsuneChanCommon
+LIBS += -L../libKitsuneChanCommon/release -lKitsuneChanCommon
+INCLUDEPATH += ../libKitsuneChanCommon/include/libKitsuneChanCommon
 
 LIBS += -L../libKitsuneNetwork/src -lKitsuneNetwork
 LIBS += -L../libKitsuneNetwork/src/debug -lKitsuneNetwork
@@ -26,7 +26,9 @@ INCLUDEPATH += $$PWD \
 
 SOURCES += \
         src/main.cpp \
-        src/connection.cpp
+    src/gatewayServerTrigger.cpp \
+    src/gatewayServer.cpp
 
 HEADERS += \
-        src/connection.h
+    src/gatewayServerTrigger.h \
+    src/gatewayServer.h
