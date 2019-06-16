@@ -8,11 +8,14 @@
  */
 
 #include <iostream>
-#include <connection.h>
+#include <gatewayServer.h>
+
+using Kitsune::Chan::Communication::GatewayServer;
 
 int main()
 {
-    ToriiGateway::Connection* connection = new ToriiGateway::Connection();
+    GatewayServer* m_server = new GatewayServer();
+    m_server->initServer(1337);
 
     int a = 0;
     std::cin >> a;
