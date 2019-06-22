@@ -24,7 +24,7 @@ build:
     - /usr/bin/make
 
 
-    - git clone git@192.168.178.200:kitsune_chan/libKitsuneChanCommon.git /builds/kitsune_chan/libKitsuneChanCommon
+    - git clone git@10.0.3.10:kitsune_chan/libKitsuneChanCommon.git /builds/kitsune_chan/libKitsuneChanCommon
 
     - cd /builds/build
     - mkdir libKitsuneChanCommon
