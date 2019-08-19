@@ -10,10 +10,10 @@
 #ifndef CONNECTIONTRIGGER_H
 #define CONNECTIONTRIGGER_H
 
-#include <networkTrigger.h>
+#include <network_trigger.h>
 #include <vector>
 #include <string>
-#include <communicationStructs/communicationMessages.h>
+#include <communication_structs/communication_messages.h>
 
 namespace Kitsune
 {
@@ -30,7 +30,7 @@ namespace Kitsune
 {
 namespace Chan
 {
-namespace Communication
+namespace Common
 {
 
 class GatewayServerTrigger : public Kitsune::Network::NetworkTrigger
@@ -39,7 +39,7 @@ public:
     GatewayServerTrigger();
     ~GatewayServerTrigger();
 
-    uint32_t runTask(const MessageRingBuffer& recvBuffer,
+    uint64_t runTask(const MessageRingBuffer& recvBuffer,
                      Kitsune::Network::TcpClient* client);
 
     uint8_t m_tempBuffer[8192];

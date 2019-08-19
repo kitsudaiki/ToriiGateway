@@ -22,7 +22,7 @@ class NetworkTrigger;
 
 namespace Chan
 {
-namespace Communication
+namespace Common
 {
 class GatewayServerTrigger;
 

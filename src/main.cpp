@@ -10,7 +10,7 @@
 #include <iostream>
 #include <gatewayServer.h>
 
-using Kitsune::Chan::Communication::GatewayServer;
+using Kitsune::Chan::Common::GatewayServer;
 
 int main()
 {

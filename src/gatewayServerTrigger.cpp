@@ -9,26 +9,22 @@
 
 #include "gatewayServerTrigger.h"
 
-#include <tcp/tcpClient.h>
+#include <tcp/tcp_client.h>
 #include <iostream>
 
 namespace Kitsune
 {
 namespace Chan
 {
-namespace Communication
+namespace Common
 {
 
-GatewayServerTrigger::GatewayServerTrigger() : Kitsune::Network::NetworkTrigger ()
-{
-}
+GatewayServerTrigger::GatewayServerTrigger()
+    : Kitsune::Network::NetworkTrigger ()  {}
 
-GatewayServerTrigger::~GatewayServerTrigger()
-{
+GatewayServerTrigger::~GatewayServerTrigger() {}
 
-}
-
-uint32_t
+uint64_t
 GatewayServerTrigger::runTask(const MessageRingBuffer &recvBuffer,
                               Kitsune::Network::TcpClient *client)
 {

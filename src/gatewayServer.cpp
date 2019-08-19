@@ -8,14 +8,14 @@
  */
 
 #include "gatewayServer.h"
-#include <tcp/tcpServer.h>
+#include <tcp/tcp_server.h>
 #include <gatewayServerTrigger.h>
 
 namespace Kitsune
 {
 namespace Chan
 {
-namespace Communication
+namespace Common
 {
 
 /**
