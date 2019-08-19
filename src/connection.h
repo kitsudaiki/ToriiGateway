@@ -12,13 +12,13 @@
 
 namespace Kitsune {
 namespace Chan {
-namespace Communication {
+namespace Common {
 class GatewayServer;
 }
 }
 }
 
-using Kitsune::Chan::Communication::GatewayServer;
+using Kitsune::Chan::Common::GatewayServer;
 
 namespace ToriiGateway
 {
