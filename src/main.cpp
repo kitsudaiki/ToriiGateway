@@ -8,13 +8,11 @@
  */
 
 #include <iostream>
-#include <gatewayServer.h>
-
-using Kitsune::Chan::Common::GatewayServer;
+#include <gateway_server.h>
 
 int main()
 {
-    GatewayServer* m_server = new GatewayServer();
+    ToriiGateway::GatewayServer* m_server = new ToriiGateway::GatewayServer();
     m_server->initServer(1337);
 
     int a = 0;

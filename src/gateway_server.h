@@ -1,5 +1,5 @@
 /**
- *  @file    gatewayServer.h
+ *  @file    gateway_server.h
  *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
@@ -7,8 +7,8 @@
  *  Apache License Version 2.0
  */
 
-#ifndef GATEWAYSERVER_H
-#define GATEWAYSERVER_H
+#ifndef GATEWAY_SERVER_H
+#define GATEWAY_SERVER_H
 
 #include <stdint.h>
 
@@ -19,10 +19,9 @@ namespace Network
 class TcpServer;
 class NetworkTrigger;
 }
+}
 
-namespace Chan
-{
-namespace Common
+namespace ToriiGateway
 {
 class GatewayServerTrigger;
 
@@ -40,7 +39,5 @@ private:
 };
 
 }
-}
-}
 
-#endif // GATEWAYSERVER_H
+#endif // GATEWAY_SERVER_H

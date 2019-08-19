@@ -26,9 +26,9 @@ INCLUDEPATH += $$PWD \
 
 SOURCES += \
         src/main.cpp \
-    src/gatewayServerTrigger.cpp \
-    src/gatewayServer.cpp
+    src/gateway_server.cpp \
+    src/gateway_server_trigger.cpp
 
 HEADERS += \
-    src/gatewayServerTrigger.h \
-    src/gatewayServer.h
+    src/gateway_server.h \
+    src/gateway_server_trigger.h

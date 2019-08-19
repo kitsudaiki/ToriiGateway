@@ -1,5 +1,5 @@
 /**
- *  @file    gatewayServerTrigger.cpp
+ *  @file    gateway_server_trigger.cpp
  *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
@@ -7,16 +7,14 @@
  *  Apache License Version 2.0
  */
 
-#include "gatewayServerTrigger.h"
+#include "gateway_server_trigger.h"
 
 #include <tcp/tcp_client.h>
 #include <iostream>
 
-namespace Kitsune
-{
-namespace Chan
-{
-namespace Common
+using Kitsune::Chan::Common::ClientRegisterOutput;
+
+namespace ToriiGateway
 {
 
 GatewayServerTrigger::GatewayServerTrigger()
@@ -24,6 +22,12 @@ GatewayServerTrigger::GatewayServerTrigger()
 
 GatewayServerTrigger::~GatewayServerTrigger() {}
 
+/**
+ * @brief GatewayServerTrigger::runTask
+ * @param recvBuffer
+ * @param client
+ * @return
+ */
 uint64_t
 GatewayServerTrigger::runTask(const MessageRingBuffer &recvBuffer,
                               Kitsune::Network::TcpClient *client)
@@ -36,7 +40,8 @@ GatewayServerTrigger::runTask(const MessageRingBuffer &recvBuffer,
             break;
         }
 
-        const uint8_t type = recvBuffer.data[(recvBuffer.readPosition + processedBytes) % recvBuffer.totalBufferSize];
+        const uint8_t type = recvBuffer.data[(recvBuffer.readPosition
+                                              + processedBytes) % recvBuffer.totalBufferSize];
 
         // get message-size
         const uint32_t messageSize = m_messageSize.sizes[type];
@@ -50,11 +55,18 @@ GatewayServerTrigger::runTask(const MessageRingBuffer &recvBuffer,
             break;
         }
 
-        const uint8_t source = recvBuffer.data[(recvBuffer.readPosition + 1 + processedBytes) % recvBuffer.totalBufferSize];
-        const uint8_t target = recvBuffer.data[(recvBuffer.readPosition + 2 + processedBytes) % recvBuffer.totalBufferSize];
+        const uint8_t source = recvBuffer.data[(recvBuffer.readPosition
+                                                + 1
+                                                + processedBytes) % recvBuffer.totalBufferSize];
+        const uint8_t target = recvBuffer.data[(recvBuffer.readPosition
+                                                + 2
+                                                + processedBytes) % recvBuffer.totalBufferSize];
 
         // get data-block
-        const uint8_t* dataPointer = getDataPointer(recvBuffer, m_tempBuffer, messageSize, processedBytes);
+        const uint8_t* dataPointer = getDataPointer(recvBuffer,
+                                                    m_tempBuffer,
+                                                    messageSize,
+                                                    processedBytes);
         processedBytes += messageSize;
 
         if(type == CLIENT_REGISTER_OUTPUT)
@@ -152,6 +164,4 @@ GatewayServerTrigger::runTask(const MessageRingBuffer &recvBuffer,
     return processedBytes;
 }
 
-}
-}
 }

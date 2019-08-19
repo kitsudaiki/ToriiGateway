@@ -1,5 +1,5 @@
 /**
- *  @file    gatewayServerTrigger.h
+ *  @file    gateway_server_trigger.h
  *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
@@ -7,8 +7,8 @@
  *  Apache License Version 2.0
  */
 
-#ifndef CONNECTIONTRIGGER_H
-#define CONNECTIONTRIGGER_H
+#ifndef GATEWAY_SERVER_TRIGGER_H
+#define GATEWAY_SERVER_TRIGGER_H
 
 #include <network_trigger.h>
 #include <vector>
@@ -26,11 +26,7 @@ struct MessageRingBuffer;
 
 using Kitsune::Network::MessageRingBuffer;
 
-namespace Kitsune
-{
-namespace Chan
-{
-namespace Common
+namespace ToriiGateway
 {
 
 class GatewayServerTrigger : public Kitsune::Network::NetworkTrigger
@@ -43,7 +39,7 @@ public:
                      Kitsune::Network::TcpClient* client);
 
     uint8_t m_tempBuffer[8192];
-    MessageSizes m_messageSize;
+    Kitsune::Chan::Common::MessageSizes m_messageSize;
 
 private:
     Kitsune::Network::TcpClient* m_mindClient = nullptr;
@@ -52,7 +48,5 @@ private:
 };
 
 }
-}
-}
 
-#endif // CONNECTIONTRIGGER_H
+#endif // GATEWAY_SERVER_TRIGGER_H

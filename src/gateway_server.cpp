@@ -1,5 +1,5 @@
 /**
- *  @file    gatewayServer.cpp
+ *  @file    gateway_server.cpp
  *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
@@ -7,15 +7,11 @@
  *  Apache License Version 2.0
  */
 
-#include "gatewayServer.h"
+#include "gateway_server.h"
 #include <tcp/tcp_server.h>
-#include <gatewayServerTrigger.h>
+#include <gateway_server_trigger.h>
 
-namespace Kitsune
-{
-namespace Chan
-{
-namespace Common
+namespace ToriiGateway
 {
 
 /**
@@ -51,6 +47,3 @@ bool GatewayServer::initServer(const uint16_t port)
 }
 
 }
-}
-}
-
