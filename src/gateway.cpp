@@ -65,16 +65,26 @@ void sessionCallback(void* target,
                      Kitsunemimi::Project::Session* incomingSession,
                      const std::string sessionIdentifier)
 {
-
     Gateway* gateway = static_cast<Gateway*>(target);
     if(isInit)
     {
         if(incomingSession->isClientSide() == false)
         {
+            LOG_INFO("register incoming session with session-identifier: " + sessionIdentifier);
+
             Kitsunemimi::Project::Session* outgoingSession = nullptr;
 
-            outgoingSession = gateway->m_gatewayController->startTcpSession("127.0.0.1",
-                                                                            1234,
+            bool success = false;
+            std::string address = GET_STRING_CONFIG("Kyouko", "address", success);
+            uint16_t port = static_cast<uint16_t>(GET_INT_CONFIG("Kyouko", "port", success));
+
+            LOG_DEBUG("forward session to address: "
+                      + address
+                      + " and port: "
+                      + std::to_string(port));
+
+            outgoingSession = gateway->m_gatewayController->startTcpSession(address,
+                                                                            port,
                                                                             sessionIdentifier);
             gateway->m_gatewayController->linkSessions(incomingSession, outgoingSession);
         }
