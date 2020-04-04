@@ -13,8 +13,8 @@
 #include <iostream>
 
 namespace Kitsunemimi {
-namespace Kyouko {
-class KyoukoNetwork;
+namespace Project {
+class SessionController;
 }
 }
 
@@ -25,11 +25,14 @@ class Gateway
 {
 public:
     Gateway();
+    ~Gateway();
 
-    bool initServer(const uint16_t port);
+    bool initServer();
+
+    Kitsunemimi::Project::SessionController* m_gatewayController = nullptr;
 
 private:
-    Kitsunemimi::Kyouko::KyoukoNetwork* m_kyoukoNetwork = nullptr;
+    uint32_t m_serverId = 0;
 };
 
 }

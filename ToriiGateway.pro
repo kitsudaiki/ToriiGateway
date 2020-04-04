@@ -2,8 +2,7 @@ QT -= qt core gui
 
 TARGET = ToriiGateway
 CONFIG += console c++14
-
-TEMPLATE = app
+CONFIG -= app_bundle
 
 LIBS += -L../libKitsunemimiArgs/src -lKitsunemimiArgs
 LIBS += -L../libKitsunemimiArgs/src/debug -lKitsunemimiArgs
@@ -51,7 +50,6 @@ SOURCES += \
     src/gateway.cpp
 
 HEADERS += \
-    src/callbacks.h \
     src/gateway.h \
     src/config.h \
     src/args.h
