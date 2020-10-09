@@ -11,7 +11,6 @@
 
 #include <gateway.h>
 #include <args.h>
-#include <config.h>
 
 #include <libKitsunemimiArgs/arg_parser.h>
 #include <libKitsunemimiPersistence/logger/logger.h>
@@ -30,31 +29,16 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    // debugging for logging
+    // init logging
     const bool enableDebug = argParser.wasSet("debug");
     Kitsunemimi::Persistence::initConsoleLogger(enableDebug);
-
-    // config-file
-    const std::string configFilePath = argParser.getStringValues("config").at(0);
-    if(Kitsunemimi::Config::initConfig(configFilePath) == false) {
-        return 1;
-    }
-    ToriiGateway::registerConfigs();
-
-    // log-file
-    std::string logDirPath = "/var/log/";
-    if(argParser.wasSet("log-dir")) {
-        logDirPath = argParser.getStringValues("log-dir").at(0);
-    }
-    std::string logBaseName = "ToriiGateway";
-    if(argParser.wasSet("log-base")) {
-        logBaseName = argParser.getStringValues("log-base").at(0);
-    }
-    Kitsunemimi::Persistence::initFileLogger(logDirPath, logBaseName, enableDebug);
+    Kitsunemimi::Persistence::initFileLogger("/var/log/",
+                                             "ToriiGateway",
+                                             enableDebug);
 
     // create server
-    ToriiGateway::Gateway gateway;
-    gateway.initServer();
+    Gateway gateway;
+    gateway.initHttpServer();
 
     int a = 0;
     std::cin >> a;

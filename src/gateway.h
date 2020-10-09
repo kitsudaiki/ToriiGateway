@@ -12,29 +12,14 @@
 
 #include <iostream>
 
-namespace Kitsunemimi {
-namespace Project {
-class SessionController;
-}
-}
-
-namespace ToriiGateway
-{
-
 class Gateway
 {
 public:
     Gateway();
     ~Gateway();
 
-    bool initServer();
+    bool initHttpServer();
 
-    Kitsunemimi::Project::SessionController* m_gatewayController = nullptr;
-
-private:
-    uint32_t m_serverId = 0;
 };
-
-}
 
 #endif // GATEWAYSERVER_H
