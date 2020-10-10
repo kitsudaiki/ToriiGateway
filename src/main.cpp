@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
 
     // create server
     Gateway gateway;
-    gateway.initHttpServer();
+    gateway.initHttpServer("127.0.0.1", "8000");
 
     int a = 0;
     std::cin >> a;

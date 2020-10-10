@@ -18,8 +18,12 @@ public:
     Gateway();
     ~Gateway();
 
-    bool initHttpServer();
+    bool initHttpServer(const std::string &address,
+                        const std::string &port);
 
+private:
+    const std::string getTestTree();
+    const std::string getTestConfig();
 };
 
 #endif // GATEWAYSERVER_H

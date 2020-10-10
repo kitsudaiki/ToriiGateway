@@ -21,20 +21,22 @@ using namespace http;
 using namespace utility;
 using namespace http::experimental::listener;
 
-class HttpServer : public http_listener
+class HttpServer
+        : public http_listener
 {
 public:
-    HttpServer(std::string url);
+    HttpServer(const std::string &url);
     virtual ~HttpServer();
 
     void startListener();
     void closeListener();
 
 private:
-    void handle_get(http_request message);
-    void handle_put(http_request message);
-    void handle_post(http_request message);
-    void handle_delete(http_request message);
+    void handle_get(const http_request &message);
+    void handle_put(const http_request &message);
+    void handle_post(const http_request &message);
+    void handle_delete(const http_request &message);
+
     void handle_error(pplx::task<void>& t);
 };
 
