@@ -19,7 +19,7 @@ public:
     ~Gateway();
 
     bool initHttpServer(const std::string &address,
-                        const std::string &port);
+                        const uint16_t port);
 
 private:
     const std::string getTestTree();

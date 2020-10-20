@@ -65,7 +65,8 @@ LIBS += -L../libKitsunemimiIni/src/debug -lKitsunemimiIni
 LIBS += -L../libKitsunemimiIni/src/release -lKitsunemimiIni
 INCLUDEPATH += ../libKitsunemimiIni/include
 
-LIBS += -lboost_filesystem -lboost_system -lcrypto -lssl -lcpprest
+LIBS += -lpthread -lboost_filesystem -lboost_system -lcrypto -lssl
+
 INCLUDEPATH += $$PWD \
                src
 

@@ -12,11 +12,6 @@
 #include <http_server.h>
 #include <test_blossom.h>
 
-#include "cpprest/json.h"
-#include "cpprest/http_listener.h"
-#include "cpprest/uri.h"
-#include "cpprest/asyncrt_utils.h"
-
 #include <libKitsunemimiPersistence/logger/logger.h>
 #include <libKitsunemimiConfig/config_handler.h>
 
@@ -30,6 +25,7 @@
 
 #include <libKitsunemimiPersistence/files/text_file.h>
 
+using Kitsunemimi::Sakura::SakuraLangInterface;
 
 /**
  * @brief GatewayServer::GatewayServer
@@ -54,33 +50,27 @@ Gateway::~Gateway()
  */
 bool
 Gateway::initHttpServer(const std::string &address,
-                        const std::string &port)
+                        const uint16_t port)
 {
-    TestBlossom* newBlossom = new TestBlossom();
-    Kitsunemimi::Sakura::SakuraLangInterface::getInstance()->addBlossom("test1",
-                                                   "test2",
-                                                   newBlossom);
     std::string errorMessage = "";
-    Kitsunemimi::Sakura::SakuraLangInterface::getInstance()->addTree("test-tree",
-                                                getTestTree(),
-                                                errorMessage);
-    Kitsunemimi::Persistence::writeFile("/tmp/test-config.conf",
+
+    SakuraLangInterface* interface = SakuraLangInterface::getInstance();
+    interface->addBlossom("test1", "test2",  new TestBlossom());
+    interface->addTree("test-tree", getTestTree(), errorMessage);
+
+    Kitsunemimi::Persistence::writeFile("/tmp/ToriiGateway.conf",
                                         getTestConfig(),
                                         errorMessage,
                                         true);
 
-    std::string host = "http://" + address + ":" + port;
-    web::uri_builder uri(host);
-    uri.append(U("MyServer/Action"));
-    std::string path = uri.to_uri().to_string();
 
-    std::cout<<"listen on path: "<<path<<std::endl;
-    HttpServer* server = new HttpServer(path);
-    server->open().wait();
+    Kitsunemimi::Config::initConfig("/tmp/ToriiGateway.conf");
+    std::vector<std::string> groupNames = {"ToriiGateway"};
+    Kitsunemimi::Sakura::MessagingController::initializeMessagingController("ToriiGateway", groupNames);
 
-    Kitsunemimi::Config::initConfig("/tmp/test-config.conf");
-    std::vector<std::string> groupNames = {"self"};
-    Kitsunemimi::Sakura::MessagingController::initializeMessagingController("contr1", groupNames);
+
+    HttpServer* server = new HttpServer(address, port);
+    server->startListener();
 
     return true;
 }
@@ -114,7 +104,7 @@ Gateway::getTestConfig()
                                "port = 12345\n"
                                "\n"
                                "\n"
-                               "[self]\n"
+                               "[ToriiGateway]\n"
                                "port = 12345\n"
                                "address = \"127.0.0.1\"\n";
     return config;
