@@ -11,7 +11,9 @@
 
 #include <gateway.h>
 #include <args.h>
+
 #include <websocket/web_socket_server.h>
+#include <http/http_server.h>
 
 #include <libKitsunemimiArgs/arg_parser.h>
 #include <libKitsunemimiPersistence/logger/logger.h>
@@ -41,7 +43,10 @@ int main(int argc, char *argv[])
     Gateway gateway;
     WebSocketServer* server = new WebSocketServer("127.0.0.1", 8080);
     server->startThread();
+
     gateway.initHttpServer("127.0.0.1", 8000);
+    HttpServer* httpServer = new HttpServer("127.0.0.1", 8000, "/");
+    httpServer->startThread();
 
     int a = 0;
     std::cin >> a;

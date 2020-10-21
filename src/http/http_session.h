@@ -1,58 +1,46 @@
-#ifndef HTTPSERVER_H
-#define HTTPSERVER_H
+#ifndef HTTP_SESSION_H
+#define HTTP_SESSION_H
 
 #include <boost/beast/core.hpp>
 #include <boost/beast/http.hpp>
 #include <boost/beast/version.hpp>
-#include <boost/asio.hpp>
-#include <chrono>
+#include <boost/asio/ip/tcp.hpp>
+#include <boost/config.hpp>
 #include <cstdlib>
-#include <ctime>
 #include <iostream>
 #include <memory>
 #include <string>
+#include <thread>
+
+#include <libKitsunemimiCommon/threading/thread.h>
 
 namespace beast = boost::beast;         // from <boost/beast.hpp>
 namespace http = beast::http;           // from <boost/beast/http.hpp>
 namespace net = boost::asio;            // from <boost/asio.hpp>
 using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 
-
-class HttpConnection
-        : public std::enable_shared_from_this<HttpConnection>
+class HttpSession
+        : public Kitsunemimi::Thread
 {
 public:
-    HttpConnection(tcp::socket socket);
+    HttpSession(tcp::socket &&socket,
+                const std::string &docRoot);
 
-    void start();
+protected:
+    void run();
 
 private:
     tcp::socket m_socket;
+    std::string m_docRoot = "";
+
 
     beast::flat_buffer m_buffer{8192};
     http::request<http::dynamic_body> m_request;
     http::response<http::dynamic_body> m_response;
-    net::steady_timer m_deadline{m_socket.get_executor(), std::chrono::seconds(60)};
 
-    void readRequest();
     void processRequest();
     void createResponse();
     void sendResponse();
-    void checkTimeout();
 };
 
-class HttpServer
-{
-public:
-    HttpServer(const std::string &ip, const uint16_t port);
-    virtual ~HttpServer();
-
-    bool startListener();
-    void closeListener();
-
-private:
-    std::string m_ip = "";
-    uint16_t m_port = 8080;
-};
-
-#endif // HTTPSERVER_H
+#endif // HTTP_SESSION_H

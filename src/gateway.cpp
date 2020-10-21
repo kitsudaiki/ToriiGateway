@@ -9,7 +9,6 @@
 
 #include "gateway.h"
 
-#include <http_server.h>
 #include <test_blossom.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
@@ -68,9 +67,6 @@ Gateway::initHttpServer(const std::string &address,
     std::vector<std::string> groupNames = {"ToriiGateway"};
     Kitsunemimi::Sakura::MessagingController::initializeMessagingController("ToriiGateway", groupNames);
 
-
-    HttpServer* server = new HttpServer(address, port);
-    server->startListener();
 
     return true;
 }

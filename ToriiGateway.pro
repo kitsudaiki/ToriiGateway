@@ -74,14 +74,16 @@ SOURCES += \
         src/main.cpp \
         src/gateway.cpp \
     src/test_blossom.cpp \
-    src/http_server.cpp \
     src/websocket/web_socket_server.cpp \
-    src/websocket/web_socket_session.cpp
+    src/websocket/web_socket_session.cpp \
+    src/http/http_server.cpp \
+    src/http/http_session.cpp
 
 HEADERS += \
     src/gateway.h \
     src/args.h \
     src/test_blossom.h \
-    src/http_server.h \
     src/websocket/web_socket_server.h \
-    src/websocket/web_socket_session.h
+    src/websocket/web_socket_session.h \
+    src/http/http_server.h \
+    src/http/http_session.h
