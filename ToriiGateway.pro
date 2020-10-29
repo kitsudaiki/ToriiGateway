@@ -73,7 +73,6 @@ INCLUDEPATH += $$PWD \
 SOURCES += \
         src/main.cpp \
         src/gateway.cpp \
-    src/test_blossom.cpp \
     src/websocket/web_socket_server.cpp \
     src/websocket/web_socket_session.cpp \
     src/http/http_server.cpp \
@@ -82,7 +81,6 @@ SOURCES += \
 HEADERS += \
     src/gateway.h \
     src/args.h \
-    src/test_blossom.h \
     src/websocket/web_socket_server.h \
     src/websocket/web_socket_session.h \
     src/http/http_server.h \

@@ -23,16 +23,13 @@ class HttpSession
         : public Kitsunemimi::Thread
 {
 public:
-    HttpSession(tcp::socket &&socket,
-                const std::string &docRoot);
+    HttpSession(tcp::socket &&socket);
 
 protected:
     void run();
 
 private:
     tcp::socket m_socket;
-    std::string m_docRoot = "";
-
 
     beast::flat_buffer m_buffer{8192};
     http::request<http::dynamic_body> m_request;

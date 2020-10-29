@@ -18,12 +18,11 @@ public:
     Gateway();
     ~Gateway();
 
+    bool initWebSocketServer(const std::string &address,
+                             const uint16_t port);
     bool initHttpServer(const std::string &address,
                         const uint16_t port);
 
-private:
-    const std::string getTestTree();
-    const std::string getTestConfig();
 };
 
 #endif // GATEWAYSERVER_H

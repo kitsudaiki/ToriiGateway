@@ -7,11 +7,9 @@
 
 using Kitsunemimi::Sakura::MessagingController;
 
-HttpSession::HttpSession(tcp::socket &&socket,
-                         const std::string &docRoot)
+HttpSession::HttpSession(tcp::socket &&socket)
     : m_socket(std::move(socket))
 {
-    m_docRoot = docRoot;
 }
 
 /**

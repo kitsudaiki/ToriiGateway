@@ -9,6 +9,7 @@
 #include <iostream>
 #include <string>
 #include <thread>
+#include <random>
 
 #include <libKitsunemimiCommon/threading/thread.h>
 

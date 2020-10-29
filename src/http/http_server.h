@@ -14,11 +14,6 @@
 
 #include <libKitsunemimiCommon/threading/thread.h>
 
-namespace beast = boost::beast;         // from <boost/beast.hpp>
-namespace http = beast::http;           // from <boost/beast/http.hpp>
-namespace net = boost::asio;            // from <boost/asio.hpp>
-using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
-
 class HttpSession;
 
 class HttpServer
@@ -26,8 +21,7 @@ class HttpServer
 {
 public:
     HttpServer(const std::string &address,
-               const uint16_t port,
-               const std::string &docRoot);
+               const uint16_t port);
 
 protected:
     void run();
@@ -35,7 +29,6 @@ protected:
 private:
     std::string m_address = "";
     uint16_t m_port = 0;
-    std::string m_docRoot = "";
 
     std::vector<HttpSession*> m_activeSession;
 };

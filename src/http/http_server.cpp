@@ -3,12 +3,10 @@
 #include <http/http_session.h>
 
 HttpServer::HttpServer(const std::string &address,
-                       const uint16_t port,
-                       const std::string &docRoot)
+                       const uint16_t port)
 {
     m_address = address;
     m_port = port;
-    m_docRoot = docRoot;
 }
 
 void
@@ -31,7 +29,7 @@ HttpServer::run()
             // Block until we get a connection
             acceptor.accept(socket);
 
-            HttpSession* session = new HttpSession(std::move(socket), m_docRoot);
+            HttpSession* session = new HttpSession(std::move(socket));
             session->startThread();
             m_activeSession.push_back(session);
         }
