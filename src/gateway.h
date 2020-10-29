@@ -18,6 +18,8 @@ public:
     Gateway();
     ~Gateway();
 
+    bool initGateway();
+
     bool initWebSocketServer(const std::string &address,
                              const uint16_t port);
     bool initHttpServer(const std::string &address,

@@ -11,6 +11,21 @@
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 
+#include <libKitsunemimiConfig/config_handler.h>
+
+#include <libKitsunemimiCommon/buffer/data_buffer.h>
+
+#include <libKitsunemimiSakuraLang/sakura_lang_interface.h>
+#include <libKitsunemimiSakuraLang/blossom.h>
+
+#include <libKitsunemimiSakuraMessaging/messaging_controller.h>
+#include <libKitsunemimiSakuraMessaging/messaging_client.h>
+
+#include <libKitsunemimiPersistence/files/text_file.h>
+
+using Kitsunemimi::Sakura::SakuraLangInterface;
+
+
 #include <websocket/web_socket_server.h>
 #include <http/http_server.h>
 /**
@@ -26,6 +41,19 @@ Gateway::Gateway()
  */
 Gateway::~Gateway()
 {
+}
+
+/**
+ * @brief Gateway::initGateway
+ * @return
+ */
+bool
+Gateway::initGateway()
+{
+    Kitsunemimi::Config::initConfig("/etc/ToriiGateway/ToriiGateway.conf");
+    std::vector<std::string> groupNames = {"KyoukoMind"};
+    return Kitsunemimi::Sakura::MessagingController::initializeMessagingController("ToriiGateway",
+                                                                                   groupNames);
 }
 
 /**

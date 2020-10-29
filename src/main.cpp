@@ -38,6 +38,11 @@ int main(int argc, char *argv[])
 
     // create server
     Gateway gateway;
+    if(gateway.initGateway() == false)
+    {
+        LOG_ERROR("failed to initialize gateway");
+        return 1;
+    }
     gateway.initHttpServer("127.0.0.1", 8000);
     gateway.initWebSocketServer("127.0.0.1", 8080);
 
