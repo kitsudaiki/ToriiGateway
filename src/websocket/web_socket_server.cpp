@@ -15,15 +15,12 @@ WebSocketServer::run()
     try
     {
         const net::ip::address address = net::ip::make_address(m_address);
-
         net::io_context ioc{1};
         tcp::acceptor acceptor{ioc, {address, m_port}};
-        for(;;)
-        {
-            // This will receive the new connection
-            tcp::socket socket{ioc};
 
-            // Block until we get a connection
+        while(m_abort == false)
+        {
+            tcp::socket socket{ioc};
             acceptor.accept(socket);
 
             WebSocketSession* session = new WebSocketSession(std::move(socket));
