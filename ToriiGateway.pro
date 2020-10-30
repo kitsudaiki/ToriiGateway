@@ -84,4 +84,5 @@ HEADERS += \
     src/websocket/web_socket_server.h \
     src/websocket/web_socket_session.h \
     src/http/http_server.h \
-    src/http/http_session.h
+    src/http/http_session.h \
+    src/config.h
