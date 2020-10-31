@@ -113,20 +113,25 @@ HttpSession::run()
     // This buffer is required to persist across reads
     beast::flat_buffer buffer;
 
-    for(;;)
+    while(m_abort == false)
     {
         // Read a request
         http::read(m_socket, buffer, m_request, ec);
-        if(ec == http::error::end_of_stream)
+        if(ec == http::error::end_of_stream) {
             break;
-        if(ec)
+        }
+
+        if(ec) {
             std::cerr << "read" << ": " << ec.message() << "\n";
+        }
 
         processRequest();
 
         // Send the response
-        if(ec)
+        if(ec) {
             std::cerr << "write" << ": " << ec.message() << "\n";
+        }
+
         if(close)
         {
             // This means we should close the connection, usually because

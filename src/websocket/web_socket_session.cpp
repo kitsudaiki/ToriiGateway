@@ -43,7 +43,7 @@ WebSocketSession::run()
         // Accept the websocket handshake
         m_webSocket.accept();
 
-        for(;;)
+        while(m_abort == false)
         {
             // This buffer will hold the incoming message
             beast::flat_buffer buffer;

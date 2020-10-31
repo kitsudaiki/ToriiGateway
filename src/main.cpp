@@ -10,6 +10,7 @@
 #include <iostream>
 
 #include <gateway.h>
+#include <config.h>
 #include <args.h>
 
 #include <libKitsunemimiArgs/arg_parser.h>
@@ -29,22 +30,29 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    // init logging
-    const bool enableDebug = argParser.wasSet("debug");
-    Kitsunemimi::Persistence::initConsoleLogger(enableDebug);
-    Kitsunemimi::Persistence::initFileLogger("/var/log/",
-                                             "ToriiGateway",
-                                             enableDebug);
-
-    // create server
-    Gateway gateway;
-    if(gateway.initGateway() == false)
-    {
-        LOG_ERROR("failed to initialize gateway");
-        return 1;
+    // init config-file
+    std::string configPath = argParser.getStringValue("config");
+    if(configPath == "") {
+        configPath = "/etc/ToriiGateway/ToriiGateway.conf";
     }
-    gateway.initHttpServer("127.0.0.1", 8000);
-    gateway.initWebSocketServer("127.0.0.1", 8080);
+    Kitsunemimi::Config::initConfig(configPath);
+
+    // get config-parameter for logger
+    bool success = false;
+    const bool enableDebug = GET_BOOL_CONFIG("DEFAULT", "debug", success);
+    assert(success);
+    const std::string logPath = GET_STRING_CONFIG("DEFAULT", "log_path", success);
+    assert(success);
+
+    // init logger
+    Kitsunemimi::Persistence::initConsoleLogger(enableDebug);
+    Kitsunemimi::Persistence::initFileLogger(logPath, "ToriiGateway", enableDebug);
+
+    // init gateway
+    Gateway gateway;
+    gateway.initClient();
+    gateway.initMonitoring();
+    gateway.initControl();
 
     int a = 0;
     std::cin >> a;

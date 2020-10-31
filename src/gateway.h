@@ -18,12 +18,14 @@ public:
     Gateway();
     ~Gateway();
 
-    bool initGateway();
+    bool initClient();
+    bool initMonitoring();
+    bool initControl();
 
-    bool initWebSocketServer(const std::string &address,
-                             const uint16_t port);
-    bool initHttpServer(const std::string &address,
-                        const uint16_t port);
+private:
+    bool isEnables(const std::string &group);
+    bool initWebSocketServer(const std::string &group);
+    bool initHttpServer(const std::string &group);
 
 };
 

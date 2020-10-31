@@ -9,13 +9,9 @@ namespace ToriiGateway
 bool
 registerArguments(Kitsunemimi::Args::ArgParser &argparser)
 {
-    argparser.registerString("config,c",
-                             "absolute path to config-file",
-                             true);
-
-    argparser.registerPlain("debug,d",
-                            "enable debug-mode");
-    return true;
+    return argparser.registerString("config,c",
+                                    "absolute path to config-file",
+                                    false);
 }
 
 }

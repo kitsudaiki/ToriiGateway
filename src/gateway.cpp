@@ -31,29 +31,88 @@ using Kitsunemimi::Sakura::SakuraLangInterface;
 /**
  * @brief GatewayServer::GatewayServer
  */
-Gateway::Gateway()
-{
-
-}
+Gateway::Gateway() {}
 
 /**
  * @brief Gateway::~Gateway
  */
-Gateway::~Gateway()
-{
-}
+Gateway::~Gateway() {}
 
 /**
- * @brief Gateway::initGateway
+ * @brief Gateway::initClient
  * @return
  */
 bool
-Gateway::initGateway()
+Gateway::initClient()
 {
-    Kitsunemimi::Config::initConfig("/etc/ToriiGateway/ToriiGateway.conf");
-    std::vector<std::string> groupNames = {"KyoukoMind"};
-    return Kitsunemimi::Sakura::MessagingController::initializeMessagingController("ToriiGateway",
-                                                                                   groupNames);
+    const std::string groupName = "client";
+    if(isEnables(groupName) == false) {
+        return false;
+    }
+
+    if(initHttpServer(groupName) == false) {
+        return false;
+    }
+
+    if(initWebSocketServer(groupName) == false) {
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * @brief Gateway::initMonitoring
+ * @return
+ */
+bool
+Gateway::initMonitoring()
+{
+    const std::string groupName = "monitoring";
+    if(isEnables(groupName) == false) {
+        return false;
+    }
+
+    if(initHttpServer(groupName) == false) {
+        return false;
+    }
+
+    if(initWebSocketServer(groupName) == false) {
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * @brief Gateway::initControl
+ * @return
+ */
+bool
+Gateway::initControl()
+{
+    const std::string groupName = "control";
+    if(isEnables(groupName) == false) {
+        return false;
+    }
+
+    return initHttpServer(groupName);
+}
+
+/**
+ * @brief Gateway::isEnables
+ * @param group
+ * @return
+ */
+bool
+Gateway::isEnables(const std::string &group)
+{
+    bool success = false;
+    if(GET_BOOL_CONFIG(group, "enable", success)) {
+        return true;
+    }
+
+    return false;
 }
 
 /**
@@ -63,10 +122,23 @@ Gateway::initGateway()
  * @return
  */
 bool
-Gateway::initWebSocketServer(const std::string &address,
-                             const uint16_t port)
+Gateway::initWebSocketServer(const std::string &group)
 {
-    WebSocketServer* server = new WebSocketServer(address, port);
+    bool success = false;
+
+    // get port from config
+    const uint16_t port = static_cast<uint16_t>(GET_INT_CONFIG(group, "websocket_port", success));
+    if(success == false) {
+        return false;
+    }
+
+    // get ip to bind from config
+    const std::string ip = GET_STRING_CONFIG(group, "ip", success);
+    if(success == false) {
+        return false;
+    }
+
+    WebSocketServer* server = new WebSocketServer(ip, port);
     server->startThread();
 
     return true;
@@ -79,10 +151,23 @@ Gateway::initWebSocketServer(const std::string &address,
  * @return
  */
 bool
-Gateway::initHttpServer(const std::string &address,
-                        const uint16_t port)
+Gateway::initHttpServer(const std::string &group)
 {
-    HttpServer* httpServer = new HttpServer(address, port);
+    bool success = false;
+
+    // get port from config
+    const uint16_t port = static_cast<uint16_t>(GET_INT_CONFIG(group, "http_port", success));
+    if(success == false) {
+        return false;
+    }
+
+    // get ip to bind from config
+    const std::string ip = GET_STRING_CONFIG(group, "ip", success);
+    if(success == false) {
+        return false;
+    }
+
+    HttpServer* httpServer = new HttpServer(ip, port);
     httpServer->startThread();
 
     return true;
