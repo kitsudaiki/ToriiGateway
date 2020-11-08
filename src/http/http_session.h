@@ -19,6 +19,12 @@ namespace http = beast::http;           // from <boost/beast/http.hpp>
 namespace net = boost::asio;            // from <boost/asio.hpp>
 using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 
+namespace Kitsunemimi {
+namespace Sakura {
+class MessagingClient;
+}
+}
+
 class HttpSession
         : public Kitsunemimi::Thread
 {
@@ -29,7 +35,7 @@ protected:
     void run();
 
     tcp::socket m_socket;
-
+    Kitsunemimi::Sakura::MessagingClient* m_client = nullptr;
     beast::flat_buffer m_buffer{8192};
     http::request<http::dynamic_body> m_request;
     http::response<http::dynamic_body> m_response;

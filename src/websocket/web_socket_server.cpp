@@ -1,6 +1,7 @@
 #include "web_socket_server.h"
 
 #include <websocket/web_socket_session.h>
+#include <libKitsunemimiPersistence/logger/logger.h>
 
 WebSocketServer::WebSocketServer(const std::string &address,
                                  const uint16_t port)
@@ -12,6 +13,8 @@ WebSocketServer::WebSocketServer(const std::string &address,
 void
 WebSocketServer::run()
 {
+    LOG_INFO("start Websocket-server on address " + m_address
+             + " and port " + std::to_string(m_port));
     try
     {
         const net::ip::address address = net::ip::make_address(m_address);

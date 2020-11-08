@@ -31,7 +31,13 @@ using Kitsunemimi::Sakura::SakuraLangInterface;
 /**
  * @brief GatewayServer::GatewayServer
  */
-Gateway::Gateway() {}
+Gateway::Gateway()
+{
+    std::vector<std::string> groups = { "KyoukoMind" };
+    Kitsunemimi::Sakura::MessagingController::initializeMessagingController("ToriiGateway",
+                                                                            groups,
+                                                                            false);
+}
 
 /**
  * @brief Gateway::~Gateway

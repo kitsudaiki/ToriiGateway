@@ -1,6 +1,7 @@
 #include "http_server.h"
 
 #include <http/http_session.h>
+#include <libKitsunemimiPersistence/logger/logger.h>
 
 HttpServer::HttpServer(const std::string &address,
                        const uint16_t port)
@@ -12,6 +13,7 @@ HttpServer::HttpServer(const std::string &address,
 void
 HttpServer::run()
 {
+    LOG_INFO("start HTTP-server on address " + m_address + " and port " + std::to_string(m_port));
     try
     {
         const net::ip::address address = net::ip::make_address(m_address);

@@ -1,5 +1,6 @@
 #include "http_session.h"
 
+#include <libKitsunemimiConfig/config_handler.h>
 #include <libKitsunemimiCommon/common_items/data_items.h>
 
 #include <libKitsunemimiSakuraMessaging/messaging_controller.h>
@@ -57,18 +58,17 @@ HttpSession::createResponse()
 {
     if(m_request.target() == "/count")
     {
-        Kitsunemimi::Sakura::MessagingClient* client = nullptr;
-        client = MessagingController::getInstance()->getClient("ToriiGateway");
+        m_client = MessagingController::getInstance()->getClient("KyoukoMind");
         std::string errorMessage = "";
         Kitsunemimi::DataMap inputValues;
         inputValues.insert("input", new Kitsunemimi::DataValue(42));
         inputValues.insert("test_output", new Kitsunemimi::DataValue(""));
 
         Kitsunemimi::DataMap resultingItem;
-        client->triggerSakuraFile(resultingItem,
-                                  "test-tree",
-                                  inputValues.toString(),
-                                  errorMessage);
+        m_client->triggerSakuraFile(resultingItem,
+                                    "test-tree",
+                                    inputValues,
+                                    errorMessage);
 
 
         m_response.set(http::field::content_type, "text/json");

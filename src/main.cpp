@@ -36,6 +36,7 @@ int main(int argc, char *argv[])
         configPath = "/etc/ToriiGateway/ToriiGateway.conf";
     }
     Kitsunemimi::Config::initConfig(configPath);
+    registerConfigs();
 
     // get config-parameter for logger
     bool success = false;

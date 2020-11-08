@@ -30,7 +30,8 @@ registerConfigs()
     REGISTER_STRING_CONFIG("control", "ip", "0.0.0.0");
     REGISTER_INT_CONFIG("control", "http_port", 12347);
 
-    REGISTER_STRING_CONFIG("KyoukoMind", "socket", "/tmp/KyoukoMind_uds.sock");
+    REGISTER_STRING_CONFIG("KyoukoMind", "address", "/tmp/KyoukoMind_uds.sock");
+    REGISTER_INT_CONFIG("KyoukoMind", "port", 0);
 }
 
 #endif // GATEWAY_CONFIG_H
