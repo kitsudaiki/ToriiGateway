@@ -50,9 +50,15 @@ int main(int argc, char *argv[])
 
     // init gateway
     Gateway gateway;
-    gateway.initClient();
-    gateway.initMonitoring();
-    gateway.initControl();
+    if(gateway.initClient() == false) {
+        return 1;
+    }
+    if(gateway.initMonitoring() == false) {
+        return 1;
+    }
+    if(gateway.initControl() == false) {
+        return 1;
+    }
 
     int a = 0;
     std::cin >> a;

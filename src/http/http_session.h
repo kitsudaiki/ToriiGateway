@@ -28,7 +28,6 @@ public:
 protected:
     void run();
 
-private:
     tcp::socket m_socket;
 
     beast::flat_buffer m_buffer{8192};

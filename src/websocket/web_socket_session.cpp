@@ -9,27 +9,6 @@ WebSocketSession::WebSocketSession(tcp::socket &&socket)
 void
 WebSocketSession::run()
 {
-    srand(time(NULL));
-    std::string testString = "[";
-
-    for(uint32_t i = 0; i < 25; i++)
-    {
-        for(uint32_t j = 0; j < 25; j++)
-        {
-            if(i != 0
-                    || j != 0)
-            {
-                testString += ",";
-            }
-            testString += "[" + std::to_string(i)
-                        + "," + std::to_string(j)
-                        + "," + std::to_string(rand() % 200)
-                        + "]";
-        }
-    }
-    testString += "]";
-    std::cout<<testString<<std::endl;
-
     try
     {
         // Set a decorator to change the Server of the handshake
@@ -58,8 +37,8 @@ WebSocketSession::run()
             //m_webSocket.text(m_webSocket.got_text());
             //m_webSocket.write(buffer.data());
             m_webSocket.text(true);
-            boost::beast::ostream(buffer) << testString;
-            std::cout<<"send: "<<testString<<std::endl;
+            //boost::beast::ostream(buffer) << testString;
+            //std::cout<<"send: "<<testString<<std::endl;
             m_webSocket.write(buffer.data());
             sleepThread(100000);
         }

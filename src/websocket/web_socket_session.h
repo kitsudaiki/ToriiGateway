@@ -28,7 +28,6 @@ public:
 protected:
     void run();
 
-private:
     websocket::stream<beast::tcp_stream> m_webSocket;
 };
 

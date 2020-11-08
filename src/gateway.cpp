@@ -47,7 +47,7 @@ Gateway::initClient()
 {
     const std::string groupName = "client";
     if(isEnables(groupName) == false) {
-        return false;
+        return true;
     }
 
     if(initHttpServer(groupName) == false) {
@@ -70,7 +70,7 @@ Gateway::initMonitoring()
 {
     const std::string groupName = "monitoring";
     if(isEnables(groupName) == false) {
-        return false;
+        return true;
     }
 
     if(initHttpServer(groupName) == false) {
@@ -93,7 +93,7 @@ Gateway::initControl()
 {
     const std::string groupName = "control";
     if(isEnables(groupName) == false) {
-        return false;
+        return true;
     }
 
     return initHttpServer(groupName);
