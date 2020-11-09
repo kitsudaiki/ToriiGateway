@@ -24,7 +24,8 @@
 #include <libKitsunemimiPersistence/files/text_file.h>
 
 using Kitsunemimi::Sakura::SakuraLangInterface;
-
+using Kitsunemimi::Sakura::MessagingController;
+using Kitsunemimi::Sakura::MessagingClient;
 
 #include <websocket/web_socket_server.h>
 #include <http/http_server.h>
@@ -33,16 +34,42 @@ using Kitsunemimi::Sakura::SakuraLangInterface;
  */
 Gateway::Gateway()
 {
-    std::vector<std::string> groups = { "KyoukoMind" };
-    Kitsunemimi::Sakura::MessagingController::initializeMessagingController("ToriiGateway",
-                                                                            groups,
-                                                                            false);
+    std::vector<std::string> groups = {};
+    MessagingController::initializeMessagingController("ToriiGateway", groups, false);
 }
 
 /**
  * @brief Gateway::~Gateway
  */
 Gateway::~Gateway() {}
+
+/**
+ * @brief Gateway::initInternalSession
+ * @return
+ */
+bool
+Gateway::initInternalSession()
+{
+    MessagingClient* newClient = nullptr;
+    bool success = false;
+
+    const std::string address = GET_STRING_CONFIG("KyoukoMind", "address", success);
+    const uint16_t port = static_cast<uint16_t>(GET_INT_CONFIG("KyoukoMind", "port", success));
+
+    const std::string clients[3] = {"control", "client", "monitoring"};
+    for(const std::string &clientName : clients)
+    {
+        newClient = MessagingController::getInstance()->createClient(clientName,
+                                                                     clientName,
+                                                                     address,
+                                                                     port);
+        if(newClient == nullptr) {
+            return false;
+        }
+    }
+
+    return true;
+}
 
 /**
  * @brief Gateway::initClient

@@ -18,6 +18,7 @@ public:
     Gateway();
     ~Gateway();
 
+    bool initInternalSession();
     bool initClient();
     bool initMonitoring();
     bool initControl();

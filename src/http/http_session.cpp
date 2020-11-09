@@ -58,7 +58,7 @@ HttpSession::createResponse()
 {
     if(m_request.target() == "/count")
     {
-        m_client = MessagingController::getInstance()->getClient("KyoukoMind");
+        m_client = MessagingController::getInstance()->getClient("control");
         std::string errorMessage = "";
         Kitsunemimi::DataMap inputValues;
         inputValues.insert("input", new Kitsunemimi::DataValue(42));
