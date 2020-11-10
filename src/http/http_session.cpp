@@ -68,12 +68,10 @@ HttpSession::processRequest()
  * @param resp
  */
 void
-HttpSession::createResponse()
+HttpSession::sendFileFromLocalLocation()
 {
     // create file-path
-    bool success = false;
-    std::string path = GET_STRING_CONFIG("monitoring", "location", success);
-    assert(success);
+    std::string path = m_fileLocation;
     path += m_request.target().to_string();
     if(m_request.target() == "/") {
         path += "index.html";

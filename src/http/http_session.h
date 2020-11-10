@@ -39,13 +39,14 @@ protected:
     void run();
 
     tcp::socket m_socket;
+    std::string m_fileLocation = "";
     Kitsunemimi::Sakura::MessagingClient* m_client = nullptr;
     beast::flat_buffer m_buffer{8192};
     http::request<http::dynamic_body> m_request;
     http::response<http::dynamic_body> m_response;
 
     void processRequest();
-    void createResponse();
+    void sendFileFromLocalLocation();
     void sendResponse();
 
     virtual void processGetRequest() = 0;
