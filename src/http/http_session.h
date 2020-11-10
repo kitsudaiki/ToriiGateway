@@ -11,6 +11,7 @@
 #include <memory>
 #include <string>
 #include <thread>
+#include <boost/filesystem.hpp>
 
 #include <libKitsunemimiCommon/threading/thread.h>
 

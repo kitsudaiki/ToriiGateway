@@ -2,6 +2,7 @@
 
 #include <libKitsunemimiConfig/config_handler.h>
 #include <libKitsunemimiCommon/common_items/data_items.h>
+#include <libKitsunemimiPersistence/files/text_file.h>
 
 #include <libKitsunemimiSakuraMessaging/messaging_controller.h>
 #include <libKitsunemimiSakuraMessaging/messaging_client.h>
@@ -56,7 +57,8 @@ HttpSession::processRequest()
 void
 HttpSession::createResponse()
 {
-    if(m_request.target() == "/count")
+
+    /*if(m_request.target() == "/count")
     {
         m_client = MessagingController::getInstance()->getClient("control");
         std::string errorMessage = "";
@@ -74,19 +76,37 @@ HttpSession::createResponse()
         m_response.set(http::field::content_type, "text/json");
         beast::ostream(m_response.body()) << resultingItem.toString();
     }
-    else if(m_request.target() == "/time")
+    else if(m_request.target() == "/")
     {
         m_response.set(http::field::content_type, "text/html");
         beast::ostream(m_response.body())
             <<  "<html>\n"
             <<  "</html>\n";
+    }*/
+
+    bool success = false;
+    std::string path = GET_STRING_CONFIG("monitoring", "location", success);
+    assert(success);
+    path += m_request.target().to_string();
+
+    if(m_request.target() == "/") {
+        path += "index.html";
     }
-    else
-    {
-        m_response.result(http::status::not_found);
+
+    boost::filesystem::path pathObj(path);
+    const std::string extension = pathObj.extension().string();
+    if(pathObj.extension().string() == ".html") {
+        m_response.set(http::field::content_type, "text/html");
+    } else if(pathObj.extension().string() == ".css") {
+        m_response.set(http::field::content_type, "text/css");
+    } else {
         m_response.set(http::field::content_type, "text/plain");
-        beast::ostream(m_response.body()) << "File not found\r\n";
     }
+
+    std::string fileContent = "";
+    std::string errorMessage = "";
+    assert(Kitsunemimi::Persistence::readFile(fileContent, path, errorMessage));
+    beast::ostream(m_response.body()) << fileContent;
 }
 
 /**
