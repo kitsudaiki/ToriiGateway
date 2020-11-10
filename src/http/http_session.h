@@ -23,8 +23,11 @@ using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 namespace Kitsunemimi {
 namespace Sakura {
 class MessagingClient;
+class MessagingController;
 }
 }
+
+using Kitsunemimi::Sakura::MessagingController;
 
 class HttpSession
         : public Kitsunemimi::Thread
@@ -44,6 +47,11 @@ protected:
     void processRequest();
     void createResponse();
     void sendResponse();
+
+    virtual void processGetRequest() = 0;
+    virtual void processPostRequest() = 0;
+    virtual void processPutRequest() = 0;
+    virtual void processDelesteRequest() = 0;
 };
 
 #endif // HTTP_SESSION_H

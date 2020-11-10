@@ -200,7 +200,7 @@ Gateway::initHttpServer(const std::string &group)
         return false;
     }
 
-    HttpServer* httpServer = new HttpServer(ip, port);
+    HttpServer* httpServer = new HttpServer(ip, port, group);
     httpServer->startThread();
 
     return true;

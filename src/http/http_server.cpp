@@ -1,13 +1,18 @@
 #include "http_server.h"
 
-#include <http/http_session.h>
+#include <http/client_http_session.h>
+#include <http/control_http_session.h>
+#include <http/monitoring_http_session.h>
+
 #include <libKitsunemimiPersistence/logger/logger.h>
 
 HttpServer::HttpServer(const std::string &address,
-                       const uint16_t port)
+                       const uint16_t port,
+                       const std::string &type)
 {
     m_address = address;
     m_port = port;
+    m_type = type;
 }
 
 void
@@ -25,7 +30,17 @@ HttpServer::run()
             tcp::socket socket{ioc};
             acceptor.accept(socket);
 
-            HttpSession* session = new HttpSession(std::move(socket));
+            HttpSession* session = nullptr;
+            if(m_type == "client") {
+                session = new ClientHttpSession(std::move(socket));
+            }
+            if(m_type == "control") {
+                session = new ControlHttpSession(std::move(socket));
+            }
+            if(m_type == "monitoring") {
+                session = new MonitoringHttpSession(std::move(socket));
+            }
+
             session->startThread();
             m_activeSession.push_back(session);
         }
