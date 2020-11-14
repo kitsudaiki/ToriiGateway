@@ -1,9 +1,23 @@
 #include "web_socket_session.h"
 
+#include <libKitsunemimiSakuraMessaging/messaging_client.h>
+#include <libKitsunemimiSakuraMessaging/messaging_controller.h>
+
 WebSocketSession::WebSocketSession(tcp::socket &&socket)
     : m_webSocket(std::move(socket))
 {
 
+}
+
+bool
+WebSocketSession::sendText(const std::string &text)
+{
+    beast::flat_buffer buffer;
+    m_webSocket.text(true);
+    boost::beast::ostream(buffer) << text;
+    m_webSocket.write(buffer.data());
+
+    return true;
 }
 
 void
@@ -24,23 +38,13 @@ WebSocketSession::run()
 
         while(m_abort == false)
         {
-            // This buffer will hold the incoming message
             beast::flat_buffer buffer;
-
-            // Read a message
-            //m_webSocket.read(buffer);
+            m_webSocket.read(buffer);
+            m_client->sendStreamData(buffer.data().data(), buffer.data().size());
 
             //char* content = static_cast<char*>(buffer.data().data());
             //const std::string text(content, buffer.data().size());
-            //std::cout<<"poi: "<<text<<std::endl;
-            // Echo the message back
-            //m_webSocket.text(m_webSocket.got_text());
-            //m_webSocket.write(buffer.data());
-            m_webSocket.text(true);
-            //boost::beast::ostream(buffer) << testString;
-            //std::cout<<"send: "<<testString<<std::endl;
-            m_webSocket.write(buffer.data());
-            sleepThread(100000);
+            //sleepThread(100000);
         }
     }
     catch(const beast::system_error& se)

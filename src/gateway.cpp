@@ -28,7 +28,33 @@ using Kitsunemimi::Sakura::MessagingController;
 using Kitsunemimi::Sakura::MessagingClient;
 
 #include <websocket/web_socket_server.h>
+#include <websocket/web_socket_session.h>
 #include <http/http_server.h>
+
+void
+processStreamData(void* target,
+                  const std::string& identifier,
+                  const void* data,
+                  const uint64_t dataSize)
+{
+    Gateway* gateway = static_cast<Gateway*>(target);
+    WebSocketServer* server = gateway->m_websocketServer;
+    const std::string text(static_cast<const char*>(data), dataSize);
+
+    if(identifier == "client")
+    {
+        for(uint64_t i = 0; i < server->m_activeClientSessions.size(); i++) {
+            server->m_activeClientSessions.at(i)->sendText(text);
+        }
+    }
+    if(identifier == "monitoring")
+    {
+        for(uint64_t i = 0; i < server->m_activeMonitoringSessions.size(); i++) {
+            server->m_activeMonitoringSessions.at(i)->sendText(text);
+        }
+    }
+}
+
 /**
  * @brief GatewayServer::GatewayServer
  */
@@ -36,6 +62,7 @@ Gateway::Gateway()
 {
     std::vector<std::string> groups = {};
     MessagingController::initializeMessagingController("ToriiGateway", groups, false);
+    MessagingController::getInstance()->setStreamCallback(this, &processStreamData);
 }
 
 /**
@@ -171,8 +198,8 @@ Gateway::initWebSocketServer(const std::string &group)
         return false;
     }
 
-    WebSocketServer* server = new WebSocketServer(ip, port);
-    server->startThread();
+    m_websocketServer = new WebSocketServer(ip, port, group);
+    m_websocketServer->startThread();
 
     return true;
 }
@@ -200,8 +227,8 @@ Gateway::initHttpServer(const std::string &group)
         return false;
     }
 
-    HttpServer* httpServer = new HttpServer(ip, port, group);
-    httpServer->startThread();
+    m_httpServer = new HttpServer(ip, port, group);
+    m_httpServer->startThread();
 
     return true;
 }

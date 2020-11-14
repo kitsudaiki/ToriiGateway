@@ -12,6 +12,9 @@
 
 #include <iostream>
 
+class WebSocketServer;
+class HttpServer;
+
 class Gateway
 {
 public:
@@ -22,6 +25,9 @@ public:
     bool initClient();
     bool initMonitoring();
     bool initControl();
+
+    WebSocketServer* m_websocketServer = nullptr;
+    HttpServer* m_httpServer = nullptr;
 
 private:
     bool isEnables(const std::string &group);

@@ -19,15 +19,27 @@ namespace websocket = beast::websocket; // from <boost/beast/websocket.hpp>
 namespace net = boost::asio;            // from <boost/asio.hpp>
 using tcp = boost::asio::ip::tcp;
 
+namespace Kitsunemimi {
+namespace Sakura {
+class MessagingClient;
+class MessagingController;
+}
+}
+
+using Kitsunemimi::Sakura::MessagingController;
+
 class WebSocketSession
         : public Kitsunemimi::Thread
 {
 public:
     WebSocketSession(tcp::socket &&socket);
 
+    bool sendText(const std::string &text);
+
 protected:
     void run();
 
+    Kitsunemimi::Sakura::MessagingClient* m_client = nullptr;
     websocket::stream<beast::tcp_stream> m_webSocket;
 };
 
