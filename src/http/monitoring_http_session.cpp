@@ -17,26 +17,9 @@ MonitoringHttpSession::MonitoringHttpSession(tcp::socket &&socket)
 bool
 MonitoringHttpSession::processGetRequest()
 {
-    if(m_request.target() == "/websocket")
-    {
-        bool success = false;
-        const uint16_t port = static_cast<uint16_t>(GET_INT_CONFIG("monitoring",
-                                                                   "websocket_port",
-                                                                   success));
-        const std::string ip = GET_STRING_CONFIG("monitoring",
-                                                 "ip",
-                                                 success);
-
-        const std::string result = "{\"port\":"
-                                   + std::to_string(port)
-                                   + ",\"ip\":\""
-                                   + ip
-                                   + "\"}";
-        m_response.set(http::field::content_type, "text/json");
-        beast::ostream(m_response.body()) << result;
-    }
-    else
-    {
+    if(m_request.target() == "/websocket") {
+        assert(sendWebsocketInfo("monitoring"));
+    } else {
         sendFileFromLocalLocation();
     }
 

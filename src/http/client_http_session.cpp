@@ -17,7 +17,13 @@ ClientHttpSession::ClientHttpSession(tcp::socket &&socket)
 bool
 ClientHttpSession::processGetRequest()
 {
-    return false;
+    if(m_request.target() == "/websocket") {
+        assert(sendWebsocketInfo("client"));
+    } else {
+        sendFileFromLocalLocation();
+    }
+
+    return true;
 }
 
 bool

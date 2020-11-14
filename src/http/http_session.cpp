@@ -121,6 +121,46 @@ HttpSession::sendFileFromLocalLocation()
 }
 
 /**
+ * @brief HttpSession::sendWebsocketInfo
+ * @param client
+ * @return
+ */
+bool
+HttpSession::sendWebsocketInfo(const std::string &client)
+{
+    bool success = false;
+    const uint16_t port = static_cast<uint16_t>(GET_INT_CONFIG(client, "websocket_port", success));
+    if(success == false) {
+        return false;
+    }
+
+    const std::string ip = GET_STRING_CONFIG(client, "ip", success);
+    if(success == false) {
+        return false;
+    }
+
+    const std::string result = "{\"port\":"
+                               + std::to_string(port)
+                               + ",\"ip\":\""
+                               + ip
+                               + "\"}";
+    m_response.set(http::field::content_type, "text/json");
+    beast::ostream(m_response.body()) << result;
+
+    return true;
+}
+
+/**
+ * @brief HttpSession::sendControlInfo
+ * @return
+ */
+bool
+HttpSession::sendControlInfo()
+{
+
+}
+
+/**
  * @brief HttpConnection::sendResponse
  * @param resp
  */
