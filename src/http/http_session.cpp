@@ -28,25 +28,41 @@ HttpSession::processRequest()
     {
         case http::verb::get:
         {
-            processGetRequest();
+            if(processGetRequest() == false)
+            {
+                m_response.result(http::status::not_found);
+                m_response.set(http::field::content_type, "text/plain");
+            }
             break;
         }
 
         case http::verb::post:
         {
-            processPostRequest();
+            if(processPostRequest() == false)
+            {
+                m_response.result(http::status::not_found);
+                m_response.set(http::field::content_type, "text/plain");
+            }
             break;
         }
 
         case http::verb::put:
         {
-            processPutRequest();
+            if(processPutRequest() == false)
+            {
+                m_response.result(http::status::not_found);
+                m_response.set(http::field::content_type, "text/plain");
+            }
             break;
         }
 
         case http::verb::delete_:
         {
-            processDelesteRequest();
+            if(processDelesteRequest() == false)
+            {
+                m_response.result(http::status::not_found);
+                m_response.set(http::field::content_type, "text/plain");
+            }
             break;
         }
 
@@ -67,7 +83,7 @@ HttpSession::processRequest()
  * @brief HttpConnection::createResponse
  * @param resp
  */
-void
+bool
 HttpSession::sendFileFromLocalLocation()
 {
     // create file-path
@@ -94,13 +110,14 @@ HttpSession::sendFileFromLocalLocation()
     if(Kitsunemimi::Persistence::readFile(fileContent, path, errorMessage))
     {
         beast::ostream(m_response.body()) << fileContent;
+        return true;
     }
-    else
-    {
-        m_response.result(http::status::internal_server_error);
-        m_response.set(http::field::content_type, "text/html");
-        LOG_ERROR(errorMessage);
-    }
+
+    m_response.result(http::status::internal_server_error);
+    m_response.set(http::field::content_type, "text/plain");
+    LOG_ERROR(errorMessage);
+
+    return false;
 }
 
 /**

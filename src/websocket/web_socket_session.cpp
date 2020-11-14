@@ -15,8 +15,8 @@ WebSocketSession::run()
         m_webSocket.set_option(websocket::stream_base::decorator(
             [](websocket::response_type& res)
             {
-                res.set(http::field::server, std::string(BOOST_BEAST_VERSION_STRING) +
-                                             " websocket-server-sync");
+                res.set(http::field::server,
+                        std::string(BOOST_BEAST_VERSION_STRING) + " websocket-server-sync");
             }));
 
         // Accept the websocket handshake

@@ -14,26 +14,26 @@ ClientHttpSession::ClientHttpSession(tcp::socket &&socket)
     assert(success);
 }
 
-void
+bool
 ClientHttpSession::processGetRequest()
 {
-
+    return false;
 }
 
-void
+bool
 ClientHttpSession::processPostRequest()
 {
-
+    return false;
 }
 
-void
+bool
 ClientHttpSession::processPutRequest()
 {
-
+    return false;
 }
 
-void
+bool
 ClientHttpSession::processDelesteRequest()
 {
-
+    return false;
 }

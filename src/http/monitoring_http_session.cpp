@@ -14,7 +14,7 @@ MonitoringHttpSession::MonitoringHttpSession(tcp::socket &&socket)
     assert(success);
 }
 
-void
+bool
 MonitoringHttpSession::processGetRequest()
 {
     if(m_request.target() == "/websocket")
@@ -27,7 +27,11 @@ MonitoringHttpSession::processGetRequest()
                                                  "ip",
                                                  success);
 
-        const std::string result = "{\"port\":" + std::to_string(port) + ",\"ip\":\"" + ip + "\"}";
+        const std::string result = "{\"port\":"
+                                   + std::to_string(port)
+                                   + ",\"ip\":\""
+                                   + ip
+                                   + "\"}";
         m_response.set(http::field::content_type, "text/json");
         beast::ostream(m_response.body()) << result;
     }
@@ -35,22 +39,24 @@ MonitoringHttpSession::processGetRequest()
     {
         sendFileFromLocalLocation();
     }
+
+    return true;
 }
 
-void
+bool
 MonitoringHttpSession::processPostRequest()
 {
-
+    return false;
 }
 
-void
+bool
 MonitoringHttpSession::processPutRequest()
 {
-
+    return false;
 }
 
-void
+bool
 MonitoringHttpSession::processDelesteRequest()
 {
-
+    return false;
 }

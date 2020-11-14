@@ -10,10 +10,10 @@ public:
     ControlHttpSession(tcp::socket &&socket);
 
 protected:
-    void processGetRequest();
-    void processPostRequest();
-    void processPutRequest();
-    void processDelesteRequest();
+    bool processGetRequest();
+    bool processPostRequest();
+    bool processPutRequest();
+    bool processDelesteRequest();
 };
 
 #endif // CONTROL_HTTP_SESSION_H

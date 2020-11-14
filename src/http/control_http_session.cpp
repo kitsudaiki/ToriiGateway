@@ -9,26 +9,26 @@ ControlHttpSession::ControlHttpSession(tcp::socket &&socket)
     m_client = MessagingController::getInstance()->getClient("control");
 }
 
-void
+bool
 ControlHttpSession::processGetRequest()
 {
-
+    return false;
 }
 
-void
+bool
 ControlHttpSession::processPostRequest()
 {
-
+    return false;
 }
 
-void
+bool
 ControlHttpSession::processPutRequest()
 {
-
+    return false;
 }
 
-void
+bool
 ControlHttpSession::processDelesteRequest()
 {
-
+    return false;
 }

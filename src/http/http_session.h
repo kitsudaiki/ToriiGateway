@@ -46,13 +46,13 @@ protected:
     http::response<http::dynamic_body> m_response;
 
     void processRequest();
-    void sendFileFromLocalLocation();
+    bool sendFileFromLocalLocation();
     void sendResponse();
 
-    virtual void processGetRequest() = 0;
-    virtual void processPostRequest() = 0;
-    virtual void processPutRequest() = 0;
-    virtual void processDelesteRequest() = 0;
+    virtual bool processGetRequest() = 0;
+    virtual bool processPostRequest() = 0;
+    virtual bool processPutRequest() = 0;
+    virtual bool processDelesteRequest() = 0;
 };
 
 #endif // HTTP_SESSION_H
