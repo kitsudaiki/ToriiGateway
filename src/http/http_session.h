@@ -42,7 +42,7 @@ protected:
     std::string m_fileLocation = "";
     Kitsunemimi::Sakura::MessagingClient* m_client = nullptr;
     beast::flat_buffer m_buffer{8192};
-    http::request<http::dynamic_body> m_request;
+    http::request<http::string_body> m_request;
     http::response<http::dynamic_body> m_response;
 
     void processRequest();

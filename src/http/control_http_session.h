@@ -2,6 +2,7 @@
 #define CONTROL_HTTP_SESSION_H
 
 #include <http/http_session.h>
+#include <libKitsunemimiCommon/common_items/data_items.h>
 
 class ControlHttpSession
         : public HttpSession
