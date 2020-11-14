@@ -18,7 +18,9 @@ bool
 ClientHttpSession::processGetRequest()
 {
     if(m_request.target() == "/websocket") {
-        assert(sendWebsocketInfo("client"));
+        assert(sendConnectionInfo("client", "websocket_port"));
+    } else if(m_request.target() == "/control") {
+        assert(sendConnectionInfo("control", "http_port"));
     } else {
         sendFileFromLocalLocation();
     }

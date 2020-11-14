@@ -18,7 +18,9 @@ bool
 MonitoringHttpSession::processGetRequest()
 {
     if(m_request.target() == "/websocket") {
-        assert(sendWebsocketInfo("monitoring"));
+        assert(sendConnectionInfo("monitoring", "websocket_port"));
+    } else if(m_request.target() == "/control") {
+        assert(sendConnectionInfo("control", "http_port"));
     } else {
         sendFileFromLocalLocation();
     }

@@ -121,15 +121,17 @@ HttpSession::sendFileFromLocalLocation()
 }
 
 /**
- * @brief HttpSession::sendWebsocketInfo
+ * @brief HttpSession::sendConnectionInfo
  * @param client
+ * @param portName
  * @return
  */
 bool
-HttpSession::sendWebsocketInfo(const std::string &client)
+HttpSession::sendConnectionInfo(const std::string &client,
+                                const std::string &portName)
 {
     bool success = false;
-    const uint16_t port = static_cast<uint16_t>(GET_INT_CONFIG(client, "websocket_port", success));
+    const uint16_t port = static_cast<uint16_t>(GET_INT_CONFIG(client, portName, success));
     if(success == false) {
         return false;
     }
@@ -148,16 +150,6 @@ HttpSession::sendWebsocketInfo(const std::string &client)
     beast::ostream(m_response.body()) << result;
 
     return true;
-}
-
-/**
- * @brief HttpSession::sendControlInfo
- * @return
- */
-bool
-HttpSession::sendControlInfo()
-{
-
 }
 
 /**

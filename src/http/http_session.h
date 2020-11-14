@@ -47,7 +47,7 @@ protected:
 
     void processRequest();
     bool sendFileFromLocalLocation();
-    bool sendWebsocketInfo(const std::string &client);
+    bool sendConnectionInfo(const std::string &client, const std::string &portName);
     bool sendControlInfo();
 
     void sendResponse();
