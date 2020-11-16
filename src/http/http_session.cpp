@@ -100,6 +100,8 @@ HttpSession::sendFileFromLocalLocation()
         m_response.set(http::field::content_type, "text/html");
     } else if(pathObj.extension().string() == ".css") {
         m_response.set(http::field::content_type, "text/css");
+    } else if(pathObj.extension().string() == ".js") {
+        m_response.set(http::field::content_type, "text/javascript");
     } else {
         m_response.set(http::field::content_type, "text/plain");
     }
