@@ -95,4 +95,5 @@ HEADERS += \
     src/http/monitoring_http_session.h \
     src/http/control_http_session.h \
     src/websocket/client_web_socket_session.h \
-    src/websocket/monitoring_web_socket_session.h
+    src/websocket/monitoring_web_socket_session.h \
+    src/callbacks.h

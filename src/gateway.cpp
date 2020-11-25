@@ -23,6 +23,8 @@
 
 #include "gateway.h"
 
+#include <callbacks.h>
+
 #include <libKitsunemimiPersistence/logger/logger.h>
 
 #include <libKitsunemimiConfig/config_handler.h>
@@ -45,38 +47,17 @@ using Kitsunemimi::Sakura::MessagingClient;
 #include <websocket/web_socket_session.h>
 #include <http/http_server.h>
 
-void
-processStreamData(void* target,
-                  const std::string& identifier,
-                  const void* data,
-                  const uint64_t dataSize)
-{
-    Gateway* gateway = static_cast<Gateway*>(target);
-    WebSocketServer* server = gateway->m_websocketServer;
-    const std::string text(static_cast<const char*>(data), dataSize);
-
-    if(identifier == "client")
-    {
-        for(uint64_t i = 0; i < server->m_activeClientSessions.size(); i++) {
-            server->m_activeClientSessions.at(i)->sendText(text);
-        }
-    }
-    if(identifier == "monitoring")
-    {
-        for(uint64_t i = 0; i < server->m_activeMonitoringSessions.size(); i++) {
-            server->m_activeMonitoringSessions.at(i)->sendText(text);
-        }
-    }
-}
-
 /**
  * @brief GatewayServer::GatewayServer
  */
 Gateway::Gateway()
 {
     std::vector<std::string> groups = {};
-    MessagingController::initializeMessagingController("ToriiGateway", groups, false);
-    MessagingController::getInstance()->setStreamCallback(this, &processStreamData);
+    MessagingController::initializeMessagingController("ToriiGateway",
+                                                       groups,
+                                                       this,
+                                                       &sessionCallback,
+                                                       false);
 }
 
 /**
