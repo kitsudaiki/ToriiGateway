@@ -75,9 +75,11 @@ WebSocketSession::run()
         if(se.code() != websocket::error::closed) {
             std::cerr << "Error: " << se.code().message() << std::endl;
         }
+        scheduleThreadForDeletion();
     }
     catch(const std::exception& e)
     {
         std::cerr << "Error: " << e.what() << std::endl;
+        scheduleThreadForDeletion();
     }
 }
