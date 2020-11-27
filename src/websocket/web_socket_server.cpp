@@ -22,8 +22,7 @@
 
 #include "web_socket_server.h"
 
-#include <websocket/client_web_socket_session.h>
-#include <websocket/monitoring_web_socket_session.h>
+#include <websocket/web_socket_session.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 
@@ -39,8 +38,10 @@ WebSocketServer::WebSocketServer(const std::string &address,
 void
 WebSocketServer::run()
 {
-    LOG_INFO("start Websocket-server on address " + m_address
-             + " and port " + std::to_string(m_port));
+    LOG_INFO("start Websocket-server on address "
+             + m_address
+             + " and port "
+             + std::to_string(m_port));
     try
     {
         const net::ip::address address = net::ip::make_address(m_address);
@@ -52,15 +53,11 @@ WebSocketServer::run()
             tcp::socket socket{ioc};
             acceptor.accept(socket);
 
-            WebSocketSession* session = nullptr;
-            if(m_type == "client")
-            {
-                session = new ClientWebSocketSession(std::move(socket));
+            WebSocketSession* session = new WebSocketSession(std::move(socket), m_type);
+            if(m_type == "client") {
                 m_activeClientSessions.push_back(session);
             }
-            if(m_type == "monitoring")
-            {
-                session = new MonitoringWebSocketSession(std::move(socket));
+            if(m_type == "monitoring") {
                 m_activeMonitoringSessions.push_back(session);
             }
 

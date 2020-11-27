@@ -25,10 +25,10 @@
 #include <libKitsunemimiSakuraMessaging/messaging_client.h>
 #include <libKitsunemimiSakuraMessaging/messaging_controller.h>
 
-WebSocketSession::WebSocketSession(tcp::socket &&socket)
+WebSocketSession::WebSocketSession(tcp::socket &&socket, const std::string &type)
     : m_webSocket(std::move(socket))
 {
-
+    m_client = MessagingController::getInstance()->getClient(type);
 }
 
 bool
@@ -63,15 +63,10 @@ WebSocketSession::run()
             beast::flat_buffer buffer;
             m_webSocket.read(buffer);
             m_client->sendStreamData(buffer.data().data(), buffer.data().size());
-
-            //char* content = static_cast<char*>(buffer.data().data());
-            //const std::string text(content, buffer.data().size());
-            //sleepThread(100000);
         }
     }
     catch(const beast::system_error& se)
     {
-        // This indicates that the session was closed
         if(se.code() != websocket::error::closed) {
             std::cerr << "Error: " << se.code().message() << std::endl;
         }

@@ -54,7 +54,7 @@ class WebSocketSession
         : public Kitsunemimi::Thread
 {
 public:
-    WebSocketSession(tcp::socket &&socket);
+    WebSocketSession(tcp::socket &&socket, const std::string &type);
 
     bool sendText(const std::string &text);
 
