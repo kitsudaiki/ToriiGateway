@@ -36,6 +36,42 @@ HttpSession::HttpSession(tcp::socket &&socket)
 }
 
 /**
+ * @brief HttpSession::processEvent
+ * @return
+ */
+bool
+HttpSession::processEvent()
+{
+    beast::error_code ec;
+
+    // This buffer is required to persist across reads
+    beast::flat_buffer buffer;
+
+    // Read a request
+    http::read(m_socket, buffer, m_request, ec);
+    if(ec == http::error::end_of_stream) {
+        return false;
+    }
+
+    if(ec) {
+        std::cerr << "read" << ": " << ec.message() << "\n";
+    }
+
+    processRequest();
+    sendResponse();
+
+    // Send the response
+    if(ec) {
+        std::cerr << "write" << ": " << ec.message() << "\n";
+    }
+
+    // Send a TCP shutdown
+    m_socket.shutdown(tcp::socket::shutdown_send, ec);
+
+    return true;
+}
+
+/**
  * @brief HttpConnection::processRequest
  */
 void
@@ -172,9 +208,6 @@ HttpSession::sendConnectionInfo(const std::string &client,
                                + "\"}";
     m_response.set(http::field::content_type, "text/json");
     beast::ostream(m_response.body()) << result;
-    if(m_response.need_eof()) {
-        m_abort = true;
-    }
 
     return true;
 }
@@ -189,42 +222,4 @@ HttpSession::sendResponse()
     beast::error_code ec;
     m_response.content_length(m_response.body().size());
     http::write(m_socket, m_response, ec);
-}
-
-/**
- * @brief HttpSession::run
- */
-void
-HttpSession::run()
-{
-    beast::error_code ec;
-
-    // This buffer is required to persist across reads
-    beast::flat_buffer buffer;
-
-    while(m_abort == false)
-    {
-        // Read a request
-        http::read(m_socket, buffer, m_request, ec);
-        if(ec == http::error::end_of_stream) {
-            break;
-        }
-
-        if(ec) {
-            std::cerr << "read" << ": " << ec.message() << "\n";
-        }
-
-        processRequest();
-        sendResponse();
-
-        // Send the response
-        if(ec) {
-            std::cerr << "write" << ": " << ec.message() << "\n";
-        }
-    }
-
-    // Send a TCP shutdown
-    m_socket.shutdown(tcp::socket::shutdown_send, ec);
-
-    scheduleThreadForDeletion();
 }

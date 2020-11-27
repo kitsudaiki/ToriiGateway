@@ -32,10 +32,9 @@
 #include <iostream>
 #include <memory>
 #include <string>
-#include <thread>
 #include <boost/filesystem.hpp>
 
-#include <libKitsunemimiCommon/threading/thread.h>
+#include <libKitsunemimiCommon/threading/event.h>
 
 namespace beast = boost::beast;         // from <boost/beast.hpp>
 namespace http = beast::http;           // from <boost/beast/http.hpp>
@@ -52,10 +51,12 @@ class MessagingController;
 using Kitsunemimi::Sakura::MessagingController;
 
 class HttpSession
-        : public Kitsunemimi::Thread
+        : public Kitsunemimi::Event
 {
 public:
     HttpSession(tcp::socket &&socket);
+
+    bool processEvent();
 
 protected:
     void run();

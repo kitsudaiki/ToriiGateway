@@ -79,7 +79,8 @@ SOURCES += \
     src/http/http_session.cpp \
     src/http/client_http_session.cpp \
     src/http/monitoring_http_session.cpp \
-    src/http/control_http_session.cpp
+    src/http/control_http_session.cpp \
+    src/http/http_thread.cpp
 
 HEADERS += \
     src/gateway.h \
@@ -92,4 +93,5 @@ HEADERS += \
     src/http/client_http_session.h \
     src/http/monitoring_http_session.h \
     src/http/control_http_session.h \
-    src/callbacks.h
+    src/callbacks.h \
+    src/http/http_thread.h

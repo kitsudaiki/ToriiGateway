@@ -25,6 +25,7 @@
 #include <http/client_http_session.h>
 #include <http/control_http_session.h>
 #include <http/monitoring_http_session.h>
+#include <http/http_thread.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 
@@ -35,6 +36,9 @@ HttpServer::HttpServer(const std::string &address,
     m_address = address;
     m_port = port;
     m_type = type;
+
+    m_httpThread = new HttpThread();
+    m_httpThread->startThread();
 }
 
 void
@@ -63,8 +67,7 @@ HttpServer::run()
                 session = new MonitoringHttpSession(std::move(socket));
             }
 
-            session->startThread();
-            m_activeSession.push_back(session);
+            m_httpThread->addEventToQueue(session);
         }
     }
     catch (const std::exception& e)

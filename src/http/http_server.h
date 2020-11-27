@@ -36,7 +36,7 @@
 
 #include <libKitsunemimiCommon/threading/thread.h>
 
-class HttpSession;
+class HttpThread;
 
 class HttpServer
         : public Kitsunemimi::Thread
@@ -54,7 +54,7 @@ private:
     uint16_t m_port = 0;
     std::string m_type = "";
 
-    std::vector<HttpSession*> m_activeSession;
+    HttpThread* m_httpThread = nullptr;
 };
 
 #endif // HTTP_SERVER_H
