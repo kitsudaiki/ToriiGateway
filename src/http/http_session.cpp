@@ -172,6 +172,9 @@ HttpSession::sendConnectionInfo(const std::string &client,
                                + "\"}";
     m_response.set(http::field::content_type, "text/json");
     beast::ostream(m_response.body()) << result;
+    if(m_response.need_eof()) {
+        m_abort = true;
+    }
 
     return true;
 }
@@ -194,7 +197,6 @@ HttpSession::sendResponse()
 void
 HttpSession::run()
 {
-    bool close = false;
     beast::error_code ec;
 
     // This buffer is required to persist across reads
@@ -219,17 +221,10 @@ HttpSession::run()
         if(ec) {
             std::cerr << "write" << ": " << ec.message() << "\n";
         }
-
-        if(close)
-        {
-            // This means we should close the connection, usually because
-            // the response indicated the "Connection: close" semantic.
-            break;
-        }
     }
 
     // Send a TCP shutdown
     m_socket.shutdown(tcp::socket::shutdown_send, ec);
 
-    // At this point the connection is closed gracefully
+    scheduleThreadForDeletion();
 }
