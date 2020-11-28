@@ -1,8 +1,3 @@
-#ifndef HTTP_SESSION_H
-#define HTTP_SESSION_H
-
-#include <boost/beast/core.hpp>
-#include <boost/beast/http.hpp>
 /**
  * @file        http_session.h
  *
@@ -25,6 +20,11 @@
  *      limitations under the License.
  */
 
+#ifndef HTTP_SESSION_H
+#define HTTP_SESSION_H
+
+#include <boost/beast/core.hpp>
+#include <boost/beast/http.hpp>
 #include <boost/beast/version.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/config.hpp>
