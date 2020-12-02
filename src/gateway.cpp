@@ -48,7 +48,7 @@ using Kitsunemimi::Sakura::MessagingClient;
 #include <http/http_server.h>
 
 /**
- * @brief GatewayServer::GatewayServer
+ * @brief constructor
  */
 Gateway::Gateway()
 {
@@ -61,13 +61,14 @@ Gateway::Gateway()
 }
 
 /**
- * @brief Gateway::~Gateway
+ * @brief destructor
  */
 Gateway::~Gateway() {}
 
 /**
- * @brief Gateway::initInternalSession
- * @return
+ * @brief initialize all server, which are set by the config-file
+ *
+ * @return true, if successful, else false
  */
 bool
 Gateway::initInternalSession()
@@ -94,8 +95,9 @@ Gateway::initInternalSession()
 }
 
 /**
- * @brief Gateway::initClient
- * @return
+ * @brief initialize client-server, if enabled
+ *
+ * @return true, if successful, else false
  */
 bool
 Gateway::initClient()
@@ -117,8 +119,9 @@ Gateway::initClient()
 }
 
 /**
- * @brief Gateway::initMonitoring
- * @return
+ * @brief initialize monitoring-server, if enabled
+ *
+ * @return true, if successful, else false
  */
 bool
 Gateway::initMonitoring()
@@ -140,8 +143,9 @@ Gateway::initMonitoring()
 }
 
 /**
- * @brief Gateway::initControl
- * @return
+ * @brief initialize control-server, if enabled
+ *
+ * @return true, if successful, else false
  */
 bool
 Gateway::initControl()
@@ -155,9 +159,11 @@ Gateway::initControl()
 }
 
 /**
- * @brief Gateway::isEnables
- * @param group
- * @return
+ * @brief check if server is enabled
+ *
+ * @param group group-name in config-file
+ *
+ * @return true, if enabled, else false
  */
 bool
 Gateway::isEnables(const std::string &group)
@@ -171,10 +177,11 @@ Gateway::isEnables(const std::string &group)
 }
 
 /**
- * @brief Gateway::initWebSocketServer
- * @param address
- * @param port
- * @return
+ * @brief initialze websocket server
+ *
+ * @param group group-name in config-file
+ *
+ * @return true, if successful, else false
  */
 bool
 Gateway::initWebSocketServer(const std::string &group)
@@ -200,10 +207,11 @@ Gateway::initWebSocketServer(const std::string &group)
 }
 
 /**
- * @brief Gateway::initHttpServer
- * @param address
- * @param port
- * @return
+ * @brief initialze http server
+ *
+ * @param group group-name in config-file
+ *
+ * @return true, if successful, else false
  */
 bool
 Gateway::initHttpServer(const std::string &group)

@@ -25,23 +25,34 @@
 #include <libKitsunemimiSakuraMessaging/messaging_client.h>
 #include <libKitsunemimiSakuraMessaging/messaging_controller.h>
 
+/**
+ * @brief constructor
+ */
 WebSocketSession::WebSocketSession(tcp::socket &&socket, const std::string &type)
     : m_webSocket(std::move(socket))
 {
     m_client = MessagingController::getInstance()->getClient(type);
 }
 
+/**
+ * @brief send text over the websocket
+ *
+ * @param text text to send
+ *
+ * @return true, if successful, else false
+ */
 bool
 WebSocketSession::sendText(const std::string &text)
 {
     beast::flat_buffer buffer;
     m_webSocket.text(true);
     boost::beast::ostream(buffer) << text;
-    m_webSocket.write(buffer.data());
-
-    return true;
+    return m_webSocket.write(buffer.data());
 }
 
+/**
+ * @brief run session-thread to process incoming messages from the websocket
+ */
 void
 WebSocketSession::run()
 {
