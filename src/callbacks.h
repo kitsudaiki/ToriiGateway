@@ -33,10 +33,11 @@
 #include <http/http_server.h>
 
 /**
- * @brief clientDataCallback
- * @param target
- * @param data
- * @param dataSize
+ * @brief callback for stream-messages for the client
+ *
+ * @param target pointer to the Gateway-instance
+ * @param data incoming data
+ * @param dataSize number of incoming bytes
  */
 void
 clientDataCallback(void* target,
@@ -48,6 +49,7 @@ clientDataCallback(void* target,
     WebSocketServer* server = gateway->m_websocketServer;
     const std::string text(static_cast<const char*>(data), dataSize);
 
+    // forward content to client
     WebSocketSession* session = server->getClientSession();
     if(session != nullptr) {
         session->sendText(text);
@@ -55,10 +57,11 @@ clientDataCallback(void* target,
 }
 
 /**
- * @brief monitoringDataCallback
- * @param target
- * @param data
- * @param dataSize
+ * @brief callback for stream-messages for the monitoring
+ *
+ * @param target pointer to the Gateway-instance
+ * @param data incoming data
+ * @param dataSize number of incoming bytes
  */
 void
 monitoringDataCallback(void* target,
@@ -70,6 +73,7 @@ monitoringDataCallback(void* target,
     WebSocketServer* server = gateway->m_websocketServer;
     const std::string text(static_cast<const char*>(data), dataSize);
 
+    // forward content to monitoring
     WebSocketSession* session = server->getMonitoringSession();
     if(session != nullptr) {
         session->sendText(text);
@@ -77,11 +81,12 @@ monitoringDataCallback(void* target,
 }
 
 /**
- * @brief sessionCallback
- * @param target
- * @param isInit
- * @param session
- * @param identifier
+ * @brief callback for new and closing sessions
+ *
+ * @param target pointer to the Gateway-instance
+ * @param isInit true, if session was new create, false, if session is closed
+ * @param session pointer to session
+ * @param identifier identifier of the incoming session
  */
 void
 sessionCallback(void* target,

@@ -26,6 +26,13 @@
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 
+/**
+ * @brief constructor
+ *
+ * @param address address to listen on
+ * @param port port to listen
+ * @param type type of the server (monitoring, client, control)
+ */
 WebSocketServer::WebSocketServer(const std::string &address,
                                  const uint16_t port,
                                  const std::string &type)
@@ -36,8 +43,9 @@ WebSocketServer::WebSocketServer(const std::string &address,
 }
 
 /**
- * @brief WebSocketServer::setClientSession
- * @param session
+ * @brief set net client-session
+ *
+ * @return pointer to client-session
  */
 void
 WebSocketServer::setClientSession(WebSocketSession* session)
@@ -48,8 +56,9 @@ WebSocketServer::setClientSession(WebSocketSession* session)
 }
 
 /**
- * @brief WebSocketServer::setMonitoringSession
- * @param session
+ * @brief set net monitoring-session
+ *
+ * @return pointer to monitoring-session
  */
 void
 WebSocketServer::setMonitoringSession(WebSocketSession* session)
@@ -60,8 +69,9 @@ WebSocketServer::setMonitoringSession(WebSocketSession* session)
 }
 
 /**
- * @brief WebSocketServer::getClientSession
- * @return
+ * @brief get client session
+ *
+ * @return pointer to client-session
  */
 WebSocketSession*
 WebSocketServer::getClientSession()
@@ -74,8 +84,9 @@ WebSocketServer::getClientSession()
 }
 
 /**
- * @brief WebSocketServer::getMonitoringSession
- * @return
+ * @brief get monitoring session
+ *
+ * @return pointer to monitoring-session
  */
 WebSocketSession*
 WebSocketServer::getMonitoringSession()
@@ -87,6 +98,9 @@ WebSocketServer::getMonitoringSession()
     return session;
 }
 
+/**
+ * @brief run server-thread
+ */
 void
 WebSocketServer::run()
 {
@@ -96,15 +110,18 @@ WebSocketServer::run()
              + std::to_string(m_port));
     try
     {
+        // create server
         const net::ip::address address = net::ip::make_address(m_address);
         net::io_context ioc{1};
         tcp::acceptor acceptor{ioc, {address, m_port}};
 
         while(m_abort == false)
         {
+            // create socket-object for incoming connection
             tcp::socket socket{ioc};
             acceptor.accept(socket);
 
+            // initialize session
             WebSocketSession* session = new WebSocketSession(std::move(socket), m_type);
             if(m_type == "client") {
                 setClientSession(session);

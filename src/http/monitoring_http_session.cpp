@@ -27,6 +27,9 @@
 
 #include <libKitsunemimiConfig/config_handler.h>
 
+/**
+ * @brief constructor
+ */
 MonitoringHttpSession::MonitoringHttpSession(tcp::socket &&socket)
     : HttpSession(std::move(socket))
 {
@@ -36,6 +39,11 @@ MonitoringHttpSession::MonitoringHttpSession(tcp::socket &&socket)
     assert(success);
 }
 
+/**
+ * @brief process GET request
+ *
+ * @return always true
+ */
 bool
 MonitoringHttpSession::processGetRequest()
 {
@@ -50,18 +58,33 @@ MonitoringHttpSession::processGetRequest()
     return true;
 }
 
+/**
+ * @brief process POST request
+ *
+ * @return always false, because not supported at the moment
+ */
 bool
 MonitoringHttpSession::processPostRequest()
 {
     return false;
 }
 
+/**
+ * @brief process PUT request
+ *
+ * @return always false, because not supported at the moment
+ */
 bool
 MonitoringHttpSession::processPutRequest()
 {
     return false;
 }
 
+/**
+ * @brief process DELTE request
+ *
+ * @return always false, because not supported at the moment
+ */
 bool
 MonitoringHttpSession::processDelesteRequest()
 {

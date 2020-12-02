@@ -30,49 +30,41 @@
 #include <libKitsunemimiSakuraMessaging/messaging_controller.h>
 #include <libKitsunemimiSakuraMessaging/messaging_client.h>
 
+/**
+ * @brief constructor
+ */
 HttpSession::HttpSession(tcp::socket &&socket)
     : m_socket(std::move(socket))
 {
 }
 
 /**
- * @brief HttpSession::processEvent
- * @return
+ * @brief process http-session
+ *
+ * @return true, if successful, else false
  */
 bool
 HttpSession::processEvent()
 {
-    beast::error_code ec;
-
-    // This buffer is required to persist across reads
-    beast::flat_buffer buffer;
-
-    // Read a request
-    http::read(m_socket, buffer, m_request, ec);
-    if(ec == http::error::end_of_stream) {
+    if(readMessage() == false) {
         return false;
     }
 
-    if(ec) {
-        std::cerr << "read" << ": " << ec.message() << "\n";
-    }
-
     processRequest();
-    sendResponse();
 
-    // Send the response
-    if(ec) {
-        std::cerr << "write" << ": " << ec.message() << "\n";
+    if(sendResponse() == false) {
+        return false;
     }
 
-    // Send a TCP shutdown
+    // close socket gain
+    beast::error_code ec;
     m_socket.shutdown(tcp::socket::shutdown_send, ec);
 
     return true;
 }
 
 /**
- * @brief HttpConnection::processRequest
+ * @brief process request and build response
  */
 void
 HttpSession::processRequest()
@@ -138,8 +130,9 @@ HttpSession::processRequest()
 }
 
 /**
- * @brief HttpConnection::createResponse
- * @param resp
+ * @brief send file, which was requested
+ *
+ * @return true, if successful, else false
  */
 bool
 HttpSession::sendFileFromLocalLocation()
@@ -181,26 +174,32 @@ HttpSession::sendFileFromLocalLocation()
 }
 
 /**
- * @brief HttpSession::sendConnectionInfo
- * @param client
- * @param portName
- * @return
+ * @brief send information of the websocket-connection
+ *
+ * @param client client-type (control, monitoring)
+ * @param portName port-type (websocket_port, http_port)
+ *
+ * @return true, if successful, else false
  */
 bool
 HttpSession::sendConnectionInfo(const std::string &client,
                                 const std::string &portName)
 {
     bool success = false;
+
+    // get port of websocket from config
     const uint16_t port = static_cast<uint16_t>(GET_INT_CONFIG(client, portName, success));
     if(success == false) {
         return false;
     }
 
+    // get ip of websocket from config
     const std::string ip = GET_STRING_CONFIG(client, "ip", success);
     if(success == false) {
         return false;
     }
 
+    // pack information into a response-message
     const std::string result = "{\"port\":"
                                + std::to_string(port)
                                + ",\"ip\":\""
@@ -213,13 +212,47 @@ HttpSession::sendConnectionInfo(const std::string &client,
 }
 
 /**
- * @brief HttpConnection::sendResponse
- * @param resp
+ * @brief read message into buffer
+ *
+ * @return true, if successful, else false
  */
-void
+bool
+HttpSession::readMessage()
+{
+    beast::error_code ec;
+    beast::flat_buffer buffer;
+    http::read(m_socket, buffer, m_request, ec);
+
+    if(ec == http::error::end_of_stream) {
+         return true;
+    }
+
+    if(ec)
+    {
+        LOG_ERROR("read: " + ec.message());
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * @brief send prebuild response
+ *
+ * @return true, if successful, else false
+ */
+bool
 HttpSession::sendResponse()
 {
     beast::error_code ec;
     m_response.content_length(m_response.body().size());
     http::write(m_socket, m_response, ec);
+
+    if(ec)
+    {
+        LOG_ERROR("write: " + ec.message());
+        return false;
+    }
+
+    return true;
 }

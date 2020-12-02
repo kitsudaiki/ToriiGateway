@@ -29,6 +29,13 @@
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 
+/**
+ * @brief constructor
+ *
+ * @param address address to listen on
+ * @param port port to listen
+ * @param type type of the server (monitoring, client, control)
+ */
 HttpServer::HttpServer(const std::string &address,
                        const uint16_t port,
                        const std::string &type)
@@ -41,21 +48,27 @@ HttpServer::HttpServer(const std::string &address,
     m_httpThread->startThread();
 }
 
+/**
+ * @brief run server-thread
+ */
 void
 HttpServer::run()
 {
     LOG_INFO("start HTTP-server on address " + m_address + " and port " + std::to_string(m_port));
     try
     {
+        // create server
         const net::ip::address address = net::ip::make_address(m_address);
         net::io_context ioc{1};
         tcp::acceptor acceptor{ioc, {address, m_port}};
 
         while(m_abort == false)
         {
+            // create socket-object for incoming connection
             tcp::socket socket{ioc};
             acceptor.accept(socket);
 
+            // initialize session
             HttpSession* session = nullptr;
             if(m_type == "client") {
                 session = new ClientHttpSession(std::move(socket));
@@ -67,6 +80,7 @@ HttpServer::run()
                 session = new MonitoringHttpSession(std::move(socket));
             }
 
+            // process http-request within an already existing thread
             m_httpThread->addEventToQueue(session);
         }
     }

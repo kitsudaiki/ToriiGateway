@@ -73,7 +73,8 @@ protected:
     bool sendConnectionInfo(const std::string &client, const std::string &portName);
     bool sendControlInfo();
 
-    void sendResponse();
+    bool readMessage();
+    bool sendResponse();
 
     virtual bool processGetRequest() = 0;
     virtual bool processPostRequest() = 0;

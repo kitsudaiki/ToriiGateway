@@ -28,6 +28,13 @@
 namespace ToriiGateway
 {
 
+/**
+ * @brief register cli-arguments
+ *
+ * @param argparser reference to argument parser
+ *
+ * @return true if successful, else false
+ */
 bool
 registerArguments(Kitsunemimi::Args::ArgParser &argparser)
 {
