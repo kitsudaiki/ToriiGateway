@@ -43,8 +43,11 @@ public:
                     const uint16_t port,
                     const std::string &type);
 
-    std::vector<WebSocketSession*> m_activeClientSessions;
-    std::vector<WebSocketSession*> m_activeMonitoringSessions;
+    void setClientSession(WebSocketSession* session);
+    void setMonitoringSession(WebSocketSession* session);
+
+    WebSocketSession* getClientSession();
+    WebSocketSession* getMonitoringSession();
 
 protected:
     void run();
@@ -53,6 +56,12 @@ private:
     std::string m_address = "";
     uint16_t m_port = 0;
     std::string m_type = "";
+
+    std::atomic_flag m_clientSession_lock = ATOMIC_FLAG_INIT;
+    WebSocketSession* m_activeClientSession = nullptr;
+
+    std::atomic_flag m_monitoringSession_lock = ATOMIC_FLAG_INIT;
+    WebSocketSession* m_activeMonitoringSession = nullptr;
 };
 
 #endif // WEB_SOCKET_SERVER_H

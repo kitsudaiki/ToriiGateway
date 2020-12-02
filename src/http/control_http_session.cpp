@@ -37,8 +37,10 @@ ControlHttpSession::processGetRequest()
     Kitsunemimi::DataMap result;
     std::string errorMessage = "";
 
+    const std::string falseId = m_request.target().data();
+    const std::string correctId = falseId.substr(1, falseId.size()-1);
     const bool ret = m_client->triggerSakuraFile(result,
-                                                 m_request.target().data(),
+                                                 correctId,
                                                  m_request.body().data(),
                                                  errorMessage);
 

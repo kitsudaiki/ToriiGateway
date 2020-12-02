@@ -32,38 +32,62 @@
 #include <websocket/web_socket_session.h>
 #include <http/http_server.h>
 
-void clientDataCallback(void* target,
-                        Kitsunemimi::Sakura::Session*,
-                        const void* data,
-                        const uint64_t dataSize)
+/**
+ * @brief clientDataCallback
+ * @param target
+ * @param data
+ * @param dataSize
+ */
+void
+clientDataCallback(void* target,
+                   Kitsunemimi::Sakura::Session*,
+                   const void* data,
+                   const uint64_t dataSize)
 {
     Gateway* gateway = static_cast<Gateway*>(target);
     WebSocketServer* server = gateway->m_websocketServer;
     const std::string text(static_cast<const char*>(data), dataSize);
 
-    for(uint64_t i = 0; i < server->m_activeClientSessions.size(); i++) {
-        server->m_activeClientSessions.at(i)->sendText(text);
+    WebSocketSession* session = server->getClientSession();
+    if(session != nullptr) {
+        session->sendText(text);
     }
 }
 
-void monitoringDataCallback(void* target,
-                            Kitsunemimi::Sakura::Session*,
-                            const void* data,
-                            const uint64_t dataSize)
+/**
+ * @brief monitoringDataCallback
+ * @param target
+ * @param data
+ * @param dataSize
+ */
+void
+monitoringDataCallback(void* target,
+                       Kitsunemimi::Sakura::Session*,
+                       const void* data,
+                       const uint64_t dataSize)
 {
     Gateway* gateway = static_cast<Gateway*>(target);
     WebSocketServer* server = gateway->m_websocketServer;
     const std::string text(static_cast<const char*>(data), dataSize);
 
-    for(uint64_t i = 0; i < server->m_activeMonitoringSessions.size(); i++) {
-        server->m_activeMonitoringSessions.at(i)->sendText(text);
+    WebSocketSession* session = server->getMonitoringSession();
+    if(session != nullptr) {
+        session->sendText(text);
     }
 }
 
-void sessionCallback(void* target,
-                     bool isInit,
-                     Kitsunemimi::Sakura::MessagingClient* session,
-                     const std::string identifier)
+/**
+ * @brief sessionCallback
+ * @param target
+ * @param isInit
+ * @param session
+ * @param identifier
+ */
+void
+sessionCallback(void* target,
+                bool isInit,
+                Kitsunemimi::Sakura::MessagingClient* session,
+                const std::string identifier)
 {
     if(isInit)
     {

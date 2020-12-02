@@ -35,6 +35,58 @@ WebSocketServer::WebSocketServer(const std::string &address,
     m_type = type;
 }
 
+/**
+ * @brief WebSocketServer::setClientSession
+ * @param session
+ */
+void
+WebSocketServer::setClientSession(WebSocketSession* session)
+{
+    while(m_clientSession_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+    m_activeClientSession = session;
+    m_clientSession_lock.clear(std::memory_order_release);
+}
+
+/**
+ * @brief WebSocketServer::setMonitoringSession
+ * @param session
+ */
+void
+WebSocketServer::setMonitoringSession(WebSocketSession* session)
+{
+    while(m_monitoringSession_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+    m_activeMonitoringSession = session;
+    m_monitoringSession_lock.clear(std::memory_order_release);
+}
+
+/**
+ * @brief WebSocketServer::getClientSession
+ * @return
+ */
+WebSocketSession*
+WebSocketServer::getClientSession()
+{
+    WebSocketSession* session = nullptr;
+    while(m_clientSession_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+    session = m_activeClientSession;
+    m_clientSession_lock.clear(std::memory_order_release);
+    return session;
+}
+
+/**
+ * @brief WebSocketServer::getMonitoringSession
+ * @return
+ */
+WebSocketSession*
+WebSocketServer::getMonitoringSession()
+{
+    WebSocketSession* session = nullptr;
+    while(m_monitoringSession_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+    session = m_activeMonitoringSession;
+    m_monitoringSession_lock.clear(std::memory_order_release);
+    return session;
+}
+
 void
 WebSocketServer::run()
 {
@@ -55,10 +107,10 @@ WebSocketServer::run()
 
             WebSocketSession* session = new WebSocketSession(std::move(socket), m_type);
             if(m_type == "client") {
-                m_activeClientSessions.push_back(session);
+                setClientSession(session);
             }
             if(m_type == "monitoring") {
-                m_activeMonitoringSessions.push_back(session);
+                setMonitoringSession(session);
             }
 
             session->startThread();
