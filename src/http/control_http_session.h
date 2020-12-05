@@ -37,6 +37,9 @@ protected:
     bool processPostRequest();
     bool processPutRequest();
     bool processDelesteRequest();
+
+private:
+    void processRequest(const std::string &inputValues);
 };
 
 #endif // CONTROL_HTTP_SESSION_H
