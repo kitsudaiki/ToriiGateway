@@ -176,7 +176,7 @@ HttpSession::sendFileFromLocalLocation()
 /**
  * @brief send information of the websocket-connection
  *
- * @param client client-type (control, monitoring)
+ * @param client client-type (client, control, monitoring)
  * @param portName port-type (websocket_port, http_port)
  *
  * @return true, if successful, else false
@@ -187,13 +187,13 @@ HttpSession::sendConnectionInfo(const std::string &client,
 {
     bool success = false;
 
-    // get port of websocket from config
+    // get port from config
     const uint16_t port = static_cast<uint16_t>(GET_INT_CONFIG(client, portName, success));
     if(success == false) {
         return false;
     }
 
-    // get ip of websocket from config
+    // get ip from config
     const std::string ip = GET_STRING_CONFIG(client, "ip", success);
     if(success == false) {
         return false;

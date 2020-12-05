@@ -42,32 +42,7 @@ ControlHttpSession::ControlHttpSession(tcp::socket &&socket)
 bool
 ControlHttpSession::processGetRequest()
 {
-    Kitsunemimi::DataMap result;
-    std::string errorMessage = "";
-
-    const std::string falseId = m_request.target().data();
-    const std::string correctId = falseId.substr(1, falseId.size()-1);
-
-    // trigger sakura-file remote
-    const bool ret = m_client->triggerSakuraFile(result,
-                                                 correctId,
-                                                 m_request.body().data(),
-                                                 errorMessage);
-
-    // forward result to the control
-    if(ret)
-    {
-        m_response.result(http::status::ok);
-        m_response.set(http::field::content_type, "text/json");
-        beast::ostream(m_response.body()) << result.toString();
-    }
-    else
-    {
-        m_response.result(http::status::not_found);
-        m_response.set(http::field::content_type, "text/plain");
-        beast::ostream(m_response.body()) << errorMessage;
-    }
-
+    processRequest("{}");
     return true;
 }
 
@@ -79,7 +54,8 @@ ControlHttpSession::processGetRequest()
 bool
 ControlHttpSession::processPostRequest()
 {
-    return false;
+    processRequest(m_request.body().data());
+    return true;
 }
 
 /**
@@ -102,4 +78,39 @@ bool
 ControlHttpSession::processDelesteRequest()
 {
     return false;
+}
+
+/**
+ * @brief provess request
+ *
+ * @param inputValues json-formated input-values
+ */
+void
+ControlHttpSession::processRequest(const std::string &inputValues)
+{
+    Kitsunemimi::DataMap result;
+    std::string errorMessage = "";
+
+    const std::string falseId = m_request.target().data();
+    const std::string correctId = falseId.substr(1, falseId.size()-1);
+
+    // trigger sakura-file remote
+    const bool ret = m_client->triggerSakuraFile(result,
+                                                 correctId,
+                                                 inputValues,
+                                                 errorMessage);
+
+    // forward result to the control
+    if(ret)
+    {
+        m_response.result(http::status::ok);
+        m_response.set(http::field::content_type, "text/json");
+        beast::ostream(m_response.body()) << result.toString();
+    }
+    else
+    {
+        m_response.result(http::status::not_found);
+        m_response.set(http::field::content_type, "text/plain");
+        beast::ostream(m_response.body()) << errorMessage;
+    }
 }
