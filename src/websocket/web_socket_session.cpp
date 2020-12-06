@@ -46,8 +46,24 @@ WebSocketSession::sendText(const std::string &text)
 {
     beast::flat_buffer buffer;
     m_webSocket.text(true);
-    boost::beast::ostream(buffer) << text;
-    return m_webSocket.write(buffer.data());
+    try
+    {
+        boost::beast::ostream(buffer) << text;
+        return m_webSocket.write(buffer.data());
+    }
+    catch(const beast::system_error& se)
+    {
+        std::cerr << "Error: " << se.code().message() << std::endl;
+        if(se.code() != websocket::error::closed) {
+            std::cerr << "Error: connection closed"<< std::endl;
+        }
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << "Error: " << e.what() << std::endl;
+    }
+
+    return false;
 }
 
 /**
