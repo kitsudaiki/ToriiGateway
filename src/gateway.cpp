@@ -47,16 +47,19 @@ using Kitsunemimi::Sakura::MessagingClient;
 #include <websocket/web_socket_session.h>
 #include <http/http_server.h>
 
+Gateway* Gateway::m_instance = nullptr;
+
 /**
  * @brief constructor
  */
 Gateway::Gateway()
 {
+    m_instance = this;
     std::vector<std::string> groups = {};
     MessagingController::initializeMessagingController("ToriiGateway",
                                                        groups,
-                                                       this,
-                                                       &sessionCallback,
+                                                       &messagingCreateCallback,
+                                                       &messagingCloseCallback,
                                                        false);
 }
 
@@ -236,3 +239,66 @@ Gateway::initHttpServer(const std::string &group)
     return true;
 }
 
+/**
+ * @brief create and add new client to internal list
+ *
+ * @param id name of the client for later identification
+ * @param session session for the new client
+ *
+ * @return new client, or nullptr, if client-name already exist
+ */
+bool
+Gateway::addClient(const std::string &id,
+                   Kitsunemimi::Sakura::MessagingClient* session)
+{
+    // check if already used
+    std::map<std::string, MessagingClient*>::const_iterator it;
+    it = m_clients.find(id);
+    if(it != m_clients.end()) {
+        return false;
+    }
+
+    m_clients.insert(std::make_pair(id, session));
+
+    return true;
+}
+
+/**
+ * @brief remove client from list
+ *
+ * @param id id of the requested client
+ *
+ * @return true, if successful, else false
+ */
+bool
+Gateway::removeClient(const std::string &id)
+{
+    std::map<std::string, MessagingClient*>::const_iterator it;
+    it = m_clients.find(id);
+    if(it != m_clients.end())
+    {
+        m_clients.erase(it);
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * @brief get client from the internal list
+ *
+ * @param id id of the requested client
+ *
+ * @return pointer to client, if found, else nullptr
+ */
+MessagingClient*
+Gateway::getClient(const std::string &id)
+{
+    std::map<std::string, MessagingClient*>::const_iterator it;
+    it = m_clients.find(id);
+    if(it != m_clients.end()) {
+        return it->second;
+    }
+
+    return nullptr;
+}

@@ -24,9 +24,16 @@
 #define GATEWAYSERVER_H
 
 #include <iostream>
+#include <map>
 
 class WebSocketServer;
 class HttpServer;
+
+namespace Kitsunemimi {
+namespace Sakura {
+class MessagingClient;
+}
+}
 
 class Gateway
 {
@@ -39,14 +46,21 @@ public:
     bool initMonitoring();
     bool initControl();
 
+    Kitsunemimi::Sakura::MessagingClient* getClient(const std::string &id);
+    bool addClient(const std::string &id, Kitsunemimi::Sakura::MessagingClient* session);
+    bool removeClient(const std::string &id);
+
+
     WebSocketServer* m_websocketServer = nullptr;
     HttpServer* m_httpServer = nullptr;
+    static Gateway* m_instance;
 
 private:
+    std::map<std::string, Kitsunemimi::Sakura::MessagingClient*> m_clients;
+
     bool isEnables(const std::string &group);
     bool initWebSocketServer(const std::string &group);
     bool initHttpServer(const std::string &group);
-
 };
 
 #endif // GATEWAYSERVER_H

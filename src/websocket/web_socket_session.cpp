@@ -22,6 +22,8 @@
 
 #include "web_socket_session.h"
 
+#include <gateway.h>
+
 #include <libKitsunemimiSakuraMessaging/messaging_client.h>
 #include <libKitsunemimiSakuraMessaging/messaging_controller.h>
 
@@ -34,7 +36,7 @@ WebSocketSession::WebSocketSession(tcp::socket &&socket, const std::string &type
     : m_webSocket(std::move(socket))
 {
     m_type = type;
-    m_client = MessagingController::getInstance()->getClient(type);
+    m_client = Gateway::m_instance->getClient(type);
 }
 
 /**

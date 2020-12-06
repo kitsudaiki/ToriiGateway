@@ -22,6 +22,8 @@
 
 #include "control_http_session.h"
 
+#include <gateway.h>
+
 #include <libKitsunemimiSakuraMessaging/messaging_client.h>
 #include <libKitsunemimiSakuraMessaging/messaging_controller.h>
 
@@ -31,7 +33,7 @@
 ControlHttpSession::ControlHttpSession(tcp::socket &&socket)
     : HttpSession(std::move(socket))
 {
-    m_client = MessagingController::getInstance()->getClient("control");
+    m_client = Gateway::m_instance->getClient("control");
 }
 
 /**

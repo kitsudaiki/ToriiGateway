@@ -22,6 +22,8 @@
 
 #include "monitoring_http_session.h"
 
+#include <gateway.h>
+
 #include <libKitsunemimiSakuraMessaging/messaging_client.h>
 #include <libKitsunemimiSakuraMessaging/messaging_controller.h>
 
@@ -33,7 +35,7 @@
 MonitoringHttpSession::MonitoringHttpSession(tcp::socket &&socket)
     : HttpSession(std::move(socket))
 {
-    m_client = MessagingController::getInstance()->getClient("monitoring");
+    m_client = Gateway::m_instance->getClient("monitoring");
     bool success = false;
     m_fileLocation = GET_STRING_CONFIG("monitoring", "location", success);
     assert(success);

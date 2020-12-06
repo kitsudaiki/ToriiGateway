@@ -40,12 +40,11 @@
  * @param dataSize number of incoming bytes
  */
 void
-clientDataCallback(void* target,
-                   Kitsunemimi::Sakura::Session*,
+clientDataCallback(Kitsunemimi::Sakura::Session*,
                    const void* data,
                    const uint64_t dataSize)
 {
-    Gateway* gateway = static_cast<Gateway*>(target);
+    Gateway* gateway = Gateway::m_instance;
     WebSocketServer* server = gateway->m_websocketServer;
     const std::string text(static_cast<const char*>(data), dataSize);
 
@@ -64,12 +63,11 @@ clientDataCallback(void* target,
  * @param dataSize number of incoming bytes
  */
 void
-monitoringDataCallback(void* target,
-                       Kitsunemimi::Sakura::Session*,
+monitoringDataCallback(Kitsunemimi::Sakura::Session*,
                        const void* data,
                        const uint64_t dataSize)
 {
-    Gateway* gateway = static_cast<Gateway*>(target);
+    Gateway* gateway = Gateway::m_instance;
     WebSocketServer* server = gateway->m_websocketServer;
     const std::string text(static_cast<const char*>(data), dataSize);
 
@@ -81,28 +79,34 @@ monitoringDataCallback(void* target,
 }
 
 /**
- * @brief callback for new and closing sessions
+ * @brief callback for new sessions
  *
- * @param target pointer to the Gateway-instance
- * @param isInit true, if session was new create, false, if session is closed
  * @param session pointer to session
  * @param identifier identifier of the incoming session
  */
 void
-sessionCallback(void* target,
-                bool isInit,
-                Kitsunemimi::Sakura::MessagingClient* session,
-                const std::string identifier)
+messagingCreateCallback(Kitsunemimi::Sakura::MessagingClient* session,
+                        const std::string identifier)
 {
-    if(isInit)
-    {
-        if(identifier == "client") {
-            session->setStreamMessageCallback(target, &clientDataCallback);
-        }
-        if(identifier == "monitoring") {
-            session->setStreamMessageCallback(target, &monitoringDataCallback);
-        }
+    Gateway::m_instance->addClient(identifier, session);
+
+    if(identifier == "client") {
+        session->setStreamMessageCallback(&clientDataCallback);
     }
+    if(identifier == "monitoring") {
+        session->setStreamMessageCallback(&monitoringDataCallback);
+    }
+}
+
+/**
+ * @brief callback for closing sessions
+ *
+ * @param identifier identifier of the incoming session
+ */
+void
+messagingCloseCallback(const std::string identifier)
+{
+    Gateway::m_instance->removeClient(identifier);
 }
 
 #endif // CALLBACKS_H
