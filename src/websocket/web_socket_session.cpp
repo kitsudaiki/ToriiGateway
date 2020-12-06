@@ -25,12 +25,15 @@
 #include <libKitsunemimiSakuraMessaging/messaging_client.h>
 #include <libKitsunemimiSakuraMessaging/messaging_controller.h>
 
+#include <libKitsunemimiPersistence/logger/logger.h>
+
 /**
  * @brief constructor
  */
 WebSocketSession::WebSocketSession(tcp::socket &&socket, const std::string &type)
     : m_webSocket(std::move(socket))
 {
+    m_type = type;
     m_client = MessagingController::getInstance()->getClient(type);
 }
 
@@ -46,8 +49,31 @@ WebSocketSession::sendText(const std::string &text)
 {
     beast::flat_buffer buffer;
     m_webSocket.text(true);
-    boost::beast::ostream(buffer) << text;
-    return m_webSocket.write(buffer.data());
+    try
+    {
+        boost::beast::ostream(buffer) << text;
+        return m_webSocket.write(buffer.data());
+    }
+    catch(const beast::system_error& se)
+    {
+        if(se.code() != websocket::error::closed)
+        {
+            LOG_INFO("Close websocket of type " + m_type);
+            scheduleThreadForDeletion();
+        }
+        else
+        {
+            LOG_ERROR("Error while sending data over websocket of type " + m_type
+                      + " with message: " + se.code().message());
+        }
+    }
+    catch(const std::exception& e)
+    {
+        LOG_ERROR("Error while sending data over websocket of type " + m_type
+                  + " with message: " + e.what());
+    }
+
+    return false;
 }
 
 /**
@@ -78,14 +104,20 @@ WebSocketSession::run()
     }
     catch(const beast::system_error& se)
     {
-        if(se.code() != websocket::error::closed) {
-            std::cerr << "Error: " << se.code().message() << std::endl;
+        if(se.code() != websocket::error::closed)
+        {
+            LOG_INFO("Close websocket of type " + m_type);
+            scheduleThreadForDeletion();
         }
-        scheduleThreadForDeletion();
+        else
+        {
+            LOG_ERROR("Error while receiving data over websocket of type " + m_type
+                      + " with message: " + se.code().message());
+        }
     }
     catch(const std::exception& e)
     {
-        std::cerr << "Error: " << e.what() << std::endl;
-        scheduleThreadForDeletion();
+        LOG_ERROR("Error while receiving data over websocket of type " + m_type
+                  + " with message: " + e.what());
     }
 }
