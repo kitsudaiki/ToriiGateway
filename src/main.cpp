@@ -64,9 +64,6 @@ int main(int argc, char *argv[])
 
     // init gateway
     Gateway gateway;
-    if(gateway.initInternalSession() == false) {
-        return 1;
-    }
     if(gateway.initClient() == false) {
         return 1;
     }
@@ -74,6 +71,9 @@ int main(int argc, char *argv[])
         return 1;
     }
     if(gateway.initControl() == false) {
+        return 1;
+    }
+    if(gateway.initInternalSession() == false) {
         return 1;
     }
 

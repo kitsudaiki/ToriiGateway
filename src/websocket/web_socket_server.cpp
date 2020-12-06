@@ -121,6 +121,13 @@ WebSocketServer::run()
             tcp::socket socket{ioc};
             acceptor.accept(socket);
 
+            if(m_type == "client") {
+                setClientSession(nullptr);
+            }
+            if(m_type == "monitoring") {
+                setMonitoringSession(nullptr);
+            }
+
             // initialize session
             WebSocketSession* session = new WebSocketSession(std::move(socket), m_type);
             if(m_type == "client") {
