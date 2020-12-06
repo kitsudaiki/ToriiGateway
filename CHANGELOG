@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.1.1] - 2020-12-06
+
+### Added
+- some more error-output
+
+### Changed
+- updated client-handling and internal callbacks for current version of libKitsunemimiSakuraMessaging
+
+### Fixed
+- race-condition at the start, which sometime could break the programm
+- added missing try-catch for web-sockets, which could also result in seg-fault
+
+
 ## [0.1.1] - 2020-12-05
 
 ### Added
