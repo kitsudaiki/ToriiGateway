@@ -64,16 +64,24 @@ int main(int argc, char *argv[])
 
     // init gateway
     Gateway gateway;
-    if(gateway.initClient() == false) {
+    if(gateway.initClient() == false)
+    {
+        LOG_ERROR("initializing client-endpoint failed");
         return 1;
     }
-    if(gateway.initMonitoring() == false) {
+    if(gateway.initMonitoring() == false)
+    {
+        LOG_ERROR("initializing monitoring-endpoint failed");
         return 1;
     }
-    if(gateway.initControl() == false) {
+    if(gateway.initControl() == false)
+    {
+        LOG_ERROR("initializing control-endpoint failed");
         return 1;
     }
-    if(gateway.initInternalSession() == false) {
+    if(gateway.initInternalSession() == false)
+    {
+        LOG_ERROR("initializing connection to backend failed");
         return 1;
     }
 
