@@ -63,6 +63,7 @@ protected:
 
     Kitsunemimi::Sakura::MessagingClient* m_client = nullptr;
     websocket::stream<beast::tcp_stream> m_webSocket;
+    std::string m_type = "";
 };
 
 #endif // WEB_SOCKET_SESSION_H

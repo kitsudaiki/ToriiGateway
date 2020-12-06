@@ -140,8 +140,7 @@ WebSocketServer::run()
             session->startThread();
         }
     }
-    catch (const std::exception& e)
-    {
-        std::cerr << "Error: " << e.what() << std::endl;
+    catch (const std::exception& e) {
+        LOG_ERROR("Error in websocket-server of type " + m_type + " with message: " +  e.what());
     }
 }
