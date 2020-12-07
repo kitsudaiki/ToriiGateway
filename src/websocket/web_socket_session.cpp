@@ -63,7 +63,7 @@ WebSocketSession::sendText(const std::string &text)
     }
     catch(const beast::system_error& se)
     {
-        if(se.code() != websocket::error::closed)
+        if(se.code() == websocket::error::closed)
         {
             LOG_INFO("Close websocket of type " + m_type);
             closeSession();
@@ -111,7 +111,7 @@ WebSocketSession::run()
     }
     catch(const beast::system_error& se)
     {
-        if(se.code() != websocket::error::closed)
+        if(se.code() == websocket::error::closed)
         {
             LOG_INFO("Close websocket of type " + m_type);
             closeSession();
