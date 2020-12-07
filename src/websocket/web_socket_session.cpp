@@ -23,6 +23,7 @@
 #include "web_socket_session.h"
 
 #include <gateway.h>
+#include <websocket/web_socket_server.h>
 
 #include <libKitsunemimiSakuraMessaging/messaging_client.h>
 #include <libKitsunemimiSakuraMessaging/messaging_controller.h>
@@ -49,6 +50,10 @@ WebSocketSession::WebSocketSession(tcp::socket &&socket, const std::string &type
 bool
 WebSocketSession::sendText(const std::string &text)
 {
+    if(m_abort) {
+        return false;
+    }
+
     beast::flat_buffer buffer;
     m_webSocket.text(true);
     try
@@ -61,7 +66,7 @@ WebSocketSession::sendText(const std::string &text)
         if(se.code() != websocket::error::closed)
         {
             LOG_INFO("Close websocket of type " + m_type);
-            scheduleThreadForDeletion();
+            closeSession();
         }
         else
         {
@@ -109,7 +114,7 @@ WebSocketSession::run()
         if(se.code() != websocket::error::closed)
         {
             LOG_INFO("Close websocket of type " + m_type);
-            scheduleThreadForDeletion();
+            closeSession();
         }
         else
         {
@@ -122,4 +127,25 @@ WebSocketSession::run()
         LOG_ERROR("Error while receiving data over websocket of type " + m_type
                   + " with message: " + e.what());
     }
+}
+
+/**
+ * @brief close session
+ */
+void
+WebSocketSession::closeSession()
+{
+    m_abort = true;
+
+    Gateway* gateway = Gateway::m_instance;
+    WebSocketServer* server = gateway->m_websocketServer;
+
+    if(m_type == "client") {
+        server->setClientSession(nullptr);
+    }
+    if(m_type == "monitoring") {
+        server->setMonitoringSession(nullptr);
+    }
+
+    scheduleThreadForDeletion();
 }
