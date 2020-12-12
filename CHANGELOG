@@ -1,6 +1,13 @@
 # Changelog
 
-## [0.1.1] - 2020-12-06
+## [0.1.3] - 2020-12-12
+
+### Fixed
+- error-code handling for web-sockets
+- close-process for websockets
+
+
+## [0.1.2] - 2020-12-06
 
 ### Added
 - some more error-output
