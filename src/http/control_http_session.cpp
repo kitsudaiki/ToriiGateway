@@ -24,6 +24,8 @@
 
 #include <gateway.h>
 
+#include <libKitsunemimiPersistence/logger/logger.h>
+
 #include <libKitsunemimiSakuraMessaging/messaging_client.h>
 #include <libKitsunemimiSakuraMessaging/messaging_controller.h>
 
@@ -113,6 +115,7 @@ ControlHttpSession::processRequest(const std::string &inputValues)
     {
         m_response.result(http::status::not_found);
         m_response.set(http::field::content_type, "text/plain");
+        LOG_ERROR(errorMessage);
         beast::ostream(m_response.body()) << errorMessage;
     }
 }

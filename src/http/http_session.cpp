@@ -120,10 +120,11 @@ HttpSession::processRequest()
         {
             m_response.result(http::status::bad_request);
             m_response.set(http::field::content_type, "text/plain");
-            beast::ostream(m_response.body())
-                << "Invalid request-method '"
-                << std::string(m_request.method_string())
-                << "'";
+            const std::string errorMessage = "Invalid request-method '"
+                                             + std::string(m_request.method_string())
+                                             + "'";
+            LOG_ERROR(errorMessage);
+            beast::ostream(m_response.body()) << errorMessage;
             break;
         }
     }
@@ -245,6 +246,9 @@ bool
 HttpSession::sendResponse()
 {
     beast::error_code ec;
+    // TODO: replace the "*" by a correct "http://..."
+    m_response.set(http::field::access_control_allow_origin, "*");
+    m_response.set(http::field::access_control_allow_methods, "GET, POST");
     m_response.content_length(m_response.body().size());
     http::write(m_socket, m_response, ec);
 
