@@ -51,7 +51,8 @@ public:
     bool removeClient(const std::string &id);
 
 
-    WebSocketServer* m_websocketServer = nullptr;
+    WebSocketServer* m_clientWebsocketServer = nullptr;
+    WebSocketServer* m_monitoringWebsocketServer = nullptr;
     HttpServer* m_httpServer = nullptr;
     static Gateway* m_instance;
 
