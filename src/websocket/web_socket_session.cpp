@@ -138,12 +138,15 @@ WebSocketSession::closeSession()
     m_abort = true;
 
     Gateway* gateway = Gateway::m_instance;
-    WebSocketServer* server = gateway->m_websocketServer;
 
-    if(m_type == "client") {
+    if(m_type == "client")
+    {
+        WebSocketServer* server = gateway->m_clientWebsocketServer;
         server->setClientSession(nullptr);
     }
-    if(m_type == "monitoring") {
+    if(m_type == "monitoring")
+    {
+        WebSocketServer* server = gateway->m_monitoringWebsocketServer;
         server->setMonitoringSession(nullptr);
     }
 
