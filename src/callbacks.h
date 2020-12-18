@@ -45,7 +45,7 @@ clientDataCallback(Kitsunemimi::Sakura::Session*,
                    const uint64_t dataSize)
 {
     Gateway* gateway = Gateway::m_instance;
-    WebSocketServer* server = gateway->m_websocketServer;
+    WebSocketServer* server = gateway->m_clientWebsocketServer;
     const std::string text(static_cast<const char*>(data), dataSize);
 
     // forward content to client
@@ -68,7 +68,7 @@ monitoringDataCallback(Kitsunemimi::Sakura::Session*,
                        const uint64_t dataSize)
 {
     Gateway* gateway = Gateway::m_instance;
-    WebSocketServer* server = gateway->m_websocketServer;
+    WebSocketServer* server = gateway->m_monitoringWebsocketServer;
     const std::string text(static_cast<const char*>(data), dataSize);
 
     // forward content to monitoring

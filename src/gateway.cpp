@@ -203,8 +203,16 @@ Gateway::initWebSocketServer(const std::string &group)
         return false;
     }
 
-    m_websocketServer = new WebSocketServer(ip, port, group);
-    m_websocketServer->startThread();
+    if(group == "client")
+    {
+        m_clientWebsocketServer = new WebSocketServer(ip, port, group);
+        m_clientWebsocketServer->startThread();
+    }
+    if(group == "monitoring")
+    {
+        m_monitoringWebsocketServer = new WebSocketServer(ip, port, group);
+        m_monitoringWebsocketServer->startThread();
+    }
 
     return true;
 }
