@@ -95,7 +95,7 @@ ControlHttpSession::processRequest(const std::string &inputValues)
     Kitsunemimi::DataMap result;
     std::string errorMessage = "";
 
-    const std::string falseId = m_request.target().data();
+    const std::string falseId = std::string(m_request.target().data(), m_request.target().size());
     const std::string correctId = falseId.substr(1, falseId.size()-1);
 
     // trigger sakura-file remote

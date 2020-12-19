@@ -51,6 +51,7 @@ HttpSession::processEvent()
     }
 
     processRequest();
+    m_request.clear();
 
     if(sendResponse() == false) {
         return false;
