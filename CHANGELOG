@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.4] - 2021-01-02
+
+### Fixed
+- handling of the websocket for the client was broken
+- in some cases a http-request was broken because of an improper copy of a string
+
+
 ## [0.1.3] - 2020-12-12
 
 ### Fixed
