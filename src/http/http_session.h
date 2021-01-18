@@ -41,45 +41,40 @@ namespace http = beast::http;           // from <boost/beast/http.hpp>
 namespace net = boost::asio;            // from <boost/asio.hpp>
 using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 
-namespace Kitsunemimi {
-namespace Sakura {
-class MessagingClient;
-class MessagingController;
-}
-}
-
-using Kitsunemimi::Sakura::MessagingController;
-
-class HttpSession
+class HttpRequestEvent
         : public Kitsunemimi::Event
 {
 public:
-    HttpSession(tcp::socket &&socket);
+    HttpRequestEvent(tcp::socket &&socket);
 
     bool processEvent();
 
 protected:
     void run();
 
+
+private:
     tcp::socket m_socket;
-    std::string m_fileLocation = "";
-    Kitsunemimi::Sakura::MessagingClient* m_client = nullptr;
     beast::flat_buffer m_buffer{8192};
     http::request<http::string_body> m_request;
     http::response<http::dynamic_body> m_response;
 
     void processRequest();
-    bool sendFileFromLocalLocation();
+    bool sendFileFromLocalLocation(const std::string &dir, const std::string &relativePath);
     bool sendConnectionInfo(const std::string &client, const std::string &portName);
     bool sendControlInfo();
 
     bool readMessage();
     bool sendResponse();
 
-    virtual bool processGetRequest() = 0;
-    virtual bool processPostRequest() = 0;
-    virtual bool processPutRequest() = 0;
-    virtual bool processDelesteRequest() = 0;
+    bool processGetRequest();
+    bool processPostRequest();
+    bool processPutRequest();
+    bool processDelesteRequest();
+
+    bool processClientRequest(const std::string &path);
+    bool processMonitoringRequest(const std::string &path);
+    bool processControlRequest(const std::string &inputValues);
 };
 
 #endif // HTTP_SESSION_H

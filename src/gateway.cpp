@@ -106,12 +106,8 @@ bool
 Gateway::initClient()
 {
     const std::string groupName = "client";
-    if(isEnables(groupName) == false) {
+    if(isEnabled(groupName) == false) {
         return true;
-    }
-
-    if(initHttpServer(groupName) == false) {
-        return false;
     }
 
     if(initWebSocketServer(groupName) == false) {
@@ -130,12 +126,8 @@ bool
 Gateway::initMonitoring()
 {
     const std::string groupName = "monitoring";
-    if(isEnables(groupName) == false) {
+    if(isEnabled(groupName) == false) {
         return true;
-    }
-
-    if(initHttpServer(groupName) == false) {
-        return false;
     }
 
     if(initWebSocketServer(groupName) == false) {
@@ -146,22 +138,6 @@ Gateway::initMonitoring()
 }
 
 /**
- * @brief initialize control-server, if enabled
- *
- * @return true, if successful, else false
- */
-bool
-Gateway::initControl()
-{
-    const std::string groupName = "control";
-    if(isEnables(groupName) == false) {
-        return true;
-    }
-
-    return initHttpServer(groupName);
-}
-
-/**
  * @brief check if server is enabled
  *
  * @param group group-name in config-file
@@ -169,7 +145,7 @@ Gateway::initControl()
  * @return true, if enabled, else false
  */
 bool
-Gateway::isEnables(const std::string &group)
+Gateway::isEnabled(const std::string &group)
 {
     bool success = false;
     if(GET_BOOL_CONFIG(group, "enable", success)) {
@@ -198,7 +174,7 @@ Gateway::initWebSocketServer(const std::string &group)
     }
 
     // get ip to bind from config
-    const std::string ip = GET_STRING_CONFIG(group, "ip", success);
+    const std::string ip = GET_STRING_CONFIG("DEFAULT", "ip", success);
     if(success == false) {
         return false;
     }
@@ -220,28 +196,27 @@ Gateway::initWebSocketServer(const std::string &group)
 /**
  * @brief initialze http server
  *
- * @param group group-name in config-file
- *
  * @return true, if successful, else false
  */
 bool
-Gateway::initHttpServer(const std::string &group)
+Gateway::initHttpServer()
 {
     bool success = false;
 
     // get port from config
-    const uint16_t port = static_cast<uint16_t>(GET_INT_CONFIG(group, "http_port", success));
+    const uint16_t port = static_cast<uint16_t>(GET_INT_CONFIG("DEFAULT", "http_port", success));
     if(success == false) {
         return false;
     }
 
     // get ip to bind from config
-    const std::string ip = GET_STRING_CONFIG(group, "ip", success);
+    const std::string ip = GET_STRING_CONFIG("DEFAULT", "ip", success);
     if(success == false) {
         return false;
     }
 
-    m_httpServer = new HttpServer(ip, port, group);
+    m_httpServer = new HttpServer(ip,
+                                  port);
     m_httpServer->startThread();
 
     return true;

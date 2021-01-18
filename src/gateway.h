@@ -42,9 +42,9 @@ public:
     ~Gateway();
 
     bool initInternalSession();
+    bool initHttpServer();
     bool initClient();
     bool initMonitoring();
-    bool initControl();
 
     Kitsunemimi::Sakura::MessagingClient* getClient(const std::string &id);
     bool addClient(const std::string &id, Kitsunemimi::Sakura::MessagingClient* session);
@@ -59,9 +59,8 @@ public:
 private:
     std::map<std::string, Kitsunemimi::Sakura::MessagingClient*> m_clients;
 
-    bool isEnables(const std::string &group);
+    bool isEnabled(const std::string &group);
     bool initWebSocketServer(const std::string &group);
-    bool initHttpServer(const std::string &group);
 };
 
 #endif // GATEWAYSERVER_H
