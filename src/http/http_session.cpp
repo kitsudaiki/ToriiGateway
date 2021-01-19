@@ -21,19 +21,19 @@
  */
 
 #include "http_session.h"
+#include <gateway.h>
 
 #include <libKitsunemimiConfig/config_handler.h>
 #include <libKitsunemimiCommon/common_items/data_items.h>
 #include <libKitsunemimiPersistence/files/text_file.h>
 #include <libKitsunemimiPersistence/logger/logger.h>
 
-#include <libKitsunemimiSakuraMessaging/messaging_controller.h>
 #include <libKitsunemimiSakuraMessaging/messaging_client.h>
 
 /**
  * @brief constructor
  */
-HttpSession::HttpSession(tcp::socket &&socket)
+HttpRequestEvent::HttpRequestEvent(tcp::socket &&socket)
     : m_socket(std::move(socket))
 {
 }
@@ -44,7 +44,7 @@ HttpSession::HttpSession(tcp::socket &&socket)
  * @return true, if successful, else false
  */
 bool
-HttpSession::processEvent()
+HttpRequestEvent::processEvent()
 {
     if(readMessage() == false) {
         return false;
@@ -68,7 +68,7 @@ HttpSession::processEvent()
  * @brief process request and build response
  */
 void
-HttpSession::processRequest()
+HttpRequestEvent::processRequest()
 {
     m_response.version(m_request.version());
     m_response.keep_alive(false);
@@ -137,14 +137,18 @@ HttpSession::processRequest()
  * @return true, if successful, else false
  */
 bool
-HttpSession::sendFileFromLocalLocation()
+HttpRequestEvent::sendFileFromLocalLocation(const std::string &dir, const std::string &relativePath)
 {
     // create file-path
-    std::string path = m_fileLocation;
-    path += m_request.target().to_string();
-    if(m_request.target() == "/") {
+    std::string path = dir + relativePath;
+    if(relativePath == "/"){
         path += "index.html";
     }
+    if(relativePath == ""){
+        path += "/index.html";
+    }
+
+    LOG_DEBUG("load file " + path);
 
     // set response-type based on file-type
     boost::filesystem::path pathObj(path);
@@ -184,7 +188,7 @@ HttpSession::sendFileFromLocalLocation()
  * @return true, if successful, else false
  */
 bool
-HttpSession::sendConnectionInfo(const std::string &client,
+HttpRequestEvent::sendConnectionInfo(const std::string &client,
                                 const std::string &portName)
 {
     bool success = false;
@@ -196,7 +200,7 @@ HttpSession::sendConnectionInfo(const std::string &client,
     }
 
     // get ip from config
-    const std::string ip = GET_STRING_CONFIG(client, "ip", success);
+    const std::string ip = GET_STRING_CONFIG("DEFAULT", "ip", success);
     if(success == false) {
         return false;
     }
@@ -219,7 +223,7 @@ HttpSession::sendConnectionInfo(const std::string &client,
  * @return true, if successful, else false
  */
 bool
-HttpSession::readMessage()
+HttpRequestEvent::readMessage()
 {
     beast::error_code ec;
     beast::flat_buffer buffer;
@@ -244,7 +248,7 @@ HttpSession::readMessage()
  * @return true, if successful, else false
  */
 bool
-HttpSession::sendResponse()
+HttpRequestEvent::sendResponse()
 {
     beast::error_code ec;
     // TODO: replace the "*" by a correct "http://..."
@@ -257,6 +261,151 @@ HttpSession::sendResponse()
     {
         LOG_ERROR("write: " + ec.message());
         return false;
+    }
+
+    return true;
+}
+
+bool
+HttpRequestEvent::processGetRequest()
+{
+    std::string path = m_request.target().to_string();
+
+    if(path.compare(0, 7, "/client") == 0)
+    {
+        path.erase(0, 7);
+        return processClientRequest(path);
+    }
+
+    if(path.compare(0, 11, "/monitoring") == 0)
+    {
+        path.erase(0, 11);
+        return processMonitoringRequest(path);
+    }
+
+    if(path.compare(0, 8, "/control") == 0)
+    {
+        path.erase(0, 8);
+        return processControlRequest("{}");
+    }
+
+    return false;
+}
+
+bool
+HttpRequestEvent::processPostRequest()
+{
+    std::string path = m_request.target().to_string();
+
+    if(path.compare(0, 8, "/control") == 0)
+    {
+        path.erase(0, 8);
+        return processControlRequest(m_request.body().data());
+    }
+
+    return false;
+}
+
+bool
+HttpRequestEvent::processPutRequest()
+{
+    std::string path = m_request.target().to_string();
+
+    if(path.compare(0, 8, "/control") == 0)
+    {
+        path.erase(0, 8);
+        return false;
+    }
+
+    return false;
+}
+
+bool
+HttpRequestEvent::processDelesteRequest()
+{
+    std::string path = m_request.target().to_string();
+
+    if(path.compare(0, 8, "/control") == 0)
+    {
+        path.erase(0, 8);
+        return false;
+    }
+
+    return false;
+}
+
+bool
+HttpRequestEvent::processClientRequest(const std::string &path)
+{
+    bool success = false;
+    const std::string fileLocation = GET_STRING_CONFIG("client", "location", success);
+    if(success == false) {
+        return false;
+    }
+
+    if(path == "/websocket") {
+        return sendConnectionInfo("client", "websocket_port");
+    } else {
+        sendFileFromLocalLocation(fileLocation, path);
+    }
+
+    return true;
+}
+
+bool
+HttpRequestEvent::processMonitoringRequest(const std::string &path)
+{
+    bool success = false;
+    const std::string fileLocation = GET_STRING_CONFIG("monitoring", "location", success);
+    if(success == false) {
+        return false;
+    }
+
+    if(path == "/websocket") {
+        return sendConnectionInfo("monitoring", "websocket_port");
+    } else {
+        sendFileFromLocalLocation(fileLocation, path);
+    }
+
+    return true;
+}
+
+
+/**
+ * @brief provess request
+ *
+ * @param inputValues json-formated input-values
+ */
+bool
+HttpRequestEvent::processControlRequest(const std::string &inputValues)
+{
+    Kitsunemimi::Sakura::MessagingClient* m_client = Gateway::m_instance->getClient("control");
+
+    Kitsunemimi::DataMap result;
+    std::string errorMessage = "";
+
+    const std::string falseId = std::string(m_request.target().data(), m_request.target().size());
+    const std::string correctId = falseId.substr(1, falseId.size()-1);
+
+    // trigger sakura-file remote
+    const bool ret = m_client->triggerSakuraFile(result,
+                                                 correctId,
+                                                 inputValues,
+                                                 errorMessage);
+
+    // forward result to the control
+    if(ret)
+    {
+        m_response.result(http::status::ok);
+        m_response.set(http::field::content_type, "text/json");
+        beast::ostream(m_response.body()) << result.toString();
+    }
+    else
+    {
+        m_response.result(http::status::not_found);
+        m_response.set(http::field::content_type, "text/plain");
+        LOG_ERROR(errorMessage);
+        beast::ostream(m_response.body()) << errorMessage;
     }
 
     return true;

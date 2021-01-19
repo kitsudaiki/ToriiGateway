@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file        http_server.cpp
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
@@ -22,9 +22,7 @@
 
 #include "http_server.h"
 
-#include <http/client_http_session.h>
-#include <http/control_http_session.h>
-#include <http/monitoring_http_session.h>
+#include <http/http_session.h>
 #include <http/http_thread.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
@@ -37,12 +35,10 @@
  * @param type type of the server (monitoring, client, control)
  */
 HttpServer::HttpServer(const std::string &address,
-                       const uint16_t port,
-                       const std::string &type)
+                       const uint16_t port)
 {
     m_address = address;
     m_port = port;
-    m_type = type;
 
     m_httpThread = new HttpThread();
     m_httpThread->startThread();
@@ -68,20 +64,9 @@ HttpServer::run()
             tcp::socket socket{ioc};
             acceptor.accept(socket);
 
-            // initialize session
-            HttpSession* session = nullptr;
-            if(m_type == "client") {
-                session = new ClientHttpSession(std::move(socket));
-            }
-            if(m_type == "control") {
-                session = new ControlHttpSession(std::move(socket));
-            }
-            if(m_type == "monitoring") {
-                session = new MonitoringHttpSession(std::move(socket));
-            }
-
             // process http-request within an already existing thread
-            m_httpThread->addEventToQueue(session);
+            HttpRequestEvent* event = new HttpRequestEvent(std::move(socket));
+            m_httpThread->addEventToQueue(event);
         }
     }
     catch (const std::exception& e)

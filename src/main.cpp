@@ -74,9 +74,9 @@ int main(int argc, char *argv[])
         LOG_ERROR("initializing monitoring-endpoint failed");
         return 1;
     }
-    if(gateway.initControl() == false)
+    if(gateway.initHttpServer() == false)
     {
-        LOG_ERROR("initializing control-endpoint failed");
+        LOG_ERROR("initializing http-server failed");
         return 1;
     }
     if(gateway.initInternalSession() == false)

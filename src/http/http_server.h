@@ -43,8 +43,7 @@ class HttpServer
 {
 public:
     HttpServer(const std::string &address,
-               const uint16_t port,
-               const std::string &type);
+               const uint16_t port);
 
 protected:
     void run();
@@ -52,7 +51,6 @@ protected:
 private:
     std::string m_address = "";
     uint16_t m_port = 0;
-    std::string m_type = "";
 
     HttpThread* m_httpThread = nullptr;
 };
