@@ -283,10 +283,10 @@ HttpRequestEvent::processGetRequest()
         return processMonitoringRequest(path);
     }
 
-    if(path.compare(0, 8, "/control") == 0)
+    if(path.compare(0, 9, "/control/") == 0)
     {
-        path.erase(0, 8);
-        return processControlRequest("{}");
+        path.erase(0, 9);
+        return processControlRequest(path, "{}");
     }
 
     return false;
@@ -297,10 +297,10 @@ HttpRequestEvent::processPostRequest()
 {
     std::string path = m_request.target().to_string();
 
-    if(path.compare(0, 8, "/control") == 0)
+    if(path.compare(0, 9, "/control/") == 0)
     {
-        path.erase(0, 8);
-        return processControlRequest(m_request.body().data());
+        path.erase(0, 9);
+        return processControlRequest(path, m_request.body().data());
     }
 
     return false;
@@ -377,21 +377,16 @@ HttpRequestEvent::processMonitoringRequest(const std::string &path)
  * @param inputValues json-formated input-values
  */
 bool
-HttpRequestEvent::processControlRequest(const std::string &inputValues)
+HttpRequestEvent::processControlRequest(const std::string &path,
+                                        const std::string &inputValues)
 {
     Kitsunemimi::Sakura::MessagingClient* m_client = Gateway::m_instance->getClient("control");
 
     Kitsunemimi::DataMap result;
     std::string errorMessage = "";
 
-    const std::string falseId = std::string(m_request.target().data(), m_request.target().size());
-    const std::string correctId = falseId.substr(1, falseId.size()-1);
-
     // trigger sakura-file remote
-    const bool ret = m_client->triggerSakuraFile(result,
-                                                 correctId,
-                                                 inputValues,
-                                                 errorMessage);
+    const bool ret = m_client->triggerSakuraFile(result, path, inputValues, errorMessage);
 
     // forward result to the control
     if(ret)
