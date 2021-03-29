@@ -32,7 +32,6 @@
  *
  * @param address address to listen on
  * @param port port to listen
- * @param type type of the server (monitoring, client, control)
  */
 HttpServer::HttpServer(const std::string &address,
                        const uint16_t port)

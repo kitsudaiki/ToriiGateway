@@ -137,7 +137,8 @@ HttpRequestEvent::processRequest()
  * @return true, if successful, else false
  */
 bool
-HttpRequestEvent::sendFileFromLocalLocation(const std::string &dir, const std::string &relativePath)
+HttpRequestEvent::sendFileFromLocalLocation(const std::string &dir,
+                                            const std::string &relativePath)
 {
     // create file-path
     std::string path = dir + relativePath;
@@ -189,7 +190,7 @@ HttpRequestEvent::sendFileFromLocalLocation(const std::string &dir, const std::s
  */
 bool
 HttpRequestEvent::sendConnectionInfo(const std::string &client,
-                                const std::string &portName)
+                                     const std::string &portName)
 {
     bool success = false;
 
@@ -251,9 +252,6 @@ bool
 HttpRequestEvent::sendResponse()
 {
     beast::error_code ec;
-    // TODO: replace the "*" by a correct "http://..."
-    m_response.set(http::field::access_control_allow_origin, "*");
-    m_response.set(http::field::access_control_allow_methods, "GET, POST");
     m_response.content_length(m_response.body().size());
     http::write(m_socket, m_response, ec);
 
@@ -266,6 +264,11 @@ HttpRequestEvent::sendResponse()
     return true;
 }
 
+/**
+ * @brief forward incoming get-requests
+ *
+ * @return true, if successful, else false
+ */
 bool
 HttpRequestEvent::processGetRequest()
 {
@@ -286,12 +289,18 @@ HttpRequestEvent::processGetRequest()
     if(path.compare(0, 9, "/control/") == 0)
     {
         path.erase(0, 9);
-        return processControlRequest(path, "{}");
+        processControlRequest(path, "{}");
+        return true;
     }
 
     return false;
 }
 
+/**
+ * @brief forward incoming post-requests
+ *
+ * @return true, if successful, else false
+ */
 bool
 HttpRequestEvent::processPostRequest()
 {
@@ -300,12 +309,17 @@ HttpRequestEvent::processPostRequest()
     if(path.compare(0, 9, "/control/") == 0)
     {
         path.erase(0, 9);
-        return processControlRequest(path, m_request.body().data());
+        processControlRequest(path, m_request.body().data());
+        return true;
     }
 
     return false;
 }
 
+/**
+ * @brief HttpRequestEvent::processPutRequest
+ * @return
+ */
 bool
 HttpRequestEvent::processPutRequest()
 {
@@ -320,6 +334,10 @@ HttpRequestEvent::processPutRequest()
     return false;
 }
 
+/**
+ * @brief HttpRequestEvent::processDelesteRequest
+ * @return
+ */
 bool
 HttpRequestEvent::processDelesteRequest()
 {
@@ -334,6 +352,11 @@ HttpRequestEvent::processDelesteRequest()
     return false;
 }
 
+/**
+ * @brief HttpRequestEvent::processClientRequest
+ * @param path
+ * @return
+ */
 bool
 HttpRequestEvent::processClientRequest(const std::string &path)
 {
@@ -352,6 +375,13 @@ HttpRequestEvent::processClientRequest(const std::string &path)
     return true;
 }
 
+/**
+ * @brief get file of
+ *
+ * @param path requested path
+ *
+ * @return true, f
+ */
 bool
 HttpRequestEvent::processMonitoringRequest(const std::string &path)
 {
@@ -370,13 +400,13 @@ HttpRequestEvent::processMonitoringRequest(const std::string &path)
     return true;
 }
 
-
 /**
- * @brief provess request
+ * @brief process control request by forwarding it to the backend
  *
+ * @param path path to forward as identifier to trigger sakura file
  * @param inputValues json-formated input-values
  */
-bool
+void
 HttpRequestEvent::processControlRequest(const std::string &path,
                                         const std::string &inputValues)
 {
@@ -402,6 +432,4 @@ HttpRequestEvent::processControlRequest(const std::string &path,
         LOG_ERROR(errorMessage);
         beast::ostream(m_response.body()) << errorMessage;
     }
-
-    return true;
 }
