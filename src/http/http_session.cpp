@@ -160,6 +160,8 @@ HttpRequestEvent::sendFileFromLocalLocation(const std::string &dir,
         m_response.set(http::field::content_type, "text/css");
     } else if(pathObj.extension().string() == ".js") {
         m_response.set(http::field::content_type, "text/javascript");
+    } else if(pathObj.extension().string() == ".png") {
+        m_response.set(http::field::content_type, "image/png");
     } else {
         m_response.set(http::field::content_type, "text/plain");
     }
