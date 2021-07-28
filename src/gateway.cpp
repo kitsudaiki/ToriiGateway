@@ -118,26 +118,6 @@ Gateway::initClient()
 }
 
 /**
- * @brief initialize monitoring-server, if enabled
- *
- * @return true, if successful, else false
- */
-bool
-Gateway::initMonitoring()
-{
-    const std::string groupName = "monitoring";
-    if(isEnabled(groupName) == false) {
-        return true;
-    }
-
-    if(initWebSocketServer(groupName) == false) {
-        return false;
-    }
-
-    return true;
-}
-
-/**
  * @brief check if server is enabled
  *
  * @param group group-name in config-file
@@ -183,11 +163,6 @@ Gateway::initWebSocketServer(const std::string &group)
     {
         m_clientWebsocketServer = new WebSocketServer(ip, port, group);
         m_clientWebsocketServer->startThread();
-    }
-    if(group == "monitoring")
-    {
-        m_monitoringWebsocketServer = new WebSocketServer(ip, port, group);
-        m_monitoringWebsocketServer->startThread();
     }
 
     return true;

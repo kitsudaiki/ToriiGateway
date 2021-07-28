@@ -35,6 +35,8 @@ class MessagingClient;
 }
 }
 
+using Kitsunemimi::Sakura::MessagingClient;
+
 class Gateway
 {
 public:
@@ -44,10 +46,9 @@ public:
     bool initInternalSession();
     bool initHttpServer();
     bool initClient();
-    bool initMonitoring();
 
-    Kitsunemimi::Sakura::MessagingClient* getClient(const std::string &id);
-    bool addClient(const std::string &id, Kitsunemimi::Sakura::MessagingClient* session);
+    MessagingClient* getClient(const std::string &id);
+    bool addClient(const std::string &id, MessagingClient* session);
     bool removeClient(const std::string &id);
 
 
