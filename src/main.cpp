@@ -25,6 +25,7 @@
 #include <gateway.h>
 #include <config.h>
 #include <args.h>
+#include <thread>
 
 #include <libKitsunemimiArgs/arg_parser.h>
 #include <libKitsunemimiPersistence/logger/logger.h>
@@ -48,7 +49,9 @@ int main(int argc, char *argv[])
     if(configPath == "") {
         configPath = "/etc/ToriiGateway/ToriiGateway.conf";
     }
-    Kitsunemimi::Config::initConfig(configPath);
+    if(Kitsunemimi::Config::initConfig(configPath) == false) {
+        return 1;
+    }
     registerConfigs();
 
     // get config-parameter for logger
@@ -85,7 +88,8 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    int a = 0;
-    std::cin >> a;
+    // sleep forever
+    std::this_thread::sleep_until(std::chrono::time_point<std::chrono::system_clock>::max());
+
     return 0;
 }
