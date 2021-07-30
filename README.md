@@ -51,17 +51,16 @@ These repositories will be downloaded automatically by the build script of the t
 Repository-Name | Version-Tag | Download-Path
 --- | --- | ---
 libKitsunemimiCommon | v0.18.0 |  https://github.com/kitsudaiki/libKitsunemimiCommon.git
-libKitsunemimiPersistence | v0.10.1 | https://github.com/kitsudaiki/libKitsunemimiPersistence.git
-libKitsunemimiJson | v0.10.5 | https://github.com/kitsudaiki/libKitsunemimiJson.git
-libKitsunemimiJinja2 | v0.8.0 | https://github.com/kitsudaiki/libKitsunemimiJinja2.git
-libKitsunemimiIni | v0.4.6 | https://github.com/kitsudaiki/libKitsunemimiIni.git
-libKitsunemimiArgs | v0.2.1 | https://github.com/kitsudaiki/libKitsunemimiArgs.git
+libKitsunemimiPersistence | v0.10.2 | https://github.com/kitsudaiki/libKitsunemimiPersistence.git
+libKitsunemimiJson | v0.10.6 | https://github.com/kitsudaiki/libKitsunemimiJson.git
+libKitsunemimiJinja2 | v0.8.1 | https://github.com/kitsudaiki/libKitsunemimiJinja2.git
+libKitsunemimiIni | v0.4.7 | https://github.com/kitsudaiki/libKitsunemimiIni.git
+libKitsunemimiArgs | v0.2.2 | https://github.com/kitsudaiki/libKitsunemimiArgs.git
 libKitsunemimiConfig | v0.2.3 | https://github.com/kitsudaiki/libKitsunemimiConfig.git
-libKitsunemimiSakuraLang | v0.7.2 | https://github.com/kitsudaiki/libKitsunemimiSakuraLang.git
-libKitsunemimiNetwork | v0.6.5 | https://github.com/kitsudaiki/libKitsunemimiNetwork.git
-libKitsunemimiSakuraNetwork | v0.5.0 | https://github.com/kitsudaiki/libKitsunemimiSakuraNetwork.git
-libKitsunemimiSakuraMessaging | v0.4.0 | -
-
+libKitsunemimiSakuraLang | v0.8.0 | https://github.com/kitsudaiki/libKitsunemimiSakuraLang.git
+libKitsunemimiNetwork | v0.6.6 | https://github.com/kitsudaiki/libKitsunemimiNetwork.git
+libKitsunemimiSakuraNetwork | v0.6.0 | https://github.com/kitsudaiki/libKitsunemimiSakuraNetwork.git
+libKitsunemimiSakuraMessaging | v0.4.1 | -
 
 ### build programm
 
