@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.3.0] - 2021-07-30
+
+### Added
+- support request of png-images
+
+### Removed
+- monitoring-endpoint removed
+
+
+### Changed
+
 ## [0.2.0] - 2021-03-29
 
 ### Changed
