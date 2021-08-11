@@ -36,6 +36,8 @@ registerConfigs()
     REGISTER_STRING_CONFIG("DEFAULT", "log_path", "/var/log");
     REGISTER_STRING_CONFIG("DEFAULT", "ip", "0.0.0.0");
     REGISTER_INT_CONFIG("DEFAULT", "http_port", 12345);
+    REGISTER_STRING_CONFIG("DEFAULT", "certificate", "");
+    REGISTER_STRING_CONFIG("DEFAULT", "key", "");
 
     // client-section
     REGISTER_BOOL_CONFIG("client", "enable", false);
