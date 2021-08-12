@@ -79,6 +79,8 @@ private:
     bool processClientRequest(const std::string &path);
     bool processMonitoringRequest(const std::string &path);
     void processControlRequest(const std::string &path, const std::string &inputValues);
+
+    const std::string getResponseType(const std::string &ext);
 };
 
 #endif // HTTP_SESSION_H
