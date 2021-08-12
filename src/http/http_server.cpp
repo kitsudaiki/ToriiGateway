@@ -46,9 +46,6 @@ HttpServer::HttpServer(const std::string &address,
     m_port = port;
     m_cert = cert;
     m_key = key;
-
-    m_httpThread = new HttpThread();
-    m_httpThread->startThread();
 }
 
 /**

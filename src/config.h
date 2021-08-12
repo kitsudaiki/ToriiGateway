@@ -44,6 +44,7 @@ registerConfigs()
     REGISTER_STRING_CONFIG("server", "key", "");
     REGISTER_INT_CONFIG("server", "http_port", 12345);
     REGISTER_INT_CONFIG("server", "websocket_port", 13345);
+    REGISTER_INT_CONFIG("server", "number_of_threads", 4);
 
     // KyoukoMind-section
     REGISTER_STRING_CONFIG("KyoukoMind", "address", "/tmp/KyoukoMind_uds.sock");

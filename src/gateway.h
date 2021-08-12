@@ -25,9 +25,11 @@
 
 #include <iostream>
 #include <map>
+#include <vector>
 
 class WebSocketServer;
 class HttpServer;
+class HttpThread;
 class RequestQueue;
 
 namespace Kitsunemimi {
@@ -58,6 +60,7 @@ public:
 
 private:
     std::map<std::string, Kitsunemimi::Sakura::MessagingClient*> m_clients;
+    std::vector<HttpThread*> m_threads;
 
     bool initWebSocketServer();
 };

@@ -25,6 +25,7 @@
 
 #include <callbacks.h>
 #include <http/request_queue.h>
+#include <http/http_thread.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 
@@ -161,6 +162,18 @@ Gateway::initHttpServer()
     const std::string key = GET_STRING_CONFIG("server", "key", success);
     if(success == false) {
         return false;
+    }
+
+    const uint32_t numberOfThreads = GET_INT_CONFIG("server", "number_of_threads", success);
+    if(success == false) {
+        return false;
+    }
+
+    for(uint32_t i = 0; i < numberOfThreads; i++)
+    {
+        HttpThread* httpThread = new HttpThread();
+        httpThread->startThread();
+        m_threads.push_back(httpThread);
     }
 
     m_httpServer = new HttpServer(ip, port, cert, key);
