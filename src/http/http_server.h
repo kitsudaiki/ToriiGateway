@@ -26,7 +26,8 @@
 #include <boost/beast/core.hpp>
 #include <boost/beast/http.hpp>
 #include <boost/beast/version.hpp>
-#include <boost/asio.hpp>
+#include <boost/beast/ssl.hpp>
+
 #include <chrono>
 #include <cstdlib>
 #include <ctime>
@@ -43,7 +44,9 @@ class HttpServer
 {
 public:
     HttpServer(const std::string &address,
-               const uint16_t port);
+               const uint16_t port,
+               const std::string &cert,
+               const std::string &key);
 
 protected:
     void run();
@@ -51,8 +54,14 @@ protected:
 private:
     std::string m_address = "";
     uint16_t m_port = 0;
+    std::string m_cert = "";
+    std::string m_key = "";
 
     HttpThread* m_httpThread = nullptr;
+
+    bool loadCertificates(boost::asio::ssl::context &ctx,
+                          const std::string &certFile,
+                          const std::string &keyFile);
 };
 
 #endif // HTTP_SERVER_H

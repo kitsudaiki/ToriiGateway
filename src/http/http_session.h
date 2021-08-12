@@ -26,8 +26,10 @@
 #include <boost/beast/core.hpp>
 #include <boost/beast/http.hpp>
 #include <boost/beast/version.hpp>
+#include <boost/beast/ssl.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/config.hpp>
+
 #include <cstdlib>
 #include <iostream>
 #include <memory>
@@ -45,7 +47,8 @@ class HttpRequestEvent
         : public Kitsunemimi::Event
 {
 public:
-    HttpRequestEvent(tcp::socket &&socket);
+    HttpRequestEvent(tcp::socket &&socket,
+                     boost::asio::ssl::context &ctx);
 
     bool processEvent();
 
@@ -55,6 +58,7 @@ protected:
 
 private:
     tcp::socket m_socket;
+    beast::ssl_stream<tcp::socket&> m_stream;
     beast::flat_buffer m_buffer{8192};
     http::request<http::string_body> m_request;
     http::response<http::dynamic_body> m_response;

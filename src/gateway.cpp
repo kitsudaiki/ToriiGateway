@@ -190,8 +190,19 @@ Gateway::initHttpServer()
         return false;
     }
 
-    m_httpServer = new HttpServer(ip,
-                                  port);
+    // get ip to bind from config
+    const std::string cert = GET_STRING_CONFIG("DEFAULT", "certificate", success);
+    if(success == false) {
+        return false;
+    }
+
+    // get ip to bind from config
+    const std::string key = GET_STRING_CONFIG("DEFAULT", "key", success);
+    if(success == false) {
+        return false;
+    }
+
+    m_httpServer = new HttpServer(ip, port, cert, key);
     m_httpServer->startThread();
 
     return true;

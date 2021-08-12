@@ -26,6 +26,7 @@
 #include <http/http_thread.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
+#include <libKitsunemimiPersistence/files/text_file.h>
 
 /**
  * @brief constructor
@@ -34,13 +35,79 @@
  * @param port port to listen
  */
 HttpServer::HttpServer(const std::string &address,
-                       const uint16_t port)
+                       const uint16_t port,
+                       const std::string &cert,
+                       const std::string &key)
 {
     m_address = address;
     m_port = port;
+    m_cert = cert;
+    m_key = key;
 
     m_httpThread = new HttpThread();
     m_httpThread->startThread();
+}
+
+/**
+ * @brief HttpServer::loadCertificates
+ * @param ctx
+ * @param cert
+ * @param key
+ */
+bool
+HttpServer::loadCertificates(boost::asio::ssl::context& ctx,
+                             const std::string &certFile,
+                             const std::string &keyFile)
+{
+    /*ctx.set_password_callback(
+        [](std::size_t,
+            boost::asio::ssl::context_base::password_purpose)
+        {
+            return "test";
+        });*/
+
+    std::string errorMessage = "";
+    std::string cert = "";
+    std::string key = "";
+    bool ret = false;
+
+    ret = Kitsunemimi::Persistence::readFile(cert, certFile, errorMessage);
+    if(ret == false)
+    {
+        LOG_ERROR(errorMessage);
+        return false;
+    }
+
+    ret = Kitsunemimi::Persistence::readFile(key, keyFile, errorMessage);
+    if(ret == false)
+    {
+        LOG_ERROR(errorMessage);
+        return false;
+    }
+
+    std::string const dh =
+        "-----BEGIN DH PARAMETERS-----\n"
+        "MIIBCAKCAQEArzQc5mpm0Fs8yahDeySj31JZlwEphUdZ9StM2D8+Fo7TMduGtSi+\n"
+        "/HRWVwHcTFAgrxVdm+dl474mOUqqaz4MpzIb6+6OVfWHbQJmXPepZKyu4LgUPvY/\n"
+        "4q3/iDMjIS0fLOu/bLuObwU5ccZmDgfhmz1GanRlTQOiYRty3FiOATWZBRh6uv4u\n"
+        "tff4A9Bm3V9tLx9S6djq31w31Gl7OQhryodW28kc16t9TvO1BzcV3HjRPwpe701X\n"
+        "oEEZdnZWANkkpR/m/pfgdmGPU66S2sXMHgsliViQWpDCYeehrvFRHEdR9NV+XJfC\n"
+        "QMUk26jPTIVTLfXmmwU0u8vUkpR7LQKkwwIBAg==\n"
+        "-----END DH PARAMETERS-----\n";
+
+
+    ctx.set_options(boost::asio::ssl::context::default_workarounds |
+                    boost::asio::ssl::context::no_sslv2 |
+                    boost::asio::ssl::context::single_dh_use);
+
+    ctx.use_certificate_chain(boost::asio::buffer(cert.data(), cert.size()));
+
+    ctx.use_private_key(boost::asio::buffer(key.data(), key.size()),
+                        boost::asio::ssl::context::file_format::pem);
+
+    ctx.use_tmp_dh(boost::asio::buffer(dh.data(), dh.size()));
+
+    return true;
 }
 
 /**
@@ -56,6 +123,8 @@ HttpServer::run()
         const net::ip::address address = net::ip::make_address(m_address);
         net::io_context ioc{1};
         tcp::acceptor acceptor{ioc, {address, m_port}};
+        boost::asio::ssl::context ctx{boost::asio::ssl::context::tlsv12};
+        loadCertificates(ctx, m_cert, m_key);
 
         while(m_abort == false)
         {
@@ -64,7 +133,7 @@ HttpServer::run()
             acceptor.accept(socket);
 
             // process http-request within an already existing thread
-            HttpRequestEvent* event = new HttpRequestEvent(std::move(socket));
+            HttpRequestEvent* event = new HttpRequestEvent(std::move(socket), std::ref(ctx));
             m_httpThread->addEventToQueue(event);
         }
     }

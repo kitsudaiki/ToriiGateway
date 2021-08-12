@@ -33,9 +33,20 @@
 /**
  * @brief constructor
  */
-HttpRequestEvent::HttpRequestEvent(tcp::socket &&socket)
-    : m_socket(std::move(socket))
+HttpRequestEvent::HttpRequestEvent(tcp::socket &&socket,
+                                   boost::asio::ssl::context &ctx)
+    : m_socket(std::move(socket)),
+      m_stream{m_socket, ctx} // the stupid template of the constructor for the variable m_stream
+                              // doesn't accept the std::move function. Because result of std::move
+                              // have to be written into it own variable first, before using this
+                              // for the m_stream varible. So the order of these two is important!
 {
+    // Perform the SSL handshake
+    beast::error_code ec;
+    m_stream.handshake(boost::asio::ssl::stream_base::server, ec);
+    if(ec) {
+        LOG_ERROR("SSL-Handshake failed!");
+    }
 }
 
 /**
@@ -59,7 +70,7 @@ HttpRequestEvent::processEvent()
 
     // close socket gain
     beast::error_code ec;
-    m_socket.shutdown(tcp::socket::shutdown_send, ec);
+    m_stream.shutdown(ec);
 
     return true;
 }
@@ -230,7 +241,7 @@ HttpRequestEvent::readMessage()
 {
     beast::error_code ec;
     beast::flat_buffer buffer;
-    http::read(m_socket, buffer, m_request, ec);
+    http::read(m_stream, buffer, m_request, ec);
 
     if(ec == http::error::end_of_stream) {
          return true;
@@ -255,7 +266,7 @@ HttpRequestEvent::sendResponse()
 {
     beast::error_code ec;
     m_response.content_length(m_response.body().size());
-    http::write(m_socket, m_response, ec);
+    http::write(m_stream, m_response, ec);
 
     if(ec)
     {
