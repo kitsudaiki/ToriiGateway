@@ -1,5 +1,5 @@
 /**
- * @file        http_thread.cpp
+ * @file        request_queue.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,35 +20,25 @@
  *      limitations under the License.
  */
 
-#include "http_thread.h"
+#ifndef REQUEST_QUEUE_H
+#define REQUEST_QUEUE_H
 
-#include <gateway.h>
-#include <http/request_queue.h>
-#include <http/http_session.h>
+#include <mutex>
+#include <deque>
 
-#include <libKitsunemimiCommon/threading/event.h>
+class HttpRequestEvent;
 
-HttpThread::HttpThread()
-    : Kitsunemimi::Thread() {}
-
-/**
- * @brief HttpThread::run
- */
-void
-HttpThread::run()
+class RequestQueue
 {
-    while(m_abort == false)
-    {
-        Kitsunemimi::Event* event = Gateway::m_requestQueue->getSession();
-        if(event != nullptr)
-        {
-            event->processEvent();
-            delete event;
-        }
-        else
-        {
-            sleepThread(10000);
-        }
-    }
-}
+public:
+    RequestQueue();
 
+    HttpRequestEvent* getSession();
+    void addSession(HttpRequestEvent* session);
+
+private:
+    std::deque<HttpRequestEvent*> m_queue;
+    std::mutex m_queueMutex;
+};
+
+#endif // REQUEST_QUEUE_H

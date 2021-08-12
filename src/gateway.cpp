@@ -24,6 +24,7 @@
 #include "gateway.h"
 
 #include <callbacks.h>
+#include <http/request_queue.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 
@@ -48,6 +49,7 @@ using Kitsunemimi::Sakura::MessagingClient;
 #include <http/http_server.h>
 
 Gateway* Gateway::m_instance = nullptr;
+RequestQueue* Gateway::m_requestQueue = nullptr;
 
 /**
  * @brief constructor
@@ -55,6 +57,7 @@ Gateway* Gateway::m_instance = nullptr;
 Gateway::Gateway()
 {
     m_instance = this;
+    m_requestQueue = new RequestQueue();
     std::vector<std::string> groups = {};
     MessagingController::initializeMessagingController("ToriiGateway",
                                                        groups,

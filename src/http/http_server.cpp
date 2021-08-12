@@ -22,8 +22,11 @@
 
 #include "http_server.h"
 
+#include <gateway.h>
+
 #include <http/http_session.h>
 #include <http/http_thread.h>
+#include <http/request_queue.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 #include <libKitsunemimiPersistence/files/text_file.h>
@@ -134,7 +137,7 @@ HttpServer::run()
 
             // process http-request within an already existing thread
             HttpRequestEvent* event = new HttpRequestEvent(std::move(socket), std::ref(ctx));
-            m_httpThread->addEventToQueue(event);
+            Gateway::m_requestQueue->addSession(event);
         }
     }
     catch (const std::exception& e)

@@ -28,6 +28,7 @@
 
 class WebSocketServer;
 class HttpServer;
+class RequestQueue;
 
 namespace Kitsunemimi {
 namespace Sakura {
@@ -53,6 +54,7 @@ public:
     WebSocketServer* m_websocketServer = nullptr;
     HttpServer* m_httpServer = nullptr;
     static Gateway* m_instance;
+    static RequestQueue* m_requestQueue;
 
 private:
     std::map<std::string, Kitsunemimi::Sakura::MessagingClient*> m_clients;
