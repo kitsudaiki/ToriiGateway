@@ -82,57 +82,13 @@ Gateway::initInternalSession()
     const std::string address = GET_STRING_CONFIG("KyoukoMind", "address", success);
     const uint16_t port = static_cast<uint16_t>(GET_INT_CONFIG("KyoukoMind", "port", success));
 
-    const std::string clients[3] = {"control", "client", "monitoring"};
-    for(const std::string &clientName : clients)
-    {
-        newClient = MessagingController::getInstance()->createClient(clientName,
-                                                                     clientName,
-                                                                     address,
-                                                                     port);
-        if(newClient == nullptr) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-/**
- * @brief initialize client-server, if enabled
- *
- * @return true, if successful, else false
- */
-bool
-Gateway::initClient()
-{
-    const std::string groupName = "client";
-    if(isEnabled(groupName) == false) {
-        return true;
-    }
-
-    if(initWebSocketServer(groupName) == false) {
+    MessagingController* contr = MessagingController::getInstance();
+    newClient = contr->createClient("control", "control", address, port);
+    if(newClient == nullptr) {
         return false;
     }
 
     return true;
-}
-
-/**
- * @brief check if server is enabled
- *
- * @param group group-name in config-file
- *
- * @return true, if enabled, else false
- */
-bool
-Gateway::isEnabled(const std::string &group)
-{
-    bool success = false;
-    if(GET_BOOL_CONFIG(group, "enable", success)) {
-        return true;
-    }
-
-    return false;
 }
 
 /**
@@ -143,27 +99,29 @@ Gateway::isEnabled(const std::string &group)
  * @return true, if successful, else false
  */
 bool
-Gateway::initWebSocketServer(const std::string &group)
+Gateway::initWebSocketServer()
 {
     bool success = false;
 
+    // check if websocket is enabled
+    if(GET_BOOL_CONFIG("server", "enable_websocket", success) == false) {
+        return true;
+    }
+
     // get port from config
-    const uint16_t port = static_cast<uint16_t>(GET_INT_CONFIG(group, "websocket_port", success));
+    const uint16_t port = static_cast<uint16_t>(GET_INT_CONFIG("server", "websocket_port", success));
     if(success == false) {
         return false;
     }
 
     // get ip to bind from config
-    const std::string ip = GET_STRING_CONFIG("DEFAULT", "ip", success);
+    const std::string ip = GET_STRING_CONFIG("server", "ip", success);
     if(success == false) {
         return false;
     }
 
-    if(group == "client")
-    {
-        m_clientWebsocketServer = new WebSocketServer(ip, port, group);
-        m_clientWebsocketServer->startThread();
-    }
+    m_websocketServer = new WebSocketServer(ip, port, "server");
+    m_websocketServer->startThread();
 
     return true;
 }
@@ -179,25 +137,25 @@ Gateway::initHttpServer()
     bool success = false;
 
     // get port from config
-    const uint16_t port = static_cast<uint16_t>(GET_INT_CONFIG("DEFAULT", "http_port", success));
+    const uint16_t port = static_cast<uint16_t>(GET_INT_CONFIG("server", "http_port", success));
     if(success == false) {
         return false;
     }
 
     // get ip to bind from config
-    const std::string ip = GET_STRING_CONFIG("DEFAULT", "ip", success);
+    const std::string ip = GET_STRING_CONFIG("server", "ip", success);
     if(success == false) {
         return false;
     }
 
     // get ip to bind from config
-    const std::string cert = GET_STRING_CONFIG("DEFAULT", "certificate", success);
+    const std::string cert = GET_STRING_CONFIG("server", "certificate", success);
     if(success == false) {
         return false;
     }
 
     // get ip to bind from config
-    const std::string key = GET_STRING_CONFIG("DEFAULT", "key", success);
+    const std::string key = GET_STRING_CONFIG("server", "key", success);
     if(success == false) {
         return false;
     }

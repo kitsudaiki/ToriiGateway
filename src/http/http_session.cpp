@@ -316,12 +316,6 @@ HttpRequestEvent::processGetRequest()
         return processClientRequest(path);
     }
 
-    if(path.compare(0, 11, "/monitoring") == 0)
-    {
-        path.erase(0, 11);
-        return processMonitoringRequest(path);
-    }
-
     if(path.compare(0, 9, "/control/") == 0)
     {
         path.erase(0, 9);
@@ -397,38 +391,13 @@ bool
 HttpRequestEvent::processClientRequest(const std::string &path)
 {
     bool success = false;
-    const std::string fileLocation = GET_STRING_CONFIG("client", "location", success);
+    const std::string fileLocation = GET_STRING_CONFIG("server", "dashboard_files", success);
     if(success == false) {
         return false;
     }
 
     if(path == "/websocket") {
         return sendConnectionInfo("client", "websocket_port");
-    } else {
-        sendFileFromLocalLocation(fileLocation, path);
-    }
-
-    return true;
-}
-
-/**
- * @brief get file of
- *
- * @param path requested path
- *
- * @return true, f
- */
-bool
-HttpRequestEvent::processMonitoringRequest(const std::string &path)
-{
-    bool success = false;
-    const std::string fileLocation = GET_STRING_CONFIG("monitoring", "location", success);
-    if(success == false) {
-        return false;
-    }
-
-    if(path == "/websocket") {
-        return sendConnectionInfo("monitoring", "websocket_port");
     } else {
         sendFileFromLocalLocation(fileLocation, path);
     }

@@ -45,23 +45,19 @@ public:
 
     bool initInternalSession();
     bool initHttpServer();
-    bool initClient();
 
     MessagingClient* getClient(const std::string &id);
     bool addClient(const std::string &id, MessagingClient* session);
     bool removeClient(const std::string &id);
 
-
-    WebSocketServer* m_clientWebsocketServer = nullptr;
-    WebSocketServer* m_monitoringWebsocketServer = nullptr;
+    WebSocketServer* m_websocketServer = nullptr;
     HttpServer* m_httpServer = nullptr;
     static Gateway* m_instance;
 
 private:
     std::map<std::string, Kitsunemimi::Sakura::MessagingClient*> m_clients;
 
-    bool isEnabled(const std::string &group);
-    bool initWebSocketServer(const std::string &group);
+    bool initWebSocketServer();
 };
 
 #endif // GATEWAYSERVER_H

@@ -139,16 +139,8 @@ WebSocketSession::closeSession()
 
     Gateway* gateway = Gateway::m_instance;
 
-    if(m_type == "client")
-    {
-        WebSocketServer* server = gateway->m_clientWebsocketServer;
-        server->setClientSession(nullptr);
-    }
-    if(m_type == "monitoring")
-    {
-        WebSocketServer* server = gateway->m_monitoringWebsocketServer;
-        server->setMonitoringSession(nullptr);
-    }
+    WebSocketServer* server = gateway->m_websocketServer;
+    server->setClientSession(nullptr);
 
     scheduleThreadForDeletion();
 }
