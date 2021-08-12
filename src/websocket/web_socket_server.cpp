@@ -56,19 +56,6 @@ WebSocketServer::setClientSession(WebSocketSession* session)
 }
 
 /**
- * @brief set net monitoring-session
- *
- * @return pointer to monitoring-session
- */
-void
-WebSocketServer::setMonitoringSession(WebSocketSession* session)
-{
-    while(m_monitoringSession_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
-    m_activeMonitoringSession = session;
-    m_monitoringSession_lock.clear(std::memory_order_release);
-}
-
-/**
  * @brief get client session
  *
  * @return pointer to client-session
@@ -80,21 +67,6 @@ WebSocketServer::getClientSession()
     while(m_clientSession_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
     session = m_activeClientSession;
     m_clientSession_lock.clear(std::memory_order_release);
-    return session;
-}
-
-/**
- * @brief get monitoring session
- *
- * @return pointer to monitoring-session
- */
-WebSocketSession*
-WebSocketServer::getMonitoringSession()
-{
-    WebSocketSession* session = nullptr;
-    while(m_monitoringSession_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
-    session = m_activeMonitoringSession;
-    m_monitoringSession_lock.clear(std::memory_order_release);
     return session;
 }
 
@@ -124,17 +96,11 @@ WebSocketServer::run()
             if(m_type == "client") {
                 setClientSession(nullptr);
             }
-            if(m_type == "monitoring") {
-                setMonitoringSession(nullptr);
-            }
 
             // initialize session
             WebSocketSession* session = new WebSocketSession(std::move(socket), m_type);
             if(m_type == "client") {
                 setClientSession(session);
-            }
-            if(m_type == "monitoring") {
-                setMonitoringSession(session);
             }
 
             session->startThread();

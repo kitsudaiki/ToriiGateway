@@ -44,10 +44,8 @@ public:
                     const std::string &type);
 
     void setClientSession(WebSocketSession* session);
-    void setMonitoringSession(WebSocketSession* session);
 
     WebSocketSession* getClientSession();
-    WebSocketSession* getMonitoringSession();
 
 protected:
     void run();
@@ -59,9 +57,6 @@ private:
 
     std::atomic_flag m_clientSession_lock = ATOMIC_FLAG_INIT;
     WebSocketSession* m_activeClientSession = nullptr;
-
-    std::atomic_flag m_monitoringSession_lock = ATOMIC_FLAG_INIT;
-    WebSocketSession* m_activeMonitoringSession = nullptr;
 };
 
 #endif // WEB_SOCKET_SERVER_H

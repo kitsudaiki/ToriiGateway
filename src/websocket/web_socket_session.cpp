@@ -137,9 +137,7 @@ WebSocketSession::closeSession()
 {
     m_abort = true;
 
-    Gateway* gateway = Gateway::m_instance;
-
-    WebSocketServer* server = gateway->m_websocketServer;
+    WebSocketServer* server = Gateway::m_instance->m_websocketServer;
     server->setClientSession(nullptr);
 
     scheduleThreadForDeletion();
