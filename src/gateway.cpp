@@ -51,6 +51,7 @@ using Kitsunemimi::Sakura::MessagingClient;
 
 Gateway* Gateway::m_instance = nullptr;
 RequestQueue* Gateway::m_requestQueue = nullptr;
+MessagingClient* Gateway::m_kyoukoMindClient = nullptr;
 
 /**
  * @brief constructor
@@ -64,7 +65,7 @@ Gateway::Gateway()
                                                        groups,
                                                        &messagingCreateCallback,
                                                        &messagingCloseCallback,
-                                                       false);
+                                                       false);    
 }
 
 /**
@@ -80,15 +81,14 @@ Gateway::~Gateway() {}
 bool
 Gateway::initInternalSession()
 {
-    MessagingClient* newClient = nullptr;
     bool success = false;
 
     const std::string address = GET_STRING_CONFIG("KyoukoMind", "address", success);
     const uint16_t port = static_cast<uint16_t>(GET_INT_CONFIG("KyoukoMind", "port", success));
 
     MessagingController* contr = MessagingController::getInstance();
-    newClient = contr->createClient("control", "control", address, port);
-    if(newClient == nullptr) {
+    m_kyoukoMindClient = contr->createClient("control", "control", address, port);
+    if(m_kyoukoMindClient == nullptr) {
         return false;
     }
 
@@ -124,7 +124,7 @@ Gateway::initWebSocketServer()
         return false;
     }
 
-    m_websocketServer = new WebSocketServer(ip, port, "server");
+    m_websocketServer = new WebSocketServer(ip, port);
     m_websocketServer->startThread();
 
     return true;
@@ -180,68 +180,4 @@ Gateway::initHttpServer()
     m_httpServer->startThread();
 
     return true;
-}
-
-/**
- * @brief create and add new client to internal list
- *
- * @param id name of the client for later identification
- * @param session session for the new client
- *
- * @return new client, or nullptr, if client-name already exist
- */
-bool
-Gateway::addClient(const std::string &id,
-                   Kitsunemimi::Sakura::MessagingClient* session)
-{
-    // check if already used
-    std::map<std::string, MessagingClient*>::const_iterator it;
-    it = m_clients.find(id);
-    if(it != m_clients.end()) {
-        return false;
-    }
-
-    m_clients.insert(std::make_pair(id, session));
-
-    return true;
-}
-
-/**
- * @brief remove client from list
- *
- * @param id id of the requested client
- *
- * @return true, if successful, else false
- */
-bool
-Gateway::removeClient(const std::string &id)
-{
-    std::map<std::string, MessagingClient*>::const_iterator it;
-    it = m_clients.find(id);
-    if(it != m_clients.end())
-    {
-        m_clients.erase(it);
-        return true;
-    }
-
-    return false;
-}
-
-/**
- * @brief get client from the internal list
- *
- * @param id id of the requested client
- *
- * @return pointer to client, if found, else nullptr
- */
-MessagingClient*
-Gateway::getClient(const std::string &id)
-{
-    std::map<std::string, MessagingClient*>::const_iterator it;
-    it = m_clients.find(id);
-    if(it != m_clients.end()) {
-        return it->second;
-    }
-
-    return nullptr;
 }

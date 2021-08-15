@@ -40,16 +40,15 @@
  * @param dataSize number of incoming bytes
  */
 void
-clientDataCallback(Kitsunemimi::Sakura::Session*,
+clientDataCallback(void* sessionPtr,
+                   Kitsunemimi::Sakura::Session*,
                    const void* data,
                    const uint64_t dataSize)
 {
-    Gateway* gateway = Gateway::m_instance;
-    WebSocketServer* server = gateway->m_websocketServer;
     const std::string text(static_cast<const char*>(data), dataSize);
 
     // forward content to client
-    WebSocketSession* session = server->getClientSession();
+    WebSocketSession* session = static_cast<WebSocketSession*>(sessionPtr);
     if(session != nullptr) {
         session->sendText(text);
     }
@@ -65,8 +64,6 @@ void
 messagingCreateCallback(Kitsunemimi::Sakura::MessagingClient* session,
                         const std::string identifier)
 {
-    Gateway::m_instance->addClient(identifier, session);
-    session->setStreamMessageCallback(&clientDataCallback);
 }
 
 /**
@@ -77,7 +74,6 @@ messagingCreateCallback(Kitsunemimi::Sakura::MessagingClient* session,
 void
 messagingCloseCallback(const std::string identifier)
 {
-    Gateway::m_instance->removeClient(identifier);
 }
 
 #endif // CALLBACKS_H

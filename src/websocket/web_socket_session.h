@@ -54,7 +54,9 @@ class WebSocketSession
         : public Kitsunemimi::Thread
 {
 public:
-    WebSocketSession(tcp::socket &&socket, const std::string &type);
+    WebSocketSession(tcp::socket &&socket);
+
+    bool initSessionToBackend(const std::string &identifier);
 
     bool sendText(const std::string &text);
 
@@ -64,7 +66,7 @@ protected:
 
     Kitsunemimi::Sakura::MessagingClient* m_client = nullptr;
     websocket::stream<beast::tcp_stream> m_webSocket;
-    std::string m_type = "";
+    std::string m_session = "";
 };
 
 #endif // WEB_SOCKET_SESSION_H

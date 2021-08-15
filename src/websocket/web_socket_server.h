@@ -40,12 +40,7 @@ class WebSocketServer
 {
 public:
     WebSocketServer(const std::string &address,
-                    const uint16_t port,
-                    const std::string &type);
-
-    void setClientSession(WebSocketSession* session);
-
-    WebSocketSession* getClientSession();
+                    const uint16_t port);
 
 protected:
     void run();
@@ -53,10 +48,7 @@ protected:
 private:
     std::string m_address = "";
     uint16_t m_port = 0;
-    std::string m_type = "";
-
-    std::atomic_flag m_clientSession_lock = ATOMIC_FLAG_INIT;
-    WebSocketSession* m_activeClientSession = nullptr;
+    std::vector<WebSocketSession*> m_sessions;
 };
 
 #endif // WEB_SOCKET_SERVER_H

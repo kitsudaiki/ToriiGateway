@@ -47,22 +47,17 @@ public:
     ~Gateway();
 
     bool initInternalSession();
+    bool initWebSocketServer();
     bool initHttpServer();
-
-    MessagingClient* getClient(const std::string &id);
-    bool addClient(const std::string &id, MessagingClient* session);
-    bool removeClient(const std::string &id);
 
     WebSocketServer* m_websocketServer = nullptr;
     HttpServer* m_httpServer = nullptr;
     static Gateway* m_instance;
     static RequestQueue* m_requestQueue;
+    static MessagingClient* m_kyoukoMindClient;
 
 private:
-    std::map<std::string, Kitsunemimi::Sakura::MessagingClient*> m_clients;
     std::vector<HttpThread*> m_threads;
-
-    bool initWebSocketServer();
 };
 
 #endif // GATEWAYSERVER_H

@@ -34,40 +34,10 @@
  * @param type type of the server (monitoring, client, control)
  */
 WebSocketServer::WebSocketServer(const std::string &address,
-                                 const uint16_t port,
-                                 const std::string &type)
+                                 const uint16_t port)
 {
     m_address = address;
     m_port = port;
-    m_type = type;
-}
-
-/**
- * @brief set net client-session
- *
- * @return pointer to client-session
- */
-void
-WebSocketServer::setClientSession(WebSocketSession* session)
-{
-    while(m_clientSession_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
-    m_activeClientSession = session;
-    m_clientSession_lock.clear(std::memory_order_release);
-}
-
-/**
- * @brief get client session
- *
- * @return pointer to client-session
- */
-WebSocketSession*
-WebSocketServer::getClientSession()
-{
-    WebSocketSession* session = nullptr;
-    while(m_clientSession_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
-    session = m_activeClientSession;
-    m_clientSession_lock.clear(std::memory_order_release);
-    return session;
 }
 
 /**
@@ -93,20 +63,21 @@ WebSocketServer::run()
             tcp::socket socket{ioc};
             acceptor.accept(socket);
 
-            if(m_type == "client") {
-                setClientSession(nullptr);
-            }
-
             // initialize session
-            WebSocketSession* session = new WebSocketSession(std::move(socket), m_type);
-            if(m_type == "client") {
-                setClientSession(session);
+            WebSocketSession* session = new WebSocketSession(std::move(socket));
+            const bool ret = session->initSessionToBackend("test");
+            if(ret)
+            {
+                m_sessions.push_back(session);
+                session->startThread();
             }
-
-            session->startThread();
+            else
+            {
+                delete session;
+            }
         }
     }
     catch (const std::exception& e) {
-        LOG_ERROR("Error in websocket-server of type " + m_type + " with message: " +  e.what());
+        LOG_ERROR("Error in websocket-server with message: " + std::string(e.what()));
     }
 }

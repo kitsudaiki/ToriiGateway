@@ -86,6 +86,27 @@ HttpRequestEvent::processRequest()
     m_response.set(http::field::server, "ToriiGateway");
     m_response.result(http::status::ok);
 
+    // Make sure we can handle the method
+    if(m_request.method() != http::verb::get
+            && m_request.method() != http::verb::head)
+    {
+        // "Unknown HTTP-method"
+        m_response.result(http::status::bad_request);
+        m_response.set(http::field::content_type, "text/plain");
+        return;
+    }
+
+    // Request path must be absolute and not contain "..".
+    if(m_request.target().empty()
+            || m_request.target()[0] != '/'
+            || m_request.target().find("..") != beast::string_view::npos)
+    {
+        // "Illegal request-target"
+        m_response.result(http::status::bad_request);
+        m_response.set(http::field::content_type, "text/plain");
+        return;
+    }
+
     switch(m_request.method())
     {
         case http::verb::get:
@@ -415,7 +436,7 @@ void
 HttpRequestEvent::processControlRequest(const std::string &path,
                                         const std::string &inputValues)
 {
-    Kitsunemimi::Sakura::MessagingClient* m_client = Gateway::m_instance->getClient("control");
+    Kitsunemimi::Sakura::MessagingClient* m_client = Gateway::m_kyoukoMindClient;
 
     Kitsunemimi::DataMap result;
     std::string errorMessage = "";

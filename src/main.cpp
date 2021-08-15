@@ -72,6 +72,11 @@ int main(int argc, char *argv[])
         LOG_ERROR("initializing http-server failed");
         return 1;
     }
+    if(gateway.initWebSocketServer() == false)
+    {
+        LOG_ERROR("initializing websocket-server failed");
+        return 1;
+    }
     if(gateway.initInternalSession() == false)
     {
         LOG_ERROR("initializing connection to backend failed");
