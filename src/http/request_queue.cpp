@@ -1,5 +1,5 @@
 /**
- * @file        http_thread.cpp
+ * @file        request_queue.cpp
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,35 +20,43 @@
  *      limitations under the License.
  */
 
-#include "http_thread.h"
+#include "request_queue.h"
 
-#include <gateway.h>
-#include <http/request_queue.h>
 #include <http/http_session.h>
 
-#include <libKitsunemimiCommon/threading/event.h>
-
-HttpThread::HttpThread()
-    : Kitsunemimi::Thread() {}
+RequestQueue::RequestQueue() {}
 
 /**
- * @brief HttpThread::run
+ * @brief RequestQueue::getSession
+ * @return
  */
-void
-HttpThread::run()
+HttpRequestEvent*
+RequestQueue::getSession()
 {
-    while(m_abort == false)
-    {
-        Kitsunemimi::Event* event = Gateway::m_requestQueue->getSession();
-        if(event != nullptr)
-        {
-            event->processEvent();
-            delete event;
-        }
-        else
-        {
-            sleepThread(10000);
-        }
+    HttpRequestEvent* result = nullptr;
+    if(m_queue.size() == 0) {
+        return result;
     }
+
+    m_queueMutex.lock();
+    if(m_queue.size() >= 0)
+    {
+        result = m_queue.front();
+        m_queue.pop_front();
+    }
+    m_queueMutex.unlock();
+
+    return result;
 }
 
+/**
+ * @brief RequestQueue::addSession
+ * @param session
+ */
+void
+RequestQueue::addSession(HttpRequestEvent *session)
+{
+    m_queueMutex.lock();
+    m_queue.push_back(session);
+    m_queueMutex.unlock();
+}

@@ -25,9 +25,12 @@
 
 #include <iostream>
 #include <map>
+#include <vector>
 
 class WebSocketServer;
 class HttpServer;
+class HttpThread;
+class RequestQueue;
 
 namespace Kitsunemimi {
 namespace Sakura {
@@ -44,24 +47,17 @@ public:
     ~Gateway();
 
     bool initInternalSession();
+    bool initWebSocketServer();
     bool initHttpServer();
-    bool initClient();
 
-    MessagingClient* getClient(const std::string &id);
-    bool addClient(const std::string &id, MessagingClient* session);
-    bool removeClient(const std::string &id);
-
-
-    WebSocketServer* m_clientWebsocketServer = nullptr;
-    WebSocketServer* m_monitoringWebsocketServer = nullptr;
+    WebSocketServer* m_websocketServer = nullptr;
     HttpServer* m_httpServer = nullptr;
     static Gateway* m_instance;
+    static RequestQueue* m_requestQueue;
+    static MessagingClient* m_kyoukoMindClient;
 
 private:
-    std::map<std::string, Kitsunemimi::Sakura::MessagingClient*> m_clients;
-
-    bool isEnabled(const std::string &group);
-    bool initWebSocketServer(const std::string &group);
+    std::vector<HttpThread*> m_threads;
 };
 
 #endif // GATEWAYSERVER_H

@@ -86,6 +86,27 @@ HttpRequestEvent::processRequest()
     m_response.set(http::field::server, "ToriiGateway");
     m_response.result(http::status::ok);
 
+    // Make sure we can handle the method
+    if(m_request.method() != http::verb::get
+            && m_request.method() != http::verb::head)
+    {
+        // "Unknown HTTP-method"
+        m_response.result(http::status::bad_request);
+        m_response.set(http::field::content_type, "text/plain");
+        return;
+    }
+
+    // Request path must be absolute and not contain "..".
+    if(m_request.target().empty()
+            || m_request.target()[0] != '/'
+            || m_request.target().find("..") != beast::string_view::npos)
+    {
+        // "Illegal request-target"
+        m_response.result(http::status::bad_request);
+        m_response.set(http::field::content_type, "text/plain");
+        return;
+    }
+
     switch(m_request.method())
     {
         case http::verb::get:
@@ -143,6 +164,39 @@ HttpRequestEvent::processRequest()
 }
 
 /**
+ * @brief HttpRequestEvent::getResponseType
+ * @param ext
+ * @return
+ */
+const std::string
+HttpRequestEvent::getResponseType(const std::string &ext)
+{
+    if(beast::iequals(ext, ".htm"))  { return "text/html"; }
+    if(beast::iequals(ext, ".html")) { return "text/html"; }
+    if(beast::iequals(ext, ".php"))  { return "text/html"; }
+    if(beast::iequals(ext, ".css"))  { return "text/css"; }
+    if(beast::iequals(ext, ".txt"))  { return "text/plain"; }
+    if(beast::iequals(ext, ".js"))   { return "application/javascript"; }
+    if(beast::iequals(ext, ".json")) { return "application/json"; }
+    if(beast::iequals(ext, ".xml"))  { return "application/xml"; }
+    if(beast::iequals(ext, ".swf"))  { return "application/x-shockwave-flash"; }
+    if(beast::iequals(ext, ".flv"))  { return "video/x-flv"; }
+    if(beast::iequals(ext, ".png"))  { return "image/png"; }
+    if(beast::iequals(ext, ".jpe"))  { return "image/jpeg"; }
+    if(beast::iequals(ext, ".jpeg")) { return "image/jpeg"; }
+    if(beast::iequals(ext, ".jpg"))  { return "image/jpeg"; }
+    if(beast::iequals(ext, ".gif"))  { return "image/gif"; }
+    if(beast::iequals(ext, ".bmp"))  { return "image/bmp"; }
+    if(beast::iequals(ext, ".ico"))  { return "image/vnd.microsoft.icon"; }
+    if(beast::iequals(ext, ".tiff")) { return "image/tiff"; }
+    if(beast::iequals(ext, ".tif"))  { return "image/tiff"; }
+    if(beast::iequals(ext, ".svg"))  { return "image/svg+xml"; }
+    if(beast::iequals(ext, ".svgz")) { return "image/svg+xml"; }
+
+    return "application/text";
+}
+
+/**
  * @brief send file, which was requested
  *
  * @return true, if successful, else false
@@ -165,17 +219,7 @@ HttpRequestEvent::sendFileFromLocalLocation(const std::string &dir,
     // set response-type based on file-type
     boost::filesystem::path pathObj(path);
     const std::string extension = pathObj.extension().string();
-    if(pathObj.extension().string() == ".html") {
-        m_response.set(http::field::content_type, "text/html");
-    } else if(pathObj.extension().string() == ".css") {
-        m_response.set(http::field::content_type, "text/css");
-    } else if(pathObj.extension().string() == ".js") {
-        m_response.set(http::field::content_type, "text/javascript");
-    } else if(pathObj.extension().string() == ".png") {
-        m_response.set(http::field::content_type, "image/png");
-    } else {
-        m_response.set(http::field::content_type, "text/plain");
-    }
+    m_response.set(http::field::content_type, getResponseType(extension));
 
     // read file and send content back
     std::string fileContent = "";
@@ -293,12 +337,6 @@ HttpRequestEvent::processGetRequest()
         return processClientRequest(path);
     }
 
-    if(path.compare(0, 11, "/monitoring") == 0)
-    {
-        path.erase(0, 11);
-        return processMonitoringRequest(path);
-    }
-
     if(path.compare(0, 9, "/control/") == 0)
     {
         path.erase(0, 9);
@@ -374,38 +412,13 @@ bool
 HttpRequestEvent::processClientRequest(const std::string &path)
 {
     bool success = false;
-    const std::string fileLocation = GET_STRING_CONFIG("client", "location", success);
+    const std::string fileLocation = GET_STRING_CONFIG("server", "dashboard_files", success);
     if(success == false) {
         return false;
     }
 
     if(path == "/websocket") {
         return sendConnectionInfo("client", "websocket_port");
-    } else {
-        sendFileFromLocalLocation(fileLocation, path);
-    }
-
-    return true;
-}
-
-/**
- * @brief get file of
- *
- * @param path requested path
- *
- * @return true, f
- */
-bool
-HttpRequestEvent::processMonitoringRequest(const std::string &path)
-{
-    bool success = false;
-    const std::string fileLocation = GET_STRING_CONFIG("monitoring", "location", success);
-    if(success == false) {
-        return false;
-    }
-
-    if(path == "/websocket") {
-        return sendConnectionInfo("monitoring", "websocket_port");
     } else {
         sendFileFromLocalLocation(fileLocation, path);
     }
@@ -423,7 +436,7 @@ void
 HttpRequestEvent::processControlRequest(const std::string &path,
                                         const std::string &inputValues)
 {
-    Kitsunemimi::Sakura::MessagingClient* m_client = Gateway::m_instance->getClient("control");
+    Kitsunemimi::Sakura::MessagingClient* m_client = Gateway::m_kyoukoMindClient;
 
     Kitsunemimi::DataMap result;
     std::string errorMessage = "";

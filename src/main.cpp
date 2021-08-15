@@ -67,14 +67,14 @@ int main(int argc, char *argv[])
 
     // init gateway
     Gateway gateway;
-    if(gateway.initClient() == false)
-    {
-        LOG_ERROR("initializing client-endpoint failed");
-        return 1;
-    }
     if(gateway.initHttpServer() == false)
     {
         LOG_ERROR("initializing http-server failed");
+        return 1;
+    }
+    if(gateway.initWebSocketServer() == false)
+    {
+        LOG_ERROR("initializing websocket-server failed");
         return 1;
     }
     if(gateway.initInternalSession() == false)

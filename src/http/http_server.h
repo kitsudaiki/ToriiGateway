@@ -57,8 +57,6 @@ private:
     std::string m_cert = "";
     std::string m_key = "";
 
-    HttpThread* m_httpThread = nullptr;
-
     bool loadCertificates(boost::asio::ssl::context &ctx,
                           const std::string &certFile,
                           const std::string &keyFile);

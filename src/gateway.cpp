@@ -24,6 +24,8 @@
 #include "gateway.h"
 
 #include <callbacks.h>
+#include <http/request_queue.h>
+#include <http/http_thread.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 
@@ -48,6 +50,8 @@ using Kitsunemimi::Sakura::MessagingClient;
 #include <http/http_server.h>
 
 Gateway* Gateway::m_instance = nullptr;
+RequestQueue* Gateway::m_requestQueue = nullptr;
+MessagingClient* Gateway::m_kyoukoMindClient = nullptr;
 
 /**
  * @brief constructor
@@ -55,12 +59,13 @@ Gateway* Gateway::m_instance = nullptr;
 Gateway::Gateway()
 {
     m_instance = this;
+    m_requestQueue = new RequestQueue();
     std::vector<std::string> groups = {};
     MessagingController::initializeMessagingController("ToriiGateway",
                                                        groups,
                                                        &messagingCreateCallback,
                                                        &messagingCloseCallback,
-                                                       false);
+                                                       false);    
 }
 
 /**
@@ -76,63 +81,18 @@ Gateway::~Gateway() {}
 bool
 Gateway::initInternalSession()
 {
-    MessagingClient* newClient = nullptr;
     bool success = false;
 
     const std::string address = GET_STRING_CONFIG("KyoukoMind", "address", success);
     const uint16_t port = static_cast<uint16_t>(GET_INT_CONFIG("KyoukoMind", "port", success));
 
-    const std::string clients[3] = {"control", "client", "monitoring"};
-    for(const std::string &clientName : clients)
-    {
-        newClient = MessagingController::getInstance()->createClient(clientName,
-                                                                     clientName,
-                                                                     address,
-                                                                     port);
-        if(newClient == nullptr) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-/**
- * @brief initialize client-server, if enabled
- *
- * @return true, if successful, else false
- */
-bool
-Gateway::initClient()
-{
-    const std::string groupName = "client";
-    if(isEnabled(groupName) == false) {
-        return true;
-    }
-
-    if(initWebSocketServer(groupName) == false) {
+    MessagingController* contr = MessagingController::getInstance();
+    m_kyoukoMindClient = contr->createClient("control", "control", address, port);
+    if(m_kyoukoMindClient == nullptr) {
         return false;
     }
 
     return true;
-}
-
-/**
- * @brief check if server is enabled
- *
- * @param group group-name in config-file
- *
- * @return true, if enabled, else false
- */
-bool
-Gateway::isEnabled(const std::string &group)
-{
-    bool success = false;
-    if(GET_BOOL_CONFIG(group, "enable", success)) {
-        return true;
-    }
-
-    return false;
 }
 
 /**
@@ -143,27 +103,29 @@ Gateway::isEnabled(const std::string &group)
  * @return true, if successful, else false
  */
 bool
-Gateway::initWebSocketServer(const std::string &group)
+Gateway::initWebSocketServer()
 {
     bool success = false;
 
+    // check if websocket is enabled
+    if(GET_BOOL_CONFIG("server", "enable_websocket", success) == false) {
+        return true;
+    }
+
     // get port from config
-    const uint16_t port = static_cast<uint16_t>(GET_INT_CONFIG(group, "websocket_port", success));
+    const uint16_t port = static_cast<uint16_t>(GET_INT_CONFIG("server", "websocket_port", success));
     if(success == false) {
         return false;
     }
 
     // get ip to bind from config
-    const std::string ip = GET_STRING_CONFIG("DEFAULT", "ip", success);
+    const std::string ip = GET_STRING_CONFIG("server", "ip", success);
     if(success == false) {
         return false;
     }
 
-    if(group == "client")
-    {
-        m_clientWebsocketServer = new WebSocketServer(ip, port, group);
-        m_clientWebsocketServer->startThread();
-    }
+    m_websocketServer = new WebSocketServer(ip, port);
+    m_websocketServer->startThread();
 
     return true;
 }
@@ -179,95 +141,43 @@ Gateway::initHttpServer()
     bool success = false;
 
     // get port from config
-    const uint16_t port = static_cast<uint16_t>(GET_INT_CONFIG("DEFAULT", "http_port", success));
+    const uint16_t port = static_cast<uint16_t>(GET_INT_CONFIG("server", "http_port", success));
     if(success == false) {
         return false;
     }
 
     // get ip to bind from config
-    const std::string ip = GET_STRING_CONFIG("DEFAULT", "ip", success);
+    const std::string ip = GET_STRING_CONFIG("server", "ip", success);
     if(success == false) {
         return false;
     }
 
     // get ip to bind from config
-    const std::string cert = GET_STRING_CONFIG("DEFAULT", "certificate", success);
+    const std::string cert = GET_STRING_CONFIG("server", "certificate", success);
     if(success == false) {
         return false;
     }
 
     // get ip to bind from config
-    const std::string key = GET_STRING_CONFIG("DEFAULT", "key", success);
+    const std::string key = GET_STRING_CONFIG("server", "key", success);
     if(success == false) {
         return false;
+    }
+
+    const uint32_t numberOfThreads = GET_INT_CONFIG("server", "number_of_threads", success);
+    if(success == false) {
+        return false;
+    }
+
+    for(uint32_t i = 0; i < numberOfThreads; i++)
+    {
+        HttpThread* httpThread = new HttpThread();
+        httpThread->startThread();
+        m_threads.push_back(httpThread);
     }
 
     m_httpServer = new HttpServer(ip, port, cert, key);
     m_httpServer->startThread();
 
     return true;
-}
-
-/**
- * @brief create and add new client to internal list
- *
- * @param id name of the client for later identification
- * @param session session for the new client
- *
- * @return new client, or nullptr, if client-name already exist
- */
-bool
-Gateway::addClient(const std::string &id,
-                   Kitsunemimi::Sakura::MessagingClient* session)
-{
-    // check if already used
-    std::map<std::string, MessagingClient*>::const_iterator it;
-    it = m_clients.find(id);
-    if(it != m_clients.end()) {
-        return false;
-    }
-
-    m_clients.insert(std::make_pair(id, session));
-
-    return true;
-}
-
-/**
- * @brief remove client from list
- *
- * @param id id of the requested client
- *
- * @return true, if successful, else false
- */
-bool
-Gateway::removeClient(const std::string &id)
-{
-    std::map<std::string, MessagingClient*>::const_iterator it;
-    it = m_clients.find(id);
-    if(it != m_clients.end())
-    {
-        m_clients.erase(it);
-        return true;
-    }
-
-    return false;
-}
-
-/**
- * @brief get client from the internal list
- *
- * @param id id of the requested client
- *
- * @return pointer to client, if found, else nullptr
- */
-MessagingClient*
-Gateway::getClient(const std::string &id)
-{
-    std::map<std::string, MessagingClient*>::const_iterator it;
-    it = m_clients.find(id);
-    if(it != m_clients.end()) {
-        return it->second;
-    }
-
-    return nullptr;
 }

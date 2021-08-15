@@ -27,17 +27,40 @@
 
 #include <libKitsunemimiSakuraMessaging/messaging_client.h>
 #include <libKitsunemimiSakuraMessaging/messaging_controller.h>
+#include <libKitsunemimiConfig/config_handler.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
+
+using Kitsunemimi::Sakura::MessagingController;
 
 /**
  * @brief constructor
  */
-WebSocketSession::WebSocketSession(tcp::socket &&socket, const std::string &type)
+WebSocketSession::WebSocketSession(tcp::socket &&socket)
     : m_webSocket(std::move(socket))
 {
-    m_type = type;
-    m_client = Gateway::m_instance->getClient(type);
+}
+
+/**
+ * @brief WebSocketSession::initSessionToBackend
+ * @return
+ */
+bool
+WebSocketSession::initSessionToBackend(const std::string &identifier)
+{
+    bool success = false;
+
+    const std::string address = GET_STRING_CONFIG("KyoukoMind", "address", success);
+    const uint16_t port = static_cast<uint16_t>(GET_INT_CONFIG("KyoukoMind", "port", success));
+
+    MessagingController* contr = MessagingController::getInstance();
+    m_client = contr->createClient(identifier, identifier, address, port);
+
+    if(m_client == nullptr) {
+        return false;
+    }
+
+    return true;
 }
 
 /**
@@ -65,19 +88,18 @@ WebSocketSession::sendText(const std::string &text)
     {
         if(se.code() == websocket::error::closed)
         {
-            LOG_INFO("Close websocket of type " + m_type);
+            LOG_INFO("Close websocket");
             closeSession();
         }
         else
         {
-            LOG_ERROR("Error while sending data over websocket of type " + m_type
-                      + " with message: " + se.code().message());
+            LOG_ERROR("Error while sending data over websocket with message: "
+                      + se.code().message());
         }
     }
     catch(const std::exception& e)
     {
-        LOG_ERROR("Error while sending data over websocket of type " + m_type
-                  + " with message: " + e.what());
+        LOG_ERROR("Error while sending data over websocket with message: " + std::string(e.what()));
     }
 
     return false;
@@ -113,19 +135,19 @@ WebSocketSession::run()
     {
         if(se.code() == websocket::error::closed)
         {
-            LOG_INFO("Close websocket of type " + m_type);
+            LOG_INFO("Close websocket");
             closeSession();
         }
         else
         {
-            LOG_ERROR("Error while receiving data over websocket of type " + m_type
-                      + " with message: " + se.code().message());
+            LOG_ERROR("Error while receiving data over websocket with message: "
+                      + se.code().message());
         }
     }
     catch(const std::exception& e)
     {
-        LOG_ERROR("Error while receiving data over websocket of type " + m_type
-                  + " with message: " + e.what());
+        LOG_ERROR("Error while receiving data over websocket with message: "
+                  + std::string(e.what()));
     }
 }
 
@@ -137,18 +159,7 @@ WebSocketSession::closeSession()
 {
     m_abort = true;
 
-    Gateway* gateway = Gateway::m_instance;
-
-    if(m_type == "client")
-    {
-        WebSocketServer* server = gateway->m_clientWebsocketServer;
-        server->setClientSession(nullptr);
-    }
-    if(m_type == "monitoring")
-    {
-        WebSocketServer* server = gateway->m_monitoringWebsocketServer;
-        server->setMonitoringSession(nullptr);
-    }
+    WebSocketServer* server = Gateway::m_instance->m_websocketServer;
 
     scheduleThreadForDeletion();
 }
