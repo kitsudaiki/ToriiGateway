@@ -25,13 +25,13 @@
 #include <gateway.h>
 #include <websocket/web_socket_server.h>
 
-#include <libKitsunemimiSakuraMessaging/messaging_client.h>
-#include <libKitsunemimiSakuraMessaging/messaging_controller.h>
+#include <libKitsunemimiHanamiMessaging/messaging_client.h>
+#include <libKitsunemimiHanamiMessaging/messaging_controller.h>
 #include <libKitsunemimiConfig/config_handler.h>
 
-#include <libKitsunemimiPersistence/logger/logger.h>
+#include <libKitsunemimiCommon/logger.h>
 
-using Kitsunemimi::Sakura::MessagingController;
+using Kitsunemimi::Hanami::MessagingController;
 
 /**
  * @brief constructor

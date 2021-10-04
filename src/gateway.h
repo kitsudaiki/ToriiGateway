@@ -33,12 +33,12 @@ class HttpThread;
 class RequestQueue;
 
 namespace Kitsunemimi {
-namespace Sakura {
+namespace Hanami {
 class MessagingClient;
 }
 }
 
-using Kitsunemimi::Sakura::MessagingClient;
+using Kitsunemimi::Hanami::MessagingClient;
 
 class Gateway
 {

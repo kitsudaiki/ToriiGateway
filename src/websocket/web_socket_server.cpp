@@ -24,7 +24,7 @@
 
 #include <websocket/web_socket_session.h>
 
-#include <libKitsunemimiPersistence/logger/logger.h>
+#include <libKitsunemimiCommon/logger.h>
 
 /**
  * @brief constructor

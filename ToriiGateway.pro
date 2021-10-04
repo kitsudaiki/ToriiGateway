@@ -1,14 +1,14 @@
 QT -= qt core gui
 
 TARGET = ToriiGateway
-CONFIG += console c++14
+CONFIG += console c++17
 CONFIG -= app_bundle
 
 
-LIBS += -L../libKitsunemimiSakuraMessaging/src -lKitsunemimiSakuraMessaging
-LIBS += -L../libKitsunemimiSakuraMessaging/src/debug -lKitsunemimiSakuraMessaging
-LIBS += -L../libKitsunemimiSakuraMessaging/src/release -lKitsunemimiSakuraMessaging
-INCLUDEPATH += ../libKitsunemimiSakuraMessaging/include
+LIBS += -L../libKitsunemimiHanamiMessaging/src -lKitsunemimiHanamiMessaging
+LIBS += -L../libKitsunemimiHanamiMessaging/src/debug -lKitsunemimiHanamiMessaging
+LIBS += -L../libKitsunemimiHanamiMessaging/src/release -lKitsunemimiHanamiMessaging
+INCLUDEPATH += ../libKitsunemimiHanamiMessaging/include
 
 LIBS += -L../libKitsunemimiSakuraLang/src -lKitsunemimiSakuraLang
 LIBS += -L../libKitsunemimiSakuraLang/src/debug -lKitsunemimiSakuraLang
@@ -30,11 +30,6 @@ LIBS += -L../libKitsunemimiSakuraNetwork/src/debug -lKitsunemimiSakuraNetwork
 LIBS += -L../libKitsunemimiSakuraNetwork/src/release -lKitsunemimiSakuraNetwork
 INCLUDEPATH += ../libKitsunemimiSakuraNetwork/include
 
-LIBS += -L../libKitsunemimiSakuraNetwork/src -lKitsunemimiSakuraNetwork
-LIBS += -L../libKitsunemimiSakuraNetwork/src/debug -lKitsunemimiSakuraNetwork
-LIBS += -L../libKitsunemimiSakuraNetwork/src/release -lKitsunemimiSakuraNetwork
-INCLUDEPATH += ../libKitsunemimiSakuraNetwork/include
-
 LIBS += -L../libKitsunemimiCommon/src -lKitsunemimiCommon
 LIBS += -L../libKitsunemimiCommon/src/debug -lKitsunemimiCommon
 LIBS += -L../libKitsunemimiCommon/src/release -lKitsunemimiCommon
@@ -44,11 +39,6 @@ LIBS += -L../libKitsunemimiNetwork/src -lKitsunemimiNetwork
 LIBS += -L../libKitsunemimiNetwork/src/debug -lKitsunemimiNetwork
 LIBS += -L../libKitsunemimiNetwork/src/release -lKitsunemimiNetwork
 INCLUDEPATH += ../libKitsunemimiNetwork/include
-
-LIBS += -L../libKitsunemimiPersistence/src -lKitsunemimiPersistence
-LIBS += -L../libKitsunemimiPersistence/src/debug -lKitsunemimiPersistence
-LIBS += -L../libKitsunemimiPersistence/src/release -lKitsunemimiPersistence
-INCLUDEPATH += ../libKitsunemimiPersistence/include
 
 LIBS += -L../libKitsunemimiJinja2/src -lKitsunemimiJinja2
 LIBS += -L../libKitsunemimiJinja2/src/debug -lKitsunemimiJinja2
@@ -65,7 +55,7 @@ LIBS += -L../libKitsunemimiIni/src/debug -lKitsunemimiIni
 LIBS += -L../libKitsunemimiIni/src/release -lKitsunemimiIni
 INCLUDEPATH += ../libKitsunemimiIni/include
 
-LIBS += -lpthread -lboost_filesystem -lboost_system -lcrypto -lssl
+LIBS += -lpthread -lcrypto -lssl
 
 INCLUDEPATH += $$PWD \
                src

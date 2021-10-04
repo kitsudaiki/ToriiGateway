@@ -28,12 +28,12 @@
 #include <thread>
 
 #include <libKitsunemimiArgs/arg_parser.h>
-#include <libKitsunemimiPersistence/logger/logger.h>
+#include <libKitsunemimiCommon/logger.h>
 #include <libKitsunemimiConfig/config_handler.h>
 
 int main(int argc, char *argv[])
 {
-    Kitsunemimi::Persistence::initConsoleLogger(true);
+    Kitsunemimi::initConsoleLogger(true);
 
     // create and init argument-parser
     Kitsunemimi::Args::ArgParser argParser;
@@ -62,8 +62,8 @@ int main(int argc, char *argv[])
     assert(success);
 
     // init logger
-    Kitsunemimi::Persistence::initConsoleLogger(enableDebug);
-    Kitsunemimi::Persistence::initFileLogger(logPath, "ToriiGateway", enableDebug);
+    Kitsunemimi::initConsoleLogger(enableDebug);
+    Kitsunemimi::initFileLogger(logPath, "ToriiGateway", enableDebug);
 
     // init gateway
     Gateway gateway;
