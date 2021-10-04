@@ -17,7 +17,6 @@ mkdir -p $RESULT_DIR
 function build_kitsune_lib_repo () {
     REPO_NAME=$1
     NUMBER_OF_THREADS=$2
-    ADDITIONAL_CONFIGS=$3
 
     # create build directory for repo and go into this directory
     REPO_DIR="$BUILD_DIR/$REPO_NAME"
@@ -25,10 +24,12 @@ function build_kitsune_lib_repo () {
     cd $REPO_DIR
 
     # build repo library with qmake
-    /usr/lib/x86_64-linux-gnu/qt5/bin/qmake "$PARENT_DIR/$REPO_NAME/$REPO_NAME.pro" -spec linux-clang++ "CONFIG += optimize_full $ADDITIONAL_CONFIGS"
+    /usr/lib/x86_64-linux-gnu/qt5/bin/qmake "$PARENT_DIR/$REPO_NAME/$REPO_NAME.pro" -spec linux-g++ "CONFIG += optimize_full staticlib"
     /usr/bin/make -j$NUMBER_OF_THREADS
 
     # copy build-result and include-files into the result-directory
+    echo "----------------------------------------------------------------------"
+    echo $RESULT_DIR
     cp $REPO_DIR/src/$REPO_NAME.a $RESULT_DIR/
     cp -r $PARENT_DIR/$REPO_NAME/include $RESULT_DIR/
     ls -l $RESULT_DIR/include/
@@ -39,62 +40,87 @@ function get_required_kitsune_lib_repo () {
     REPO_NAME=$1
     TAG_OR_BRANCH=$2
     NUMBER_OF_THREADS=$3
-    ADDITIONAL_CONFIGS=$4
 
     # clone repo
-    git clone  https://github.com/kitsudaiki/$REPO_NAME.git "$PARENT_DIR/$REPO_NAME"
+    git clone https://github.com/kitsudaiki/$REPO_NAME.git "$PARENT_DIR/$REPO_NAME"
     cd "$PARENT_DIR/$REPO_NAME"
     git checkout $TAG_OR_BRANCH
 
-    build_kitsune_lib_repo $REPO_NAME $NUMBER_OF_THREADS $ADDITIONAL_CONFIGS
+    build_kitsune_lib_repo $REPO_NAME $NUMBER_OF_THREADS
 }
+
+function get_required_private_repo_gitlab () {
+    REPO_NAME=$1
+    TAG_OR_BRANCH=$2
+    NUMBER_OF_THREADS=$3
+
+    # clone repo
+    git clone http://kitsudaiki:4Zzazyw2Dmx1fBxnsPys@10.0.3.120/kitsudaiki/$REPO_NAME.git "$PARENT_DIR/$REPO_NAME"
+    cd "$PARENT_DIR/$REPO_NAME"
+    git checkout $TAG_OR_BRANCH
+
+    build_kitsune_lib_repo $REPO_NAME $NUMBER_OF_THREADS
+}
+
+function get_required_private_repo_github () {
+    REPO_NAME=$1
+    TAG_OR_BRANCH=$2
+    NUMBER_OF_THREADS=$3
+
+    # clone repo
+    git clone https://kitsudaiki:986ec116cd18aa45cfb81e57916518f6ff83bf19@github.com/kitsudaiki/$REPO_NAME.git "$PARENT_DIR/$REPO_NAME"
+    cd "$PARENT_DIR/$REPO_NAME"
+    git checkout $TAG_OR_BRANCH
+
+    build_kitsune_lib_repo $REPO_NAME $NUMBER_OF_THREADS
+}
+
 
 #-----------------------------------------------------------------------------------------------------------------
 
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_kitsune_lib_repo "libKitsunemimiCommon" "v0.18.0" 4 "staticlib"
+get_required_kitsune_lib_repo "libKitsunemimiCommon" "v0.20.0" 8
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_kitsune_lib_repo "libKitsunemimiPersistence" "v0.10.2" 4 "staticlib"
+get_required_kitsune_lib_repo "libKitsunemimiJson" "v0.10.7" 1
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_kitsune_lib_repo "libKitsunemimiArgs" "v0.2.2" 4 "staticlib"
+get_required_kitsune_lib_repo "libKitsunemimiJinja2" "v0.8.2" 1
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_kitsune_lib_repo "libKitsunemimiJson" "v0.10.6" 1 "staticlib"
+get_required_kitsune_lib_repo "libKitsunemimiIni" "v0.4.8" 1
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_kitsune_lib_repo "libKitsunemimiIni" "v0.4.7" 1 "staticlib"
+get_required_kitsune_lib_repo "libKitsunemimiNetwork" "v0.6.7" 8
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_kitsune_lib_repo "libKitsunemimiJinja2" "v0.8.1" 1 "staticlib"
+get_required_kitsune_lib_repo "libKitsunemimiSakuraNetwork" "v0.7.1" 8
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_kitsune_lib_repo "libKitsunemimiSakuraLang" "v0.8.0" 1 "staticlib"
+get_required_kitsune_lib_repo "libKitsunemimiArgs" "v0.3.0" 8
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_kitsune_lib_repo "libKitsunemimiNetwork" "v0.6.6" 4 "staticlib"
+get_required_kitsune_lib_repo "libKitsunemimiConfig" "v0.2.5" 8
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_kitsune_lib_repo "libKitsunemimiSakuraNetwork" "master" 4 "staticlib"
+get_required_kitsune_lib_repo "libKitsunemimiSakuraLang" "v0.9.1" 1
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_kitsune_lib_repo "libKitsunemimiSakuraMessaging" "master" 4 "staticlib"
+get_required_private_repo_gitlab "libKitsunemimiHanamiMessaging" "master" 8
 echo ""
 echo "###########################################################################################################"
 echo ""
-
 #-----------------------------------------------------------------------------------------------------------------
 
 # create build directory for ToriiGateway and go into this directory
@@ -102,11 +128,11 @@ LIB_KITSUNE_SAKURA_TREE_DIR="$BUILD_DIR/ToriiGateway"
 mkdir -p $LIB_KITSUNE_SAKURA_TREE_DIR
 cd $LIB_KITSUNE_SAKURA_TREE_DIR
 
-# build ToriiGateway with qmake
-/usr/lib/x86_64-linux-gnu/qt5/bin/qmake "$PARENT_DIR/ToriiGateway/ToriiGateway.pro" -spec linux-clang++ "CONFIG += optimize_full"
+# build ToriiGateway library with qmake
+/usr/lib/x86_64-linux-gnu/qt5/bin/qmake "$PARENT_DIR/ToriiGateway/ToriiGateway.pro" -spec linux-g++ "CONFIG += optimize_full"
 /usr/bin/make -j4
+
 # copy build-result and include-files into the result-directory
-cp "$LIB_KITSUNE_SAKURA_TREE_DIR/src/ToriiGateway" "$RESULT_DIR/"
+cp "$LIB_KITSUNE_SAKURA_TREE_DIR/ToriiGateway" "$RESULT_DIR/"
 
 #-----------------------------------------------------------------------------------------------------------------
-

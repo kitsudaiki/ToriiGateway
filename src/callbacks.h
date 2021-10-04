@@ -25,8 +25,8 @@
 
 #include <gateway.h>
 
-#include <libKitsunemimiSakuraMessaging/messaging_controller.h>
-#include <libKitsunemimiSakuraMessaging/messaging_client.h>
+#include <libKitsunemimiHanamiMessaging/messaging_controller.h>
+#include <libKitsunemimiHanamiMessaging/messaging_client.h>
 
 #include <websocket/web_socket_server.h>
 #include <websocket/web_socket_session.h>
@@ -61,7 +61,7 @@ clientDataCallback(void* sessionPtr,
  * @param identifier identifier of the incoming session
  */
 void
-messagingCreateCallback(Kitsunemimi::Sakura::MessagingClient* session,
+messagingCreateCallback(Kitsunemimi::Hanami::MessagingClient* session,
                         const std::string identifier)
 {
 }

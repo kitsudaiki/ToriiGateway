@@ -27,7 +27,7 @@
 #include <http/request_queue.h>
 #include <http/http_thread.h>
 
-#include <libKitsunemimiPersistence/logger/logger.h>
+#include <libKitsunemimiCommon/logger.h>
 
 #include <libKitsunemimiConfig/config_handler.h>
 
@@ -36,14 +36,14 @@
 #include <libKitsunemimiSakuraLang/sakura_lang_interface.h>
 #include <libKitsunemimiSakuraLang/blossom.h>
 
-#include <libKitsunemimiSakuraMessaging/messaging_controller.h>
-#include <libKitsunemimiSakuraMessaging/messaging_client.h>
+#include <libKitsunemimiHanamiMessaging/messaging_controller.h>
+#include <libKitsunemimiHanamiMessaging/messaging_client.h>
 
-#include <libKitsunemimiPersistence/files/text_file.h>
+#include <libKitsunemimiCommon/files/text_file.h>
 
 using Kitsunemimi::Sakura::SakuraLangInterface;
-using Kitsunemimi::Sakura::MessagingController;
-using Kitsunemimi::Sakura::MessagingClient;
+using Kitsunemimi::Hanami::MessagingController;
+using Kitsunemimi::Hanami::MessagingClient;
 
 #include <websocket/web_socket_server.h>
 #include <websocket/web_socket_session.h>

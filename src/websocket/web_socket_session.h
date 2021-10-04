@@ -42,13 +42,13 @@ namespace net = boost::asio;            // from <boost/asio.hpp>
 using tcp = boost::asio::ip::tcp;
 
 namespace Kitsunemimi {
-namespace Sakura {
+namespace Hanami {
 class MessagingClient;
 class MessagingController;
 }
 }
 
-using Kitsunemimi::Sakura::MessagingController;
+using Kitsunemimi::Hanami::MessagingController;
 
 class WebSocketSession
         : public Kitsunemimi::Thread
@@ -64,7 +64,7 @@ protected:
     void run();
     void closeSession();
 
-    Kitsunemimi::Sakura::MessagingClient* m_client = nullptr;
+    Kitsunemimi::Hanami::MessagingClient* m_client = nullptr;
     websocket::stream<beast::tcp_stream> m_webSocket;
     std::string m_session = "";
 };

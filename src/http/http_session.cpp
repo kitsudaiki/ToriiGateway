@@ -25,10 +25,10 @@
 
 #include <libKitsunemimiConfig/config_handler.h>
 #include <libKitsunemimiCommon/common_items/data_items.h>
-#include <libKitsunemimiPersistence/files/text_file.h>
-#include <libKitsunemimiPersistence/logger/logger.h>
+#include <libKitsunemimiCommon/files/text_file.h>
+#include <libKitsunemimiCommon/logger.h>
 
-#include <libKitsunemimiSakuraMessaging/messaging_client.h>
+#include <libKitsunemimiHanamiMessaging/messaging_client.h>
 
 /**
  * @brief constructor
@@ -217,14 +217,14 @@ HttpRequestEvent::sendFileFromLocalLocation(const std::string &dir,
     LOG_DEBUG("load file " + path);
 
     // set response-type based on file-type
-    boost::filesystem::path pathObj(path);
+    std::filesystem::path pathObj(path);
     const std::string extension = pathObj.extension().string();
     m_response.set(http::field::content_type, getResponseType(extension));
 
     // read file and send content back
     std::string fileContent = "";
     std::string errorMessage = "";
-    if(Kitsunemimi::Persistence::readFile(fileContent, path, errorMessage))
+    if(Kitsunemimi::readFile(fileContent, path, errorMessage))
     {
         beast::ostream(m_response.body()) << fileContent;
         return true;
@@ -436,7 +436,7 @@ void
 HttpRequestEvent::processControlRequest(const std::string &path,
                                         const std::string &inputValues)
 {
-    Kitsunemimi::Sakura::MessagingClient* m_client = Gateway::m_kyoukoMindClient;
+    Kitsunemimi::Hanami::MessagingClient* m_client = Gateway::m_kyoukoMindClient;
 
     Kitsunemimi::DataMap result;
     std::string errorMessage = "";

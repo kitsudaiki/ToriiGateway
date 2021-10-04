@@ -28,8 +28,8 @@
 #include <http/http_thread.h>
 #include <http/request_queue.h>
 
-#include <libKitsunemimiPersistence/logger/logger.h>
-#include <libKitsunemimiPersistence/files/text_file.h>
+#include <libKitsunemimiCommon/logger.h>
+#include <libKitsunemimiCommon/files/text_file.h>
 
 /**
  * @brief constructor
@@ -71,29 +71,28 @@ HttpServer::loadCertificates(boost::asio::ssl::context& ctx,
     std::string key = "";
     bool ret = false;
 
-    ret = Kitsunemimi::Persistence::readFile(cert, certFile, errorMessage);
+    ret = Kitsunemimi::readFile(cert, certFile, errorMessage);
     if(ret == false)
     {
         LOG_ERROR(errorMessage);
         return false;
     }
 
-    ret = Kitsunemimi::Persistence::readFile(key, keyFile, errorMessage);
+    ret = Kitsunemimi::readFile(key, keyFile, errorMessage);
     if(ret == false)
     {
         LOG_ERROR(errorMessage);
         return false;
     }
 
-    std::string const dh =
-        "-----BEGIN DH PARAMETERS-----\n"
-        "MIIBCAKCAQEArzQc5mpm0Fs8yahDeySj31JZlwEphUdZ9StM2D8+Fo7TMduGtSi+\n"
-        "/HRWVwHcTFAgrxVdm+dl474mOUqqaz4MpzIb6+6OVfWHbQJmXPepZKyu4LgUPvY/\n"
-        "4q3/iDMjIS0fLOu/bLuObwU5ccZmDgfhmz1GanRlTQOiYRty3FiOATWZBRh6uv4u\n"
-        "tff4A9Bm3V9tLx9S6djq31w31Gl7OQhryodW28kc16t9TvO1BzcV3HjRPwpe701X\n"
-        "oEEZdnZWANkkpR/m/pfgdmGPU66S2sXMHgsliViQWpDCYeehrvFRHEdR9NV+XJfC\n"
-        "QMUk26jPTIVTLfXmmwU0u8vUkpR7LQKkwwIBAg==\n"
-        "-----END DH PARAMETERS-----\n";
+    const std::string dh = "-----BEGIN DH PARAMETERS-----\n"
+                           "MIIBCAKCAQEArzQc5mpm0Fs8yahDeySj31JZlwEphUdZ9StM2D8+Fo7TMduGtSi+\n"
+                           "/HRWVwHcTFAgrxVdm+dl474mOUqqaz4MpzIb6+6OVfWHbQJmXPepZKyu4LgUPvY/\n"
+                           "4q3/iDMjIS0fLOu/bLuObwU5ccZmDgfhmz1GanRlTQOiYRty3FiOATWZBRh6uv4u\n"
+                           "tff4A9Bm3V9tLx9S6djq31w31Gl7OQhryodW28kc16t9TvO1BzcV3HjRPwpe701X\n"
+                           "oEEZdnZWANkkpR/m/pfgdmGPU66S2sXMHgsliViQWpDCYeehrvFRHEdR9NV+XJfC\n"
+                           "QMUk26jPTIVTLfXmmwU0u8vUkpR7LQKkwwIBAg==\n"
+                           "-----END DH PARAMETERS-----\n";
 
 
     ctx.set_options(boost::asio::ssl::context::default_workarounds |
