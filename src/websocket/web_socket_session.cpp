@@ -25,13 +25,12 @@
 #include <gateway.h>
 #include <websocket/web_socket_server.h>
 
-#include <libKitsunemimiHanamiMessaging/messaging_client.h>
-#include <libKitsunemimiHanamiMessaging/messaging_controller.h>
+#include <libKitsunemimiHanamiMessaging/hanami_messaging.h>
 #include <libKitsunemimiConfig/config_handler.h>
 
 #include <libKitsunemimiCommon/logger.h>
 
-using Kitsunemimi::Hanami::MessagingController;
+using Kitsunemimi::Hanami::HanamiMessaging;
 
 /**
  * @brief constructor
@@ -53,12 +52,8 @@ WebSocketSession::initSessionToBackend(const std::string &identifier)
     const std::string address = GET_STRING_CONFIG("KyoukoMind", "address", success);
     const uint16_t port = static_cast<uint16_t>(GET_INT_CONFIG("KyoukoMind", "port", success));
 
-    MessagingController* contr = MessagingController::getInstance();
-    m_client = contr->createClient(identifier, identifier, address, port);
-
-    if(m_client == nullptr) {
-        return false;
-    }
+    //HanamiMessaging* contr = HanamiMessaging::getInstance();
+    //m_client = contr->createClient(identifier, identifier, address, port);
 
     return true;
 }
@@ -128,7 +123,7 @@ WebSocketSession::run()
         {
             beast::flat_buffer buffer;
             m_webSocket.read(buffer);
-            m_client->sendStreamData(buffer.data().data(), buffer.data().size());
+            //m_client->sendStreamData(buffer.data().data(), buffer.data().size());
         }
     }
     catch(const beast::system_error& se)

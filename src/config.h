@@ -28,7 +28,7 @@
 /**
  * @brief register configs
  */
-void
+bool
 registerConfigs()
 {
     // DEFAULT-section
@@ -38,17 +38,15 @@ registerConfigs()
     // server-section
     REGISTER_BOOL_CONFIG("server", "enable_websocket", false);
     REGISTER_BOOL_CONFIG("server", "enable_dashboard", false);
-    REGISTER_STRING_CONFIG("server", "dashboard_files", "/etc/ToriiGateway/MikoClient");
-    REGISTER_STRING_CONFIG("server", "ip", "0.0.0.0");
+    REGISTER_STRING_CONFIG("server", "dashboard_files", "/etc/ToriiGateway/HanamiDashboard");
     REGISTER_STRING_CONFIG("server", "certificate", "");
     REGISTER_STRING_CONFIG("server", "key", "");
+    REGISTER_STRING_CONFIG("server", "ip", "0.0.0.0");
     REGISTER_INT_CONFIG("server", "http_port", 12345);
     REGISTER_INT_CONFIG("server", "websocket_port", 13345);
     REGISTER_INT_CONFIG("server", "number_of_threads", 4);
 
-    // KyoukoMind-section
-    REGISTER_STRING_CONFIG("KyoukoMind", "address", "/tmp/KyoukoMind_uds.sock");
-    REGISTER_INT_CONFIG("KyoukoMind", "port", 0);
+    return Kitsunemimi::Config::isConfigValid();
 }
 
 #endif // GATEWAY_CONFIG_H

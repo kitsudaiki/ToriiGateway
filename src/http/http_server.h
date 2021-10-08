@@ -52,10 +52,10 @@ protected:
     void run();
 
 private:
-    std::string m_address = "";
-    uint16_t m_port = 0;
-    std::string m_cert = "";
-    std::string m_key = "";
+    const std::string m_address = "";
+    const uint16_t m_port = 0;
+    const std::string m_cert = "";
+    const std::string m_key = "";
 
     bool loadCertificates(boost::asio::ssl::context &ctx,
                           const std::string &certFile,

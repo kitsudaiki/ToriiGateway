@@ -20,13 +20,12 @@
  *      limitations under the License.
  */
 
-#ifndef CALLBACKS_H
-#define CALLBACKS_H
+#ifndef KITSUNEMIMI_HANAMI_MESSAGING_CALLBACKS_H
+#define KITSUNEMIMI_HANAMI_MESSAGING_CALLBACKS_H
 
 #include <gateway.h>
 
-#include <libKitsunemimiHanamiMessaging/messaging_controller.h>
-#include <libKitsunemimiHanamiMessaging/messaging_client.h>
+#include <libKitsunemimiHanamiMessaging/hanami_messaging.h>
 
 #include <websocket/web_socket_server.h>
 #include <websocket/web_socket_session.h>
@@ -54,26 +53,4 @@ clientDataCallback(void* sessionPtr,
     }
 }
 
-/**
- * @brief callback for new sessions
- *
- * @param session pointer to session
- * @param identifier identifier of the incoming session
- */
-void
-messagingCreateCallback(Kitsunemimi::Hanami::MessagingClient* session,
-                        const std::string identifier)
-{
-}
-
-/**
- * @brief callback for closing sessions
- *
- * @param identifier identifier of the incoming session
- */
-void
-messagingCloseCallback(const std::string identifier)
-{
-}
-
-#endif // CALLBACKS_H
+#endif // KITSUNEMIMI_HANAMI_MESSAGING_CALLBACKS_H

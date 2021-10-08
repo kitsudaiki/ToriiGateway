@@ -41,11 +41,11 @@ HttpServer::HttpServer(const std::string &address,
                        const uint16_t port,
                        const std::string &cert,
                        const std::string &key)
+    : m_address(address),
+      m_port(port),
+      m_cert(cert),
+      m_key(key)
 {
-    m_address = address;
-    m_port = port;
-    m_cert = cert;
-    m_key = key;
 }
 
 /**
@@ -59,13 +59,6 @@ HttpServer::loadCertificates(boost::asio::ssl::context& ctx,
                              const std::string &certFile,
                              const std::string &keyFile)
 {
-    /*ctx.set_password_callback(
-        [](std::size_t,
-            boost::asio::ssl::context_base::password_purpose)
-        {
-            return "test";
-        });*/
-
     std::string errorMessage = "";
     std::string cert = "";
     std::string key = "";
@@ -123,7 +116,10 @@ HttpServer::run()
         net::io_context ioc{1};
         tcp::acceptor acceptor{ioc, {address, m_port}};
         boost::asio::ssl::context ctx{boost::asio::ssl::context::tlsv12};
-        loadCertificates(ctx, m_cert, m_key);
+        const bool loadResult = loadCertificates(ctx, m_cert, m_key);
+        if(loadResult == false) {
+            return;
+        }
 
         while(m_abort == false)
         {

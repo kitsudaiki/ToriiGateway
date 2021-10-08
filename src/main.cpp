@@ -57,27 +57,24 @@ int main(int argc, char *argv[])
     // get config-parameter for logger
     bool success = false;
     const bool enableDebug = GET_BOOL_CONFIG("DEFAULT", "debug", success);
-    assert(success);
     const std::string logPath = GET_STRING_CONFIG("DEFAULT", "log_path", success);
-    assert(success);
 
     // init logger
     Kitsunemimi::initConsoleLogger(enableDebug);
     Kitsunemimi::initFileLogger(logPath, "ToriiGateway", enableDebug);
 
     // init gateway
-    Gateway gateway;
-    if(gateway.initHttpServer() == false)
+    if(Gateway::m_instance->initHttpServer() == false)
     {
         LOG_ERROR("initializing http-server failed");
         return 1;
     }
-    if(gateway.initWebSocketServer() == false)
+    if(Gateway::m_instance->initWebSocketServer() == false)
     {
         LOG_ERROR("initializing websocket-server failed");
         return 1;
     }
-    if(gateway.initInternalSession() == false)
+    if(Gateway::m_instance->initInternalSession() == false)
     {
         LOG_ERROR("initializing connection to backend failed");
         return 1;
