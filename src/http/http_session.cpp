@@ -24,9 +24,11 @@
 #include <gateway.h>
 
 #include <libKitsunemimiConfig/config_handler.h>
+
 #include <libKitsunemimiCommon/common_items/data_items.h>
 #include <libKitsunemimiCommon/files/text_file.h>
 #include <libKitsunemimiCommon/logger.h>
+#include <libKitsunemimiCommon/common_methods/string_methods.h>
 
 #include <libKitsunemimiHanamiMessaging/hanami_messaging.h>
 
@@ -432,11 +434,30 @@ HttpRequestEvent::processControlRequest(const std::string &path,
     std::string errorMessage = "";
 
     // trigger sakura-file remote
-    const bool ret = HanamiMessaging::getInstance()->triggerSakuraFile("KyoukoMind",
-                                                                       result,
-                                                                       path,
-                                                                       inputValues,
-                                                                       errorMessage);
+    bool ret = false;
+
+    if(path.find("?") != std::string::npos)
+    {
+        std::vector<std::string> parts;
+        Kitsunemimi::splitStringByDelimiter(parts, path, '?');
+
+        Kitsunemimi::replaceSubstring(parts[1], "=", ":");
+        Kitsunemimi::replaceSubstring(parts[1], "&", ",");
+
+        ret = HanamiMessaging::getInstance()->triggerSakuraFile("KyoukoMind",
+                                                                result,
+                                                                parts.at(0),
+                                                                "{" + parts.at(1) + "}",
+                                                                errorMessage);
+    }
+    else
+    {
+        ret = HanamiMessaging::getInstance()->triggerSakuraFile("KyoukoMind",
+                                                                result,
+                                                                path,
+                                                                inputValues,
+                                                                errorMessage);
+    }
 
     // forward result to the control
     if(ret)
