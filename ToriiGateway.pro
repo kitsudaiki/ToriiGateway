@@ -61,6 +61,7 @@ INCLUDEPATH += $$PWD \
                src
 
 SOURCES += \
+    src/http/file_send.cpp \
     src/http/request_queue.cpp \
         src/main.cpp \
         src/gateway.cpp \
@@ -73,6 +74,7 @@ SOURCES += \
 HEADERS += \
     src/gateway.h \
     src/args.h \
+    src/http/file_send.h \
     src/http/request_queue.h \
     src/websocket/web_socket_server.h \
     src/websocket/web_socket_session.h \

@@ -45,8 +45,7 @@ HttpServer::HttpServer(const std::string &address,
       m_port(port),
       m_cert(cert),
       m_key(key)
-{
-}
+{}
 
 /**
  * @brief HttpServer::loadCertificates
@@ -108,7 +107,10 @@ HttpServer::loadCertificates(boost::asio::ssl::context& ctx,
 void
 HttpServer::run()
 {
-    LOG_INFO("start HTTP-server on address " + m_address + " and port " + std::to_string(m_port));
+    LOG_INFO("start HTTP-server on address "
+             + m_address
+             + " and port "
+             + std::to_string(m_port));
     try
     {
         // create server

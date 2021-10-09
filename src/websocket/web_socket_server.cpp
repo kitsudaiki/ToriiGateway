@@ -35,10 +35,9 @@
  */
 WebSocketServer::WebSocketServer(const std::string &address,
                                  const uint16_t port)
-{
-    m_address = address;
-    m_port = port;
-}
+    : m_address(address),
+      m_port(port)
+{}
 
 /**
  * @brief run server-thread

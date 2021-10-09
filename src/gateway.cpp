@@ -40,7 +40,6 @@
 
 #include <libKitsunemimiCommon/files/text_file.h>
 
-using Kitsunemimi::Sakura::SakuraLangInterface;
 using Kitsunemimi::Hanami::HanamiMessaging;
 
 #include <websocket/web_socket_server.h>
@@ -91,19 +90,11 @@ Gateway::initWebSocketServer()
         return true;
     }
 
-    // get port from config
+    // get stuff from config
     const long port = GET_INT_CONFIG("server", "websocket_port", success);
-    if(port <= 0
-            || port > 64000)
-    {
-        LOG_ERROR("port for websocket is not valie. Port in config: " + std::to_string(port));
-        return false;
-    }
-
-    // get ip from config
     const std::string ip = GET_STRING_CONFIG("server", "ip", success);
-    // TODO: check if ip is valid
 
+    // start websocket-server
     m_websocketServer = new WebSocketServer(ip, static_cast<uint16_t>(port));
     m_websocketServer->startThread();
 

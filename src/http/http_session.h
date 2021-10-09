@@ -34,7 +34,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 #include <libKitsunemimiCommon/threading/event.h>
 
@@ -64,7 +64,6 @@ private:
     http::response<http::dynamic_body> m_response;
 
     void processRequest();
-    bool sendFileFromLocalLocation(const std::string &dir, const std::string &relativePath);
     bool sendConnectionInfo(const std::string &client, const std::string &portName);
     bool sendControlInfo();
 
@@ -76,10 +75,8 @@ private:
     bool processPutRequest();
     bool processDelesteRequest();
 
-    bool processClientRequest(const std::string &path);
     void processControlRequest(const std::string &path, const std::string &inputValues);
-
-    const std::string getResponseType(const std::string &ext);
+    bool parseUri(std::string &path, std::string &inputValues, const std::string &uri);
 };
 
 #endif // HTTP_SESSION_H

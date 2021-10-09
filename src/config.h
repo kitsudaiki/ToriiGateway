@@ -23,12 +23,15 @@
 #ifndef GATEWAY_CONFIG_H
 #define GATEWAY_CONFIG_H
 
+#include <filesystem>
+
 #include <libKitsunemimiConfig/config_handler.h>
+#include <libKitsunemimiCommon/logger.h>
 
 /**
  * @brief register configs
  */
-bool
+void
 registerConfigs()
 {
     // DEFAULT-section
@@ -45,8 +48,36 @@ registerConfigs()
     REGISTER_INT_CONFIG("server", "http_port", 12345);
     REGISTER_INT_CONFIG("server", "websocket_port", 13345);
     REGISTER_INT_CONFIG("server", "number_of_threads", 4);
+}
 
-    return Kitsunemimi::Config::isConfigValid();
+bool
+validateConfig()
+{
+    bool valid = Kitsunemimi::Config::isConfigValid();
+    if(valid == false) {
+        return false;
+    }
+
+    const std::string fileLocation = GET_STRING_CONFIG("server", "dashboard_files", valid);
+    if(valid == false) {
+        return false;
+    }
+
+    if(std::filesystem::exists(fileLocation) == false) {
+        return false;
+    }
+
+    const long port = GET_INT_CONFIG("server", "websocket_port", valid);
+    if(port <= 0
+            || port > 64000)
+    {
+        LOG_ERROR("port for websocket is not valie. Port in config: " + std::to_string(port));
+        return false;
+    }
+
+    const std::string ip = GET_STRING_CONFIG("server", "ip", valid);
+
+
 }
 
 #endif // GATEWAY_CONFIG_H
