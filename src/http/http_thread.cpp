@@ -28,8 +28,8 @@
 
 #include <libKitsunemimiCommon/threading/event.h>
 
-HttpThread::HttpThread()
-    : Kitsunemimi::Thread() {}
+HttpThread::HttpThread(const std::string &threadName)
+    : Kitsunemimi::Thread(threadName) {}
 
 /**
  * @brief HttpThread::run

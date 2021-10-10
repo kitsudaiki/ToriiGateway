@@ -121,7 +121,8 @@ Gateway::initHttpServer()
     // start threads
     for(uint32_t i = 0; i < numberOfThreads; i++)
     {
-        HttpThread* httpThread = new HttpThread();
+        const std::string name = "HttpThread_" + std::to_string(i);
+        HttpThread* httpThread = new HttpThread(name);
         httpThread->startThread();
         m_threads.push_back(httpThread);
     }

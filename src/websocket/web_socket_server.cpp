@@ -35,7 +35,8 @@
  */
 WebSocketServer::WebSocketServer(const std::string &address,
                                  const uint16_t port)
-    : m_address(address),
+    : Kitsunemimi::Thread("WebSocketServer"),
+      m_address(address),
       m_port(port)
 {}
 
@@ -49,6 +50,7 @@ WebSocketServer::run()
              + m_address
              + " and port "
              + std::to_string(m_port));
+    uint32_t counter = 0;
     try
     {
         // create server
@@ -61,9 +63,11 @@ WebSocketServer::run()
             // create socket-object for incoming connection
             tcp::socket socket{ioc};
             acceptor.accept(socket);
+            counter++;
 
             // initialize session
-            WebSocketSession* session = new WebSocketSession(std::move(socket));
+            const std::string name = "WebSocketSession_" + std::to_string(counter);
+            WebSocketSession* session = new WebSocketSession(std::move(socket), name);
             const bool ret = session->initSessionToBackend("test");
             if(ret)
             {

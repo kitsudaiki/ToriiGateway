@@ -35,8 +35,9 @@ using Kitsunemimi::Hanami::HanamiMessaging;
 /**
  * @brief constructor
  */
-WebSocketSession::WebSocketSession(tcp::socket &&socket)
-    : m_webSocket(std::move(socket))
+WebSocketSession::WebSocketSession(tcp::socket &&socket, const std::string &threadName)
+    : Kitsunemimi::Thread(threadName),
+      m_webSocket(std::move(socket))
 {
 }
 

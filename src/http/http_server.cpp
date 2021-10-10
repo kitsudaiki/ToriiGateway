@@ -41,7 +41,8 @@ HttpServer::HttpServer(const std::string &address,
                        const uint16_t port,
                        const std::string &cert,
                        const std::string &key)
-    : m_address(address),
+    : Kitsunemimi::Thread("HttpServer"),
+      m_address(address),
       m_port(port),
       m_cert(cert),
       m_key(key)
