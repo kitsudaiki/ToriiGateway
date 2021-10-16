@@ -4,6 +4,10 @@ TARGET = ToriiGateway
 CONFIG += console c++17
 CONFIG -= app_bundle
 
+LIBS += -L../libKitsunemimiHanamiCommon/src -lKitsunemimiHanamiCommon
+LIBS += -L../libKitsunemimiHanamiCommon/src/debug -lKitsunemimiHanamiCommon
+LIBS += -L../libKitsunemimiHanamiCommon/src/release -lKitsunemimiHanamiCommon
+INCLUDEPATH += ../libKitsunemimiHanamiCommon/include
 
 LIBS += -L../libKitsunemimiHanamiMessaging/src -lKitsunemimiHanamiMessaging
 LIBS += -L../libKitsunemimiHanamiMessaging/src/debug -lKitsunemimiHanamiMessaging

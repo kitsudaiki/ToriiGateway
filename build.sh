@@ -117,6 +117,10 @@ get_required_kitsune_lib_repo "libKitsunemimiSakuraLang" "master" 1
 echo ""
 echo "###########################################################################################################"
 echo ""
+get_required_private_repo_gitlab "libKitsunemimiHanamiCommon" "master" 1
+echo ""
+echo "###########################################################################################################"
+echo ""
 get_required_private_repo_gitlab "libKitsunemimiHanamiMessaging" "master" 8
 echo ""
 echo "###########################################################################################################"

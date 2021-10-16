@@ -27,6 +27,7 @@
 
 #include <libKitsunemimiConfig/config_handler.h>
 #include <libKitsunemimiCommon/logger.h>
+#include <libKitsunemimiHanamiCommon/config.h>
 
 /**
  * @brief register configs
@@ -34,8 +35,9 @@
 void
 registerConfigs()
 {
+    Kitsunemimi::Hanami::registerConfigs();
+
     // DEFAULT-section
-    REGISTER_BOOL_CONFIG("DEFAULT", "debug", false);
     REGISTER_STRING_CONFIG("DEFAULT", "log_path", "/var/log");
 
     // server-section
