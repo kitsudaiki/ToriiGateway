@@ -46,8 +46,8 @@ using Kitsunemimi::Hanami::HanamiMessaging;
 #include <websocket/web_socket_session.h>
 #include <http/http_server.h>
 
-Gateway* Gateway::m_instance = new Gateway();
-RequestQueue* Gateway::m_requestQueue = new RequestQueue();
+Gateway* Gateway::gateway = new Gateway();
+RequestQueue* Gateway::requestQueue = new RequestQueue();
 
 /**
  * @brief constructor
@@ -64,7 +64,7 @@ Gateway::initInternalSession()
 {
     bool success = false;
 
-    std::vector<std::string> groups = { "KyoukoMind" };
+    std::vector<std::string> groups = { "Kyouko" };
     success = HanamiMessaging::getInstance()->initialize("ToriiGateway", groups, false);
     if(success == false) {
         return false;
@@ -95,8 +95,8 @@ Gateway::initWebSocketServer()
     const std::string ip = GET_STRING_CONFIG("server", "ip", success);
 
     // start websocket-server
-    m_websocketServer = new WebSocketServer(ip, static_cast<uint16_t>(port));
-    m_websocketServer->startThread();
+    websocketServer = new WebSocketServer(ip, static_cast<uint16_t>(port));
+    websocketServer->startThread();
 
     return true;
 }
@@ -127,8 +127,8 @@ Gateway::initHttpServer()
         m_threads.push_back(httpThread);
     }
 
-    m_httpServer = new HttpServer(ip, port, cert, key);
-    m_httpServer->startThread();
+    httpServer = new HttpServer(ip, port, cert, key);
+    httpServer->startThread();
 
     return true;
 }

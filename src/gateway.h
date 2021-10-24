@@ -41,10 +41,10 @@ public:
     bool initWebSocketServer();
     bool initHttpServer();
 
-    WebSocketServer* m_websocketServer = nullptr;
-    HttpServer* m_httpServer = nullptr;
-    static Gateway* m_instance;
-    static RequestQueue* m_requestQueue;
+    WebSocketServer* websocketServer = nullptr;
+    HttpServer* httpServer = nullptr;
+    static Gateway* gateway;
+    static RequestQueue* requestQueue;
 
 private:
     std::vector<HttpThread*> m_threads;

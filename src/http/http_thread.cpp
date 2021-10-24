@@ -39,7 +39,7 @@ HttpThread::run()
 {
     while(m_abort == false)
     {
-        Kitsunemimi::Event* event = Gateway::m_requestQueue->getSession();
+        Kitsunemimi::Event* event = Gateway::requestQueue->getSession();
         if(event != nullptr)
         {
             event->processEvent();

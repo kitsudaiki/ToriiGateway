@@ -149,7 +149,6 @@ HttpRequestEvent::processRequest()
     }
 }
 
-
 /**
  * @brief send information of the websocket-connection
  *
@@ -245,7 +244,9 @@ HttpRequestEvent::processGetRequest()
     if(path.compare(0, 9, "/control/") == 0)
     {
         path.erase(0, 9);
-        processControlRequest(path, "{}");
+        processControlRequest(path,
+                              "{}",
+                              HttpType::GET_TYPE);
         return true;
     }
 
@@ -265,7 +266,9 @@ HttpRequestEvent::processPostRequest()
     if(path.compare(0, 9, "/control/") == 0)
     {
         path.erase(0, 9);
-        processControlRequest(path, m_request.body().data());
+        processControlRequest(path,
+                              m_request.body().data(),
+                              HttpType::POST_TYPE);
         return true;
     }
 
@@ -279,6 +282,17 @@ HttpRequestEvent::processPostRequest()
 bool
 HttpRequestEvent::processPutRequest()
 {
+    std::string path = m_request.target().to_string();
+
+    if(path.compare(0, 9, "/control/") == 0)
+    {
+        path.erase(0, 9);
+        processControlRequest(path,
+                              m_request.body().data(),
+                              HttpType::PUT_TYPE);
+        return true;
+    }
+
     return false;
 }
 
@@ -289,6 +303,17 @@ HttpRequestEvent::processPutRequest()
 bool
 HttpRequestEvent::processDelesteRequest()
 {
+    std::string path = m_request.target().to_string();
+
+    if(path.compare(0, 9, "/control/") == 0)
+    {
+        path.erase(0, 9);
+        processControlRequest(path,
+                              "{}",
+                              HttpType::DELETE_TYPE);
+        return true;
+    }
+
     return false;
 }
 
@@ -324,7 +349,8 @@ HttpRequestEvent::parseUri(std::string &path,
  */
 void
 HttpRequestEvent::processControlRequest(const std::string &path,
-                                        const std::string &inputValues)
+                                        const std::string &inputValues,
+                                        HttpType httpType)
 {
     Kitsunemimi::DataMap result;
     std::string errorMessage = "";
@@ -340,6 +366,7 @@ HttpRequestEvent::processControlRequest(const std::string &path,
         {
             ret = HanamiMessaging::getInstance()->triggerSakuraFile("KyoukoMind",
                                                                     result,
+                                                                    httpType,
                                                                     newPath,
                                                                     inputValues,
                                                                     errorMessage);
@@ -349,6 +376,7 @@ HttpRequestEvent::processControlRequest(const std::string &path,
     {
         ret = HanamiMessaging::getInstance()->triggerSakuraFile("KyoukoMind",
                                                                 result,
+                                                                httpType,
                                                                 path,
                                                                 inputValues,
                                                                 errorMessage);

@@ -37,11 +37,14 @@
 #include <filesystem>
 
 #include <libKitsunemimiCommon/threading/event.h>
+#include <libKitsunemimiHanamiCommon/enums.h>
 
 namespace beast = boost::beast;         // from <boost/beast.hpp>
 namespace http = beast::http;           // from <boost/beast/http.hpp>
 namespace net = boost::asio;            // from <boost/asio.hpp>
 using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
+
+using Kitsunemimi::Hanami::HttpType;
 
 class HttpRequestEvent
         : public Kitsunemimi::Event
@@ -75,7 +78,9 @@ private:
     bool processPutRequest();
     bool processDelesteRequest();
 
-    void processControlRequest(const std::string &path, const std::string &inputValues);
+    void processControlRequest(const std::string &path,
+                               const std::string &inputValues,
+                               HttpType httpType);
     bool parseUri(std::string &path, std::string &inputValues, const std::string &uri);
 };
 

@@ -64,17 +64,17 @@ int main(int argc, char *argv[])
     Kitsunemimi::initFileLogger(logPath, "ToriiGateway", enableDebug);
 
     // init gateway
-    if(Gateway::m_instance->initHttpServer() == false)
+    if(Gateway::gateway->initHttpServer() == false)
     {
         LOG_ERROR("initializing http-server failed");
         return 1;
     }
-    if(Gateway::m_instance->initWebSocketServer() == false)
+    if(Gateway::gateway->initWebSocketServer() == false)
     {
         LOG_ERROR("initializing websocket-server failed");
         return 1;
     }
-    if(Gateway::m_instance->initInternalSession() == false)
+    if(Gateway::gateway->initInternalSession() == false)
     {
         LOG_ERROR("initializing connection to backend failed");
         return 1;

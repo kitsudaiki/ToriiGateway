@@ -132,7 +132,7 @@ HttpServer::run()
 
             // process http-request within an already existing thread
             HttpRequestEvent* event = new HttpRequestEvent(std::move(socket), std::ref(ctx));
-            Gateway::m_requestQueue->addSession(event);
+            Gateway::requestQueue->addSession(event);
         }
     }
     catch (const std::exception& e)
