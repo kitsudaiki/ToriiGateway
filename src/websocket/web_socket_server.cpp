@@ -80,7 +80,10 @@ WebSocketServer::run()
             }
         }
     }
-    catch (const std::exception& e) {
-        LOG_ERROR("Error in websocket-server with message: " + std::string(e.what()));
+    catch (const std::exception& e)
+    {
+        Kitsunemimi::ErrorContainer error;
+        error.errorMessage = "Error in websocket-server with message: " + std::string(e.what());
+        LOG_ERROR(error);
     }
 }

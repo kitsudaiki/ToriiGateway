@@ -89,13 +89,18 @@ WebSocketSession::sendText(const std::string &text)
         }
         else
         {
-            LOG_ERROR("Error while sending data over websocket with message: "
-                      + se.code().message());
+            Kitsunemimi::ErrorContainer error;
+            error.errorMessage = "Error while sending data over websocket with message: "
+                                 + se.code().message();
+            LOG_ERROR(error);
         }
     }
     catch(const std::exception& e)
     {
-        LOG_ERROR("Error while sending data over websocket with message: " + std::string(e.what()));
+        Kitsunemimi::ErrorContainer error;
+        error.errorMessage = "Error while sending data over websocket with message: "
+                             + std::string(e.what());
+        LOG_ERROR(error);
     }
 
     return false;
@@ -136,14 +141,18 @@ WebSocketSession::run()
         }
         else
         {
-            LOG_ERROR("Error while receiving data over websocket with message: "
-                      + se.code().message());
+            Kitsunemimi::ErrorContainer error;
+            error.errorMessage = "Error while receiving data over websocket with message: "
+                                 + se.code().message();
+            LOG_ERROR(error);
         }
     }
     catch(const std::exception& e)
     {
-        LOG_ERROR("Error while receiving data over websocket with message: "
-                  + std::string(e.what()));
+        Kitsunemimi::ErrorContainer error;
+        error.errorMessage = "Error while receiving data over websocket with message: "
+                             + std::string(e.what());
+        LOG_ERROR(error);
     }
 }
 

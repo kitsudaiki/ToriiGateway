@@ -82,50 +82,32 @@ function get_required_private_repo_github () {
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_kitsune_lib_repo "libKitsunemimiCommon" "master" 8
+get_required_kitsune_lib_repo "libKitsunemimiCommon" "v0.22.0" 8
+get_required_kitsune_lib_repo "libKitsunemimiJson" "v0.10.8" 1
+get_required_kitsune_lib_repo "libKitsunemimiJinja2" "v0.8.3" 1
+get_required_kitsune_lib_repo "libKitsunemimiIni" "v0.4.9" 1
+get_required_kitsune_lib_repo "libKitsunemimiNetwork" "v0.7.0" 8
+get_required_kitsune_lib_repo "libKitsunemimiArgs" "v0.3.1" 8
+get_required_kitsune_lib_repo "libKitsunemimiConfig" "v0.3.0" 8
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_kitsune_lib_repo "libKitsunemimiJson" "master" 1
+get_required_private_repo_github "libKitsunemimiCrypto" "v0.1.1" 8
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_kitsune_lib_repo "libKitsunemimiJinja2" "v0.8.2" 1
-echo ""
-echo "###########################################################################################################"
-echo ""
-get_required_kitsune_lib_repo "libKitsunemimiIni" "master" 1
-echo ""
-echo "###########################################################################################################"
-echo ""
-get_required_kitsune_lib_repo "libKitsunemimiNetwork" "master" 8
-echo ""
-echo "###########################################################################################################"
-echo ""
-get_required_kitsune_lib_repo "libKitsunemimiSakuraNetwork" "master" 8
-echo ""
-echo "###########################################################################################################"
-echo ""
-get_required_kitsune_lib_repo "libKitsunemimiArgs" "v0.3.0" 8
-echo ""
-echo "###########################################################################################################"
-echo ""
-get_required_kitsune_lib_repo "libKitsunemimiConfig" "master" 8
-echo ""
-echo "###########################################################################################################"
-echo ""
+get_required_kitsune_lib_repo "libKitsunemimiSakuraNetwork" "v0.7.2" 8
 get_required_kitsune_lib_repo "libKitsunemimiSakuraLang" "master" 1
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_private_repo_gitlab "libKitsunemimiHanamiCommon" "master" 1
+get_required_private_repo_gitlab "libKitsunemimiHanamiCommon" "master" "2ue6RNxkCDs2A7qp1xtN" 8
+get_required_private_repo_gitlab "libKitsunemimiHanamiMessaging" "master" "vkEae-QF8jvt9W2xz3LR" 8
+get_required_private_repo_gitlab "libKitsunemimiHanamiEndpoints" "master" "ysR35grcGsLpFQiXXf1A" 1
+get_required_private_repo_gitlab "libKitsunemimiHanamiPolicies" "master" "MbPGESTo6zBzcXZW7_T8" 1
 echo ""
 echo "###########################################################################################################"
-echo ""
-get_required_private_repo_gitlab "libKitsunemimiHanamiMessaging" "master" 8
-echo ""
-echo "###########################################################################################################"
-echo ""
+
 #-----------------------------------------------------------------------------------------------------------------
 
 # create build directory for ToriiGateway and go into this directory

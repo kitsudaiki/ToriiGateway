@@ -64,19 +64,23 @@ int main(int argc, char *argv[])
     Kitsunemimi::initFileLogger(logPath, "ToriiGateway", enableDebug);
 
     // init gateway
+    Kitsunemimi::ErrorContainer error;
     if(Gateway::gateway->initHttpServer() == false)
     {
-        LOG_ERROR("initializing http-server failed");
+        error.errorMessage = "initializing http-server failed";
+        LOG_ERROR(error);
         return 1;
     }
     if(Gateway::gateway->initWebSocketServer() == false)
     {
-        LOG_ERROR("initializing websocket-server failed");
+        error.errorMessage = "initializing websocket-server failed";
+        LOG_ERROR(error);
         return 1;
     }
     if(Gateway::gateway->initInternalSession() == false)
     {
-        LOG_ERROR("initializing connection to backend failed");
+        error.errorMessage = "initializing connection to backend failed";
+        LOG_ERROR(error);
         return 1;
     }
 

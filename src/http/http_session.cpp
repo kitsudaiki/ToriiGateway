@@ -48,8 +48,11 @@ HttpRequestEvent::HttpRequestEvent(tcp::socket &&socket,
     // Perform the SSL handshake
     beast::error_code ec;
     m_stream.handshake(boost::asio::ssl::stream_base::server, ec);
-    if(ec.failed()) {
-        LOG_ERROR("SSL-Handshake failed!");
+    if(ec.failed())
+    {
+        Kitsunemimi::ErrorContainer error;
+        error.errorMessage = "SSL-Handshake failed!";
+        LOG_ERROR(error);
     }
 }
 
@@ -139,11 +142,12 @@ HttpRequestEvent::processRequest()
         default:
         {
             m_response.result(http::status::bad_request);
-            const std::string errorMessage = "Invalid request-method '"
-                                             + std::string(m_request.method_string())
-                                             + "'";
-            LOG_ERROR(errorMessage);
-            beast::ostream(m_response.body()) << errorMessage;
+            Kitsunemimi::ErrorContainer error;
+            error.errorMessage = "Invalid request-method '"
+                                 + std::string(m_request.method_string())
+                                 + "'";
+            LOG_ERROR(error);
+            beast::ostream(m_response.body()) << error.errorMessage;
             break;
         }
     }
@@ -197,7 +201,9 @@ HttpRequestEvent::readMessage()
 
     if(ec)
     {
-        LOG_ERROR("read: " + ec.message());
+        Kitsunemimi::ErrorContainer error;
+        error.errorMessage = "read: " + ec.message();
+        LOG_ERROR(error);
         return false;
     }
 
@@ -218,7 +224,9 @@ HttpRequestEvent::sendResponse()
 
     if(ec)
     {
-        LOG_ERROR("write: " + ec.message());
+        Kitsunemimi::ErrorContainer error;
+        error.errorMessage = "write: " + ec.message();
+        LOG_ERROR(error);
         return false;
     }
 
@@ -393,7 +401,9 @@ HttpRequestEvent::processControlRequest(const std::string &path,
     {
         m_response.result(http::status::not_found);
         m_response.set(http::field::content_type, "text/plain");
-        LOG_ERROR(errorMessage);
-        beast::ostream(m_response.body()) << errorMessage;
+        Kitsunemimi::ErrorContainer error;
+        error.errorMessage = errorMessage;
+        LOG_ERROR(error);
+        beast::ostream(m_response.body()) << error.errorMessage;
     }
 }

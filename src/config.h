@@ -35,7 +35,7 @@
 void
 registerConfigs()
 {
-    Kitsunemimi::Hanami::registerConfigs();
+    Kitsunemimi::Hanami::registerBasicConfigs();
 
     // DEFAULT-section
     REGISTER_STRING_CONFIG("DEFAULT", "log_path", "/var/log");
@@ -73,13 +73,16 @@ validateConfig()
     if(port <= 0
             || port > 64000)
     {
-        LOG_ERROR("port for websocket is not valie. Port in config: " + std::to_string(port));
+        Kitsunemimi::ErrorContainer error;
+        error.errorMessage = "port for websocket is not valid. Port in config: "
+                             + std::to_string(port);
+        LOG_ERROR(error);
         return false;
     }
 
     const std::string ip = GET_STRING_CONFIG("server", "ip", valid);
 
-
+    return true;
 }
 
 #endif // GATEWAY_CONFIG_H

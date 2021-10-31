@@ -67,14 +67,18 @@ HttpServer::loadCertificates(boost::asio::ssl::context& ctx,
     ret = Kitsunemimi::readFile(cert, certFile, errorMessage);
     if(ret == false)
     {
-        LOG_ERROR(errorMessage);
+        Kitsunemimi::ErrorContainer error;
+        error.errorMessage = errorMessage;
+        LOG_ERROR(error);
         return false;
     }
 
     ret = Kitsunemimi::readFile(key, keyFile, errorMessage);
     if(ret == false)
     {
-        LOG_ERROR(errorMessage);
+        Kitsunemimi::ErrorContainer error;
+        error.errorMessage = errorMessage;
+        LOG_ERROR(error);
         return false;
     }
 

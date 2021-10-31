@@ -65,25 +65,25 @@ INCLUDEPATH += $$PWD \
                src
 
 SOURCES += \
-    src/http/file_send.cpp \
-    src/http/request_queue.cpp \
+        src/http/file_send.cpp \
+        src/http/request_queue.cpp \
         src/main.cpp \
         src/gateway.cpp \
-    src/websocket/web_socket_server.cpp \
-    src/websocket/web_socket_session.cpp \
-    src/http/http_server.cpp \
-    src/http/http_session.cpp \
-    src/http/http_thread.cpp
+        src/websocket/web_socket_server.cpp \
+        src/websocket/web_socket_session.cpp \
+        src/http/http_server.cpp \
+        src/http/http_session.cpp \
+        src/http/http_thread.cpp
 
 HEADERS += \
-    src/gateway.h \
-    src/args.h \
-    src/http/file_send.h \
-    src/http/request_queue.h \
-    src/websocket/web_socket_server.h \
-    src/websocket/web_socket_session.h \
-    src/http/http_server.h \
-    src/http/http_session.h \
-    src/config.h \
-    src/callbacks.h \
-    src/http/http_thread.h
+        src/gateway.h \
+        src/args.h \
+        src/http/file_send.h \
+        src/http/request_queue.h \
+        src/websocket/web_socket_server.h \
+        src/websocket/web_socket_session.h \
+        src/http/http_server.h \
+        src/http/http_session.h \
+        src/config.h \
+        src/callbacks.h \
+        src/http/http_thread.h

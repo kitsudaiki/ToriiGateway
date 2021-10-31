@@ -66,6 +66,7 @@ sendFileFromLocalLocation(http::response<http::dynamic_body> &response,
     // read file and send content back
     std::string fileContent = "";
     std::string errorMessage = "";
+    Kitsunemimi::ErrorContainer error;
     if(Kitsunemimi::readFile(fileContent, path, errorMessage))
     {
         beast::ostream(response.body()) << fileContent;
@@ -74,7 +75,8 @@ sendFileFromLocalLocation(http::response<http::dynamic_body> &response,
 
     response.result(http::status::internal_server_error);
     response.set(http::field::content_type, "text/plain");
-    LOG_ERROR(errorMessage);
+    error.errorMessage = errorMessage;
+    LOG_ERROR(error);
 
     return false;
 }
