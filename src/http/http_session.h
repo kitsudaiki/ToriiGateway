@@ -44,7 +44,7 @@ namespace http = beast::http;           // from <boost/beast/http.hpp>
 namespace net = boost::asio;            // from <boost/asio.hpp>
 using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 
-using Kitsunemimi::Hanami::HttpType;
+using Kitsunemimi::Hanami::HttpRequestType;
 
 class HttpRequestEvent
         : public Kitsunemimi::Event
@@ -80,7 +80,7 @@ private:
 
     void processControlRequest(const std::string &path,
                                const std::string &inputValues,
-                               HttpType httpType);
+                               HttpRequestType httpType);
     bool parseUri(std::string &path, std::string &inputValues, const std::string &uri);
 };
 

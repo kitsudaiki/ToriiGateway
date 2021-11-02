@@ -254,7 +254,7 @@ HttpRequestEvent::processGetRequest()
         path.erase(0, 9);
         processControlRequest(path,
                               "{}",
-                              HttpType::GET_TYPE);
+                              HttpRequestType::GET_TYPE);
         return true;
     }
 
@@ -276,7 +276,7 @@ HttpRequestEvent::processPostRequest()
         path.erase(0, 9);
         processControlRequest(path,
                               m_request.body().data(),
-                              HttpType::POST_TYPE);
+                              HttpRequestType::POST_TYPE);
         return true;
     }
 
@@ -297,7 +297,7 @@ HttpRequestEvent::processPutRequest()
         path.erase(0, 9);
         processControlRequest(path,
                               m_request.body().data(),
-                              HttpType::PUT_TYPE);
+                              HttpRequestType::PUT_TYPE);
         return true;
     }
 
@@ -318,7 +318,7 @@ HttpRequestEvent::processDelesteRequest()
         path.erase(0, 9);
         processControlRequest(path,
                               "{}",
-                              HttpType::DELETE_TYPE);
+                              HttpRequestType::DELETE_TYPE);
         return true;
     }
 
@@ -358,52 +358,43 @@ HttpRequestEvent::parseUri(std::string &path,
 void
 HttpRequestEvent::processControlRequest(const std::string &path,
                                         const std::string &inputValues,
-                                        HttpType httpType)
+                                        HttpRequestType httpType)
 {
-    Kitsunemimi::DataMap result;
     std::string errorMessage = "";
+    std::string target = "KyoukoMind";
+    Kitsunemimi::Hanami::RequestMessage requestMsg;
+    Kitsunemimi::Hanami::ResponseMessage responseMsg;
+    HanamiMessaging* messaging = HanamiMessaging::getInstance();
 
     // trigger sakura-file remote
     bool ret = false;
 
     if(path.find("?") != std::string::npos)
     {
-        std::string newPath;
-        std::string inputValues;
-        if(parseUri(newPath, inputValues, path))
-        {
-            ret = HanamiMessaging::getInstance()->triggerSakuraFile("KyoukoMind",
-                                                                    result,
-                                                                    httpType,
-                                                                    newPath,
-                                                                    inputValues,
-                                                                    errorMessage);
+        if(parseUri(requestMsg.id, requestMsg.inputValues, path)) {
+            ret = messaging->triggerSakuraFile(target, responseMsg,  requestMsg, errorMessage);
         }
     }
     else
     {
-        ret = HanamiMessaging::getInstance()->triggerSakuraFile("KyoukoMind",
-                                                                result,
-                                                                httpType,
-                                                                path,
-                                                                inputValues,
-                                                                errorMessage);
+        requestMsg.id = path;
+        requestMsg.inputValues = inputValues;
+        ret = messaging->triggerSakuraFile(target, responseMsg,  requestMsg, errorMessage);
     }
 
     // forward result to the control
     if(ret)
     {
-        m_response.result(http::status::ok);
+        m_response.result(static_cast<http::status>(responseMsg.type));
         m_response.set(http::field::content_type, "text/json");
-        beast::ostream(m_response.body()) << result.toString();
+        beast::ostream(m_response.body()) << responseMsg.respnseContent;
     }
     else
     {
-        m_response.result(http::status::not_found);
+        m_response.result(http::status::internal_server_error);
         m_response.set(http::field::content_type, "text/plain");
         Kitsunemimi::ErrorContainer error;
         error.errorMessage = errorMessage;
         LOG_ERROR(error);
-        beast::ostream(m_response.body()) << error.errorMessage;
     }
 }

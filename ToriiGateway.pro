@@ -4,11 +4,6 @@ TARGET = ToriiGateway
 CONFIG += console c++17
 CONFIG -= app_bundle
 
-LIBS += -L../libKitsunemimiHanamiCommon/src -lKitsunemimiHanamiCommon
-LIBS += -L../libKitsunemimiHanamiCommon/src/debug -lKitsunemimiHanamiCommon
-LIBS += -L../libKitsunemimiHanamiCommon/src/release -lKitsunemimiHanamiCommon
-INCLUDEPATH += ../libKitsunemimiHanamiCommon/include
-
 LIBS += -L../libKitsunemimiHanamiMessaging/src -lKitsunemimiHanamiMessaging
 LIBS += -L../libKitsunemimiHanamiMessaging/src/debug -lKitsunemimiHanamiMessaging
 LIBS += -L../libKitsunemimiHanamiMessaging/src/release -lKitsunemimiHanamiMessaging
@@ -59,7 +54,17 @@ LIBS += -L../libKitsunemimiIni/src/debug -lKitsunemimiIni
 LIBS += -L../libKitsunemimiIni/src/release -lKitsunemimiIni
 INCLUDEPATH += ../libKitsunemimiIni/include
 
-LIBS += -lpthread -lcrypto -lssl
+LIBS += -L../libKitsunemimiHanamiEndpoints/src -lKitsunemimiHanamiEndpoints
+LIBS += -L../libKitsunemimiHanamiEndpoints/src/debug -lKitsunemimiHanamiEndpoints
+LIBS += -L../libKitsunemimiHanamiEndpoints/src/release -lKitsunemimiHanamiEndpoints
+INCLUDEPATH += ../libKitsunemimiHanamiEndpoints/include
+
+LIBS += -L../libKitsunemimiHanamiCommon/src -lKitsunemimiHanamiCommon
+LIBS += -L../libKitsunemimiHanamiCommon/src/debug -lKitsunemimiHanamiCommon
+LIBS += -L../libKitsunemimiHanamiCommon/src/release -lKitsunemimiHanamiCommon
+INCLUDEPATH += ../libKitsunemimiHanamiCommon/include
+
+LIBS += -lpthread -lcrypto -lssl -luuid
 
 INCLUDEPATH += $$PWD \
                src
