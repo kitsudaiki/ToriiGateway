@@ -333,18 +333,37 @@ HttpRequestEvent::processDelesteRequest()
  * @return
  */
 bool
-HttpRequestEvent::parseUri(std::string &path,
+HttpRequestEvent::parseUri(std::string &target,
+                           std::string &path,
                            std::string &inputValues,
                            const std::string &uri)
 {
+    // first split of uri
     std::vector<std::string> parts;
     Kitsunemimi::splitStringByDelimiter(parts, uri, '?');
 
-    Kitsunemimi::replaceSubstring(parts[1], "=", ":");
-    Kitsunemimi::replaceSubstring(parts[1], "&", ",");
+    // check split-result
+    if(parts.size() == 0) {
+        return false;
+    }
+    if(parts.at(0).find("/") == std::string::npos) {
+        return false;
+    }
 
-    path = parts.at(0);
-    inputValues = "{" + parts.at(1) + "}";
+    // split first part again to get target and real part
+    const size_t cutPos = parts.at(0).find("/");
+    const std::string* mainPart = &parts[0];
+    target = mainPart->substr(0, cutPos);
+    path = mainPart->substr(cutPos + 1, mainPart->size() - 1);
+
+    // prepare payload, if exist
+    if(parts.size() > 1)
+    {
+        std::string* valPart = &parts[1];
+        std::replace(valPart->begin(), valPart->end(), '=', ':');
+        std::replace(valPart->begin(), valPart->end(), '&', ',');
+        inputValues = "{" + parts[1] + "}";
+    }
 
     return true;
 }
@@ -356,30 +375,25 @@ HttpRequestEvent::parseUri(std::string &path,
  * @param inputValues json-formated input-values
  */
 void
-HttpRequestEvent::processControlRequest(const std::string &path,
+HttpRequestEvent::processControlRequest(const std::string &uri,
                                         const std::string &inputValues,
                                         HttpRequestType httpType)
 {
     std::string errorMessage = "";
-    std::string target = "KyoukoMind";
+    std::string target = "";
     Kitsunemimi::Hanami::RequestMessage requestMsg;
     Kitsunemimi::Hanami::ResponseMessage responseMsg;
     HanamiMessaging* messaging = HanamiMessaging::getInstance();
+    LOG_DEBUG("process uir: \'" + uri + "\'");
 
     // trigger sakura-file remote
-    bool ret = false;
-
-    if(path.find("?") != std::string::npos)
-    {
-        if(parseUri(requestMsg.id, requestMsg.inputValues, path)) {
-            ret = messaging->triggerSakuraFile(target, responseMsg,  requestMsg, errorMessage);
-        }
-    }
-    else
-    {
-        requestMsg.id = path;
-        requestMsg.inputValues = inputValues;
-        ret = messaging->triggerSakuraFile(target, responseMsg,  requestMsg, errorMessage);
+    requestMsg.httpType = httpType;
+    requestMsg.inputValues = inputValues;
+    bool ret = parseUri(target, requestMsg.id, requestMsg.inputValues, uri);
+    if(ret) {
+        ret = messaging->triggerSakuraFile(target, responseMsg, requestMsg, errorMessage);
+    } else {
+        errorMessage = "failed to parse uri";
     }
 
     // forward result to the control
@@ -387,7 +401,7 @@ HttpRequestEvent::processControlRequest(const std::string &path,
     {
         m_response.result(static_cast<http::status>(responseMsg.type));
         m_response.set(http::field::content_type, "text/json");
-        beast::ostream(m_response.body()) << responseMsg.respnseContent;
+        beast::ostream(m_response.body()) << responseMsg.responseContent;
     }
     else
     {

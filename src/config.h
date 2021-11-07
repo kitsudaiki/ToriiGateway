@@ -37,19 +37,17 @@ registerConfigs()
 {
     Kitsunemimi::Hanami::registerBasicConfigs();
 
-    // DEFAULT-section
-    REGISTER_STRING_CONFIG("DEFAULT", "log_path", "/var/log");
-
     // server-section
-    REGISTER_BOOL_CONFIG("server", "enable_websocket", false);
-    REGISTER_BOOL_CONFIG("server", "enable_dashboard", false);
-    REGISTER_STRING_CONFIG("server", "dashboard_files", "/etc/ToriiGateway/HanamiDashboard");
-    REGISTER_STRING_CONFIG("server", "certificate", "");
-    REGISTER_STRING_CONFIG("server", "key", "");
-    REGISTER_STRING_CONFIG("server", "ip", "0.0.0.0");
-    REGISTER_INT_CONFIG("server", "http_port", 12345);
-    REGISTER_INT_CONFIG("server", "websocket_port", 13345);
-    REGISTER_INT_CONFIG("server", "number_of_threads", 4);
+    const std::string serverGroup = "server";
+    REGISTER_BOOL_CONFIG(   serverGroup, "enable_websocket",  false);
+    REGISTER_BOOL_CONFIG(   serverGroup, "enable_dashboard",  false);
+    REGISTER_STRING_CONFIG( serverGroup, "dashboard_files",   "");
+    REGISTER_STRING_CONFIG( serverGroup, "certificate",       "",        true);
+    REGISTER_STRING_CONFIG( serverGroup, "key",               "",        true);
+    REGISTER_STRING_CONFIG( serverGroup, "ip",                "0.0.0.0", true);
+    REGISTER_INT_CONFIG(    serverGroup, "http_port",         12345,     true);
+    REGISTER_INT_CONFIG(    serverGroup, "websocket_port",    13345);
+    REGISTER_INT_CONFIG(    serverGroup, "number_of_threads", 4);
 }
 
 bool

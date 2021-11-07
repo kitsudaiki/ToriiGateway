@@ -24,21 +24,19 @@
 #include "gateway.h"
 
 #include <callbacks.h>
+
 #include <http/request_queue.h>
 #include <http/http_thread.h>
 
 #include <libKitsunemimiCommon/logger.h>
-
-#include <libKitsunemimiConfig/config_handler.h>
-
 #include <libKitsunemimiCommon/buffer/data_buffer.h>
+#include <libKitsunemimiCommon/files/text_file.h>
+#include <libKitsunemimiConfig/config_handler.h>
 
 #include <libKitsunemimiSakuraLang/sakura_lang_interface.h>
 #include <libKitsunemimiSakuraLang/blossom.h>
 
 #include <libKitsunemimiHanamiMessaging/hanami_messaging.h>
-
-#include <libKitsunemimiCommon/files/text_file.h>
 
 using Kitsunemimi::Hanami::HanamiMessaging;
 
@@ -64,7 +62,7 @@ Gateway::initInternalSession()
 {
     bool success = false;
 
-    std::vector<std::string> groups = { "Kyouko" };
+    std::vector<std::string> groups = { "Misaka" };
     success = HanamiMessaging::getInstance()->initialize("ToriiGateway", groups, false);
     if(success == false) {
         return false;
@@ -121,7 +119,7 @@ Gateway::initHttpServer()
     // start threads
     for(uint32_t i = 0; i < numberOfThreads; i++)
     {
-        const std::string name = "HttpThread_" + std::to_string(i);
+        const std::string name = "HttpThread";
         HttpThread* httpThread = new HttpThread(name);
         httpThread->startThread();
         m_threads.push_back(httpThread);

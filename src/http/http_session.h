@@ -58,8 +58,15 @@ public:
 protected:
     void run();
 
-
 private:
+    struct UriContanet
+    {
+        std::string target = "";
+        std::string path = "";
+        std::string inputValues = "";
+        bool containsValues = false;
+    };
+
     tcp::socket m_socket;
     beast::ssl_stream<tcp::socket&> m_stream;
     beast::flat_buffer m_buffer{8192};
@@ -68,7 +75,6 @@ private:
 
     void processRequest();
     bool sendConnectionInfo(const std::string &client, const std::string &portName);
-    bool sendControlInfo();
 
     bool readMessage();
     bool sendResponse();
@@ -78,10 +84,13 @@ private:
     bool processPutRequest();
     bool processDelesteRequest();
 
-    void processControlRequest(const std::string &path,
+    void processControlRequest(const std::string &uri,
                                const std::string &inputValues,
                                HttpRequestType httpType);
-    bool parseUri(std::string &path, std::string &inputValues, const std::string &uri);
+    bool parseUri(std::string &target,
+                  std::string &path,
+                  std::string &inputValues,
+                  const std::string &uri);
 };
 
 #endif // HTTP_SESSION_H
