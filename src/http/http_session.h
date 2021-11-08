@@ -38,6 +38,7 @@
 
 #include <libKitsunemimiCommon/threading/event.h>
 #include <libKitsunemimiHanamiCommon/enums.h>
+#include <libKitsunemimiHanamiCommon/structs.h>
 
 namespace beast = boost::beast;         // from <boost/beast.hpp>
 namespace http = beast::http;           // from <boost/beast/http.hpp>
@@ -45,6 +46,12 @@ namespace net = boost::asio;            // from <boost/asio.hpp>
 using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 
 using Kitsunemimi::Hanami::HttpRequestType;
+
+namespace Kitsunemimi {
+namespace Json {
+class JsonItem;
+}
+}
 
 class HttpRequestEvent
         : public Kitsunemimi::Event
@@ -84,13 +91,20 @@ private:
     bool processPutRequest();
     bool processDelesteRequest();
 
+    bool checkPermission(const std::string &token,
+                         const std::string &component,
+                         const std::string &endpoint,
+                         const HttpRequestType type,
+                         Kitsunemimi::Hanami::ResponseMessage &responseMsg,
+                         std::string &errorMessage);
     void processControlRequest(const std::string &uri,
                                const std::string &inputValues,
                                HttpRequestType httpType);
-    bool parseUri(std::string &target,
-                  std::string &path,
-                  std::string &inputValues,
-                  const std::string &uri);
+    bool parseUri(Kitsunemimi::Json::JsonItem &parsedInputValues,
+                  std::string &target,
+                  Kitsunemimi::Hanami::RequestMessage &request,
+                  const std::string &uri,
+                  std::string &errorMessage);
 };
 
 #endif // HTTP_SESSION_H

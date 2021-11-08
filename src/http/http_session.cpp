@@ -25,6 +25,7 @@
 #include <http/file_send.h>
 
 #include <libKitsunemimiConfig/config_handler.h>
+#include <libKitsunemimiJson/json_item.h>
 
 #include <libKitsunemimiCommon/common_items/data_items.h>
 #include <libKitsunemimiCommon/common_methods/string_methods.h>
@@ -333,14 +334,17 @@ HttpRequestEvent::processDelesteRequest()
  * @return
  */
 bool
-HttpRequestEvent::parseUri(std::string &target,
-                           std::string &path,
-                           std::string &inputValues,
-                           const std::string &uri)
+HttpRequestEvent::parseUri(Kitsunemimi::Json::JsonItem &parsedInputValues,
+                           std::string &target,
+                           Kitsunemimi::Hanami::RequestMessage &request,
+                           const std::string &uri,
+                           std::string &errorMessage)
 {
     // first split of uri
     std::vector<std::string> parts;
     Kitsunemimi::splitStringByDelimiter(parts, uri, '?');
+    std::string key;
+    std::string val;
 
     // check split-result
     if(parts.size() == 0) {
@@ -350,22 +354,73 @@ HttpRequestEvent::parseUri(std::string &target,
         return false;
     }
 
+    if(parsedInputValues.parse(request.inputValues, errorMessage) == false) {
+        return false;
+    }
+
     // split first part again to get target and real part
     const size_t cutPos = parts.at(0).find("/");
     const std::string* mainPart = &parts[0];
     target = mainPart->substr(0, cutPos);
-    path = mainPart->substr(cutPos + 1, mainPart->size() - 1);
+    request.id = mainPart->substr(cutPos + 1, mainPart->size() - 1);
 
     // prepare payload, if exist
     if(parts.size() > 1)
     {
-        std::string* valPart = &parts[1];
-        std::replace(valPart->begin(), valPart->end(), '=', ':');
-        std::replace(valPart->begin(), valPart->end(), '&', ',');
-        inputValues = "{" + parts[1] + "}";
+        std::vector<std::string> kvPairs;
+        Kitsunemimi::splitStringByDelimiter(kvPairs, parts[1], '&');
+
+        for(const std::string &kvPair : kvPairs)
+        {
+            const size_t cutPos = kvPair.find('=');
+            key = kvPair.substr(0, cutPos);
+            val = kvPair.substr(cutPos + 1, kvPair.size() - 1);
+            parsedInputValues.insert(key, val, true);
+        }
     }
 
+    request.inputValues = parsedInputValues.toString();
+
     return true;
+}
+
+/**
+ * @brief HttpRequestEvent::checkPermission
+ * @param token
+ * @param component
+ * @param endpoint
+ * @param type
+ * @return
+ */
+bool
+HttpRequestEvent::checkPermission(const std::string &token,
+                                  const std::string &component,
+                                  const std::string &endpoint,
+                                  const HttpRequestType type,
+                                  Kitsunemimi::Hanami::ResponseMessage &responseMsg,
+                                  std::string &errorMessage)
+{
+    Kitsunemimi::Hanami::RequestMessage requestMsg;
+
+    requestMsg.id = "auth";
+    requestMsg.inputValues = "{\"token\":\""
+                             + token
+                             + "\",\"component\":\""
+                             + component
+                             + "\",\"endpoint\":\""
+                             + endpoint
+                             + "\",\"http_type\":\""
+                             + std::to_string(static_cast<uint32_t>(type))
+                             + "\"}";
+    requestMsg.httpType = HttpRequestType::GET_TYPE;
+
+    HanamiMessaging* messaging = HanamiMessaging::getInstance();
+    bool ret = messaging->triggerSakuraFile("Misaka", responseMsg, requestMsg, errorMessage);
+    if(responseMsg.type == Kitsunemimi::Hanami::UNAUTHORIZED_RTYPE) {
+        ret = false;
+    }
+
+    return ret;
 }
 
 /**
@@ -389,24 +444,46 @@ HttpRequestEvent::processControlRequest(const std::string &uri,
     // trigger sakura-file remote
     requestMsg.httpType = httpType;
     requestMsg.inputValues = inputValues;
-    bool ret = parseUri(target, requestMsg.id, requestMsg.inputValues, uri);
-    if(ret) {
-        ret = messaging->triggerSakuraFile(target, responseMsg, requestMsg, errorMessage);
-    } else {
+    Kitsunemimi::Json::JsonItem parsedInputValues;
+    bool ret = parseUri(parsedInputValues, target, requestMsg, uri, errorMessage);
+    if(ret)
+    {
+        if(requestMsg.id != "token")
+        {
+            ret = checkPermission(parsedInputValues.get("token").getString(),
+                                  target,
+                                  requestMsg.id,
+                                  requestMsg.httpType,
+                                  responseMsg,
+                                  errorMessage);
+            if(ret) {
+                ret = messaging->triggerSakuraFile(target, responseMsg, requestMsg, errorMessage);
+            } else {
+                errorMessage = "authoriation failed!";
+            }
+        }
+        else
+        {
+            ret = messaging->triggerSakuraFile(target, responseMsg, requestMsg, errorMessage);
+        }
+    }
+    else
+    {
         errorMessage = "failed to parse uri";
     }
 
     // forward result to the control
     if(ret)
     {
-        m_response.result(static_cast<http::status>(responseMsg.type));
+        m_response.result(http::status::ok);
         m_response.set(http::field::content_type, "text/json");
         beast::ostream(m_response.body()) << responseMsg.responseContent;
     }
     else
     {
-        m_response.result(http::status::internal_server_error);
+        m_response.result(static_cast<http::status>(responseMsg.type));
         m_response.set(http::field::content_type, "text/plain");
+        beast::ostream(m_response.body()) << responseMsg.responseContent;
         Kitsunemimi::ErrorContainer error;
         error.errorMessage = errorMessage;
         LOG_ERROR(error);
