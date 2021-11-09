@@ -86,10 +86,10 @@ private:
     bool readMessage();
     bool sendResponse();
 
-    bool processGetRequest();
-    bool processPostRequest();
-    bool processPutRequest();
-    bool processDelesteRequest();
+    bool processGetRequest(std::string &path);
+    bool processPostRequest(std::string &path);
+    bool processPutRequest(std::string &path);
+    bool processDelesteRequest(std::string &path);
 
     bool checkPermission(const std::string &token,
                          const std::string &component,
@@ -97,7 +97,7 @@ private:
                          const HttpRequestType type,
                          Kitsunemimi::Hanami::ResponseMessage &responseMsg,
                          std::string &errorMessage);
-    void processControlRequest(const std::string &uri,
+    bool processControlRequest(const std::string &uri,
                                const std::string &inputValues,
                                HttpRequestType httpType);
     bool parseUri(Kitsunemimi::Json::JsonItem &parsedInputValues,
@@ -105,6 +105,8 @@ private:
                   Kitsunemimi::Hanami::RequestMessage &request,
                   const std::string &uri,
                   std::string &errorMessage);
+    bool cutPath(std::string &path,
+                 const std::string &cut);
 };
 
 #endif // HTTP_SESSION_H

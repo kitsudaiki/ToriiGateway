@@ -89,7 +89,7 @@ HttpRequestEvent::processEvent()
 void
 HttpRequestEvent::processRequest()
 {
-    // build header for response
+    // build default-header for response
     m_response.version(m_request.version());
     m_response.keep_alive(false);
     m_response.set(http::field::server, "ToriiGateway");
@@ -106,11 +106,12 @@ HttpRequestEvent::processRequest()
         return;
     }
 
+    std::string path = m_request.target().to_string();
     switch(m_request.method())
     {
         case http::verb::get:
         {
-            if(processGetRequest() == false) {
+            if(processGetRequest(path) == false) {
                 m_response.result(http::status::not_found);
             }
             break;
@@ -118,7 +119,7 @@ HttpRequestEvent::processRequest()
 
         case http::verb::post:
         {
-            if(processPostRequest() == false) {
+            if(processPostRequest(path) == false) {
                 m_response.result(http::status::not_found);
             }
             break;
@@ -126,7 +127,7 @@ HttpRequestEvent::processRequest()
 
         case http::verb::put:
         {
-            if(processPutRequest() == false) {
+            if(processPutRequest(path) == false) {
                 m_response.result(http::status::not_found);
             }
             break;
@@ -134,7 +135,7 @@ HttpRequestEvent::processRequest()
 
         case http::verb::delete_:
         {
-            if(processDelesteRequest() == false) {
+            if(processDelesteRequest(path) == false) {
                 m_response.result(http::status::not_found);
             }
             break;
@@ -234,29 +235,32 @@ HttpRequestEvent::sendResponse()
     return true;
 }
 
+bool
+HttpRequestEvent::cutPath(std::string &path, const std::string &cut)
+{
+    if(path.compare(0, cut.size(), cut) == 0)
+    {
+        path.erase(0, cut.size());
+        return true;
+    }
+
+    return false;
+}
+
 /**
  * @brief forward incoming get-requests
  *
  * @return true, if successful, else false
  */
 bool
-HttpRequestEvent::processGetRequest()
+HttpRequestEvent::processGetRequest(std::string &path)
 {
-    std::string path = m_request.target().to_string();
-
-    if(path.compare(0, 7, "/client") == 0)
-    {
-        path.erase(0, 7);
+    if(cutPath(path, "/client")) {
         return processClientRequest(m_response, path);
     }
 
-    if(path.compare(0, 9, "/control/") == 0)
-    {
-        path.erase(0, 9);
-        processControlRequest(path,
-                              "{}",
-                              HttpRequestType::GET_TYPE);
-        return true;
+    if(cutPath(path, "/control/")) {
+        return processControlRequest(path, "{}", HttpRequestType::GET_TYPE);
     }
 
     return false;
@@ -268,17 +272,10 @@ HttpRequestEvent::processGetRequest()
  * @return true, if successful, else false
  */
 bool
-HttpRequestEvent::processPostRequest()
+HttpRequestEvent::processPostRequest(std::string &path)
 {
-    std::string path = m_request.target().to_string();
-
-    if(path.compare(0, 9, "/control/") == 0)
-    {
-        path.erase(0, 9);
-        processControlRequest(path,
-                              m_request.body().data(),
-                              HttpRequestType::POST_TYPE);
-        return true;
+    if(cutPath(path, "/control/")) {
+        return processControlRequest(path, m_request.body().data(), HttpRequestType::POST_TYPE);
     }
 
     return false;
@@ -289,17 +286,10 @@ HttpRequestEvent::processPostRequest()
  * @return
  */
 bool
-HttpRequestEvent::processPutRequest()
+HttpRequestEvent::processPutRequest(std::string &path)
 {
-    std::string path = m_request.target().to_string();
-
-    if(path.compare(0, 9, "/control/") == 0)
-    {
-        path.erase(0, 9);
-        processControlRequest(path,
-                              m_request.body().data(),
-                              HttpRequestType::PUT_TYPE);
-        return true;
+    if(cutPath(path, "/control/")) {
+        return processControlRequest(path, m_request.body().data(), HttpRequestType::PUT_TYPE);
     }
 
     return false;
@@ -310,17 +300,10 @@ HttpRequestEvent::processPutRequest()
  * @return
  */
 bool
-HttpRequestEvent::processDelesteRequest()
+HttpRequestEvent::processDelesteRequest(std::string &path)
 {
-    std::string path = m_request.target().to_string();
-
-    if(path.compare(0, 9, "/control/") == 0)
-    {
-        path.erase(0, 9);
-        processControlRequest(path,
-                              "{}",
-                              HttpRequestType::DELETE_TYPE);
-        return true;
+    if(cutPath(path, "/control/")) {
+        return processControlRequest(path, "{}", HttpRequestType::DELETE_TYPE);
     }
 
     return false;
@@ -429,7 +412,7 @@ HttpRequestEvent::checkPermission(const std::string &token,
  * @param path path to forward as identifier to trigger sakura file
  * @param inputValues json-formated input-values
  */
-void
+bool
 HttpRequestEvent::processControlRequest(const std::string &uri,
                                         const std::string &inputValues,
                                         HttpRequestType httpType)
@@ -448,9 +431,14 @@ HttpRequestEvent::processControlRequest(const std::string &uri,
     bool ret = parseUri(parsedInputValues, target, requestMsg, uri, errorMessage);
     if(ret)
     {
-        if(requestMsg.id != "token")
+        if(requestMsg.id == "token")
         {
-            ret = checkPermission(parsedInputValues.get("token").getString(),
+            ret = messaging->triggerSakuraFile(target, responseMsg, requestMsg, errorMessage);
+        }
+        else
+        {
+            const std::string token = parsedInputValues.get("token").getString();
+            ret = checkPermission(token,
                                   target,
                                   requestMsg.id,
                                   requestMsg.httpType,
@@ -462,10 +450,6 @@ HttpRequestEvent::processControlRequest(const std::string &uri,
                 // TODO: use the real response, when this has a better styling
                 responseMsg.responseContent = "authoriation failed!";
             }
-        }
-        else
-        {
-            ret = messaging->triggerSakuraFile(target, responseMsg, requestMsg, errorMessage);
         }
     }
     else
@@ -489,4 +473,6 @@ HttpRequestEvent::processControlRequest(const std::string &uri,
         error.errorMessage = errorMessage;
         LOG_ERROR(error);
     }
+
+    return true;
 }
