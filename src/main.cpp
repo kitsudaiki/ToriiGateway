@@ -42,19 +42,20 @@ int main(int argc, char *argv[])
 
     // init gateway
     Kitsunemimi::ErrorContainer error;
-    if(Gateway::gateway->initHttpServer() == false)
+    Gateway gateway;
+    if(gateway.initHttpServer() == false)
     {
         error.errorMessage = "initializing http-server failed";
         LOG_ERROR(error);
         return 1;
     }
-    if(Gateway::gateway->initWebSocketServer() == false)
+    if(gateway.initWebSocketServer() == false)
     {
         error.errorMessage = "initializing websocket-server failed";
         LOG_ERROR(error);
         return 1;
     }
-    if(Gateway::gateway->initInternalSession() == false)
+    if(gateway.initInternalSession() == false)
     {
         error.errorMessage = "initializing connection to backend failed";
         LOG_ERROR(error);

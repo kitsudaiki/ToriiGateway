@@ -44,7 +44,6 @@ using Kitsunemimi::Hanami::HanamiMessaging;
 #include <websocket/web_socket_session.h>
 #include <http/http_server.h>
 
-Gateway* Gateway::gateway = new Gateway();
 RequestQueue* Gateway::requestQueue = new RequestQueue();
 
 /**

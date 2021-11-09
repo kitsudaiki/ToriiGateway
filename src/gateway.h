@@ -43,7 +43,6 @@ public:
 
     WebSocketServer* websocketServer = nullptr;
     HttpServer* httpServer = nullptr;
-    static Gateway* gateway;
     static RequestQueue* requestQueue;
 
 private:

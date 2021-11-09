@@ -459,7 +459,8 @@ HttpRequestEvent::processControlRequest(const std::string &uri,
             if(ret) {
                 ret = messaging->triggerSakuraFile(target, responseMsg, requestMsg, errorMessage);
             } else {
-                errorMessage = "authoriation failed!";
+                // TODO: use the real response, when this has a better styling
+                responseMsg.responseContent = "authoriation failed!";
             }
         }
         else
