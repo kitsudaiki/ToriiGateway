@@ -85,6 +85,7 @@ HEADERS += \
         src/args.h \
         src/http/file_send.h \
         src/http/request_queue.h \
+        src/http/response_builds.h \
         src/websocket/web_socket_server.h \
         src/websocket/web_socket_session.h \
         src/http/http_server.h \

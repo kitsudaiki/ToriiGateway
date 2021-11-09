@@ -46,6 +46,7 @@ namespace net = boost::asio;            // from <boost/asio.hpp>
 using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 
 using Kitsunemimi::Hanami::HttpRequestType;
+using Kitsunemimi::Hanami::HttpResponseTypes;
 
 namespace Kitsunemimi {
 namespace Json {
@@ -76,9 +77,8 @@ private:
 
     tcp::socket m_socket;
     beast::ssl_stream<tcp::socket&> m_stream;
-    beast::flat_buffer m_buffer{8192};
-    http::request<http::string_body> m_request;
-    http::response<http::dynamic_body> m_response;
+    http::request<http::string_body> m_httpRequest;
+    http::response<http::dynamic_body> m_httpResponse;
 
     void processRequest();
     bool sendConnectionInfo(const std::string &client, const std::string &portName);
@@ -91,6 +91,10 @@ private:
     bool processPutRequest(std::string &path);
     bool processDelesteRequest(std::string &path);
 
+    bool requestToken(const std::string &target,
+                      Kitsunemimi::Hanami::RequestMessage &hanamiRequest,
+                      Kitsunemimi::Hanami::ResponseMessage &hanamiResponse,
+                      std::string &errorMessage);
     bool checkPermission(const std::string &token,
                          const std::string &component,
                          const std::string &endpoint,
@@ -107,6 +111,8 @@ private:
                   std::string &errorMessage);
     bool cutPath(std::string &path,
                  const std::string &cut);
+
+
 };
 
 #endif // HTTP_SESSION_H
