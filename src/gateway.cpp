@@ -20,58 +20,35 @@
  *      limitations under the License.
  */
 
-
 #include "gateway.h"
 
 #include <callbacks.h>
+
 #include <http/request_queue.h>
 #include <http/http_thread.h>
 
 #include <libKitsunemimiCommon/logger.h>
-
-#include <libKitsunemimiConfig/config_handler.h>
-
 #include <libKitsunemimiCommon/buffer/data_buffer.h>
+#include <libKitsunemimiCommon/files/text_file.h>
+#include <libKitsunemimiConfig/config_handler.h>
 
 #include <libKitsunemimiSakuraLang/sakura_lang_interface.h>
 #include <libKitsunemimiSakuraLang/blossom.h>
 
-#include <libKitsunemimiHanamiMessaging/messaging_controller.h>
-#include <libKitsunemimiHanamiMessaging/messaging_client.h>
+#include <libKitsunemimiHanamiMessaging/hanami_messaging.h>
 
-#include <libKitsunemimiCommon/files/text_file.h>
-
-using Kitsunemimi::Sakura::SakuraLangInterface;
-using Kitsunemimi::Hanami::MessagingController;
-using Kitsunemimi::Hanami::MessagingClient;
+using Kitsunemimi::Hanami::HanamiMessaging;
 
 #include <websocket/web_socket_server.h>
 #include <websocket/web_socket_session.h>
 #include <http/http_server.h>
 
-Gateway* Gateway::m_instance = nullptr;
-RequestQueue* Gateway::m_requestQueue = nullptr;
-MessagingClient* Gateway::m_kyoukoMindClient = nullptr;
+RequestQueue* Gateway::requestQueue = new RequestQueue();
 
 /**
  * @brief constructor
  */
-Gateway::Gateway()
-{
-    m_instance = this;
-    m_requestQueue = new RequestQueue();
-    std::vector<std::string> groups = {};
-    MessagingController::initializeMessagingController("ToriiGateway",
-                                                       groups,
-                                                       &messagingCreateCallback,
-                                                       &messagingCloseCallback,
-                                                       false);    
-}
-
-/**
- * @brief destructor
- */
-Gateway::~Gateway() {}
+Gateway::Gateway() {}
 
 /**
  * @brief initialize all server, which are set by the config-file
@@ -83,12 +60,9 @@ Gateway::initInternalSession()
 {
     bool success = false;
 
-    const std::string address = GET_STRING_CONFIG("KyoukoMind", "address", success);
-    const uint16_t port = static_cast<uint16_t>(GET_INT_CONFIG("KyoukoMind", "port", success));
-
-    MessagingController* contr = MessagingController::getInstance();
-    m_kyoukoMindClient = contr->createClient("control", "control", address, port);
-    if(m_kyoukoMindClient == nullptr) {
+    std::vector<std::string> groups = { "Misaka" };
+    success = HanamiMessaging::getInstance()->initialize("ToriiGateway", groups, false);
+    if(success == false) {
         return false;
     }
 
@@ -112,20 +86,13 @@ Gateway::initWebSocketServer()
         return true;
     }
 
-    // get port from config
-    const uint16_t port = static_cast<uint16_t>(GET_INT_CONFIG("server", "websocket_port", success));
-    if(success == false) {
-        return false;
-    }
-
-    // get ip to bind from config
+    // get stuff from config
+    const long port = GET_INT_CONFIG("server", "websocket_port", success);
     const std::string ip = GET_STRING_CONFIG("server", "ip", success);
-    if(success == false) {
-        return false;
-    }
 
-    m_websocketServer = new WebSocketServer(ip, port);
-    m_websocketServer->startThread();
+    // start websocket-server
+    websocketServer = new WebSocketServer(ip, static_cast<uint16_t>(port));
+    websocketServer->startThread();
 
     return true;
 }
@@ -140,44 +107,24 @@ Gateway::initHttpServer()
 {
     bool success = false;
 
-    // get port from config
-    const uint16_t port = static_cast<uint16_t>(GET_INT_CONFIG("server", "http_port", success));
-    if(success == false) {
-        return false;
-    }
+    // get stuff from config
+    const uint16_t port =            GET_INT_CONFIG(    "server", "http_port",         success);
+    const std::string ip =           GET_STRING_CONFIG( "server", "ip",                success);
+    const std::string cert =         GET_STRING_CONFIG( "server", "certificate",       success);
+    const std::string key =          GET_STRING_CONFIG( "server", "key",               success);
+    const uint32_t numberOfThreads = GET_INT_CONFIG(    "server", "number_of_threads", success);
 
-    // get ip to bind from config
-    const std::string ip = GET_STRING_CONFIG("server", "ip", success);
-    if(success == false) {
-        return false;
-    }
-
-    // get ip to bind from config
-    const std::string cert = GET_STRING_CONFIG("server", "certificate", success);
-    if(success == false) {
-        return false;
-    }
-
-    // get ip to bind from config
-    const std::string key = GET_STRING_CONFIG("server", "key", success);
-    if(success == false) {
-        return false;
-    }
-
-    const uint32_t numberOfThreads = GET_INT_CONFIG("server", "number_of_threads", success);
-    if(success == false) {
-        return false;
-    }
-
+    // start threads
     for(uint32_t i = 0; i < numberOfThreads; i++)
     {
-        HttpThread* httpThread = new HttpThread();
+        const std::string name = "HttpThread";
+        HttpThread* httpThread = new HttpThread(name);
         httpThread->startThread();
         m_threads.push_back(httpThread);
     }
 
-    m_httpServer = new HttpServer(ip, port, cert, key);
-    m_httpServer->startThread();
+    httpServer = new HttpServer(ip, port, cert, key);
+    httpServer->startThread();
 
     return true;
 }

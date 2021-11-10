@@ -34,14 +34,25 @@
 #include <iostream>
 #include <memory>
 #include <string>
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 #include <libKitsunemimiCommon/threading/event.h>
+#include <libKitsunemimiHanamiCommon/enums.h>
+#include <libKitsunemimiHanamiCommon/structs.h>
 
 namespace beast = boost::beast;         // from <boost/beast.hpp>
 namespace http = beast::http;           // from <boost/beast/http.hpp>
 namespace net = boost::asio;            // from <boost/asio.hpp>
 using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
+
+using Kitsunemimi::Hanami::HttpRequestType;
+using Kitsunemimi::Hanami::HttpResponseTypes;
+
+namespace Kitsunemimi {
+namespace Json {
+class JsonItem;
+}
+}
 
 class HttpRequestEvent
         : public Kitsunemimi::Event
@@ -55,31 +66,39 @@ public:
 protected:
     void run();
 
-
 private:
+    struct UriContanet
+    {
+        std::string target = "";
+        std::string path = "";
+        std::string inputValues = "";
+        bool containsValues = false;
+    };
+
     tcp::socket m_socket;
     beast::ssl_stream<tcp::socket&> m_stream;
-    beast::flat_buffer m_buffer{8192};
-    http::request<http::string_body> m_request;
-    http::response<http::dynamic_body> m_response;
+    http::request<http::string_body> m_httpRequest;
+    http::response<http::dynamic_body> m_httpResponse;
 
     void processRequest();
-    bool sendFileFromLocalLocation(const std::string &dir, const std::string &relativePath);
     bool sendConnectionInfo(const std::string &client, const std::string &portName);
-    bool sendControlInfo();
 
     bool readMessage();
     bool sendResponse();
 
-    bool processGetRequest();
-    bool processPostRequest();
-    bool processPutRequest();
-    bool processDelesteRequest();
+    bool requestToken(const std::string &target,
+                      Kitsunemimi::Hanami::RequestMessage &hanamiRequest,
+                      Kitsunemimi::Hanami::ResponseMessage &hanamiResponse,
+                      std::string &errorMessage);
+    bool checkPermission(const std::string &token,
+                         const std::string &component,
+                         const Kitsunemimi::Hanami::RequestMessage &hanamiRequest,
+                         Kitsunemimi::Hanami::ResponseMessage &responseMsg,
+                         std::string &errorMessage);
+    bool processControlRequest(const std::string &uri,
+                               const std::string &inputValues,
+                               HttpRequestType httpType);
 
-    bool processClientRequest(const std::string &path);
-    void processControlRequest(const std::string &path, const std::string &inputValues);
-
-    const std::string getResponseType(const std::string &ext);
 };
 
 #endif // HTTP_SESSION_H

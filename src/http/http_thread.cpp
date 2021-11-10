@@ -24,12 +24,12 @@
 
 #include <gateway.h>
 #include <http/request_queue.h>
-#include <http/http_session.h>
+#include <http/http_processing/http_session.h>
 
 #include <libKitsunemimiCommon/threading/event.h>
 
-HttpThread::HttpThread()
-    : Kitsunemimi::Thread() {}
+HttpThread::HttpThread(const std::string &threadName)
+    : Kitsunemimi::Thread(threadName) {}
 
 /**
  * @brief HttpThread::run
@@ -39,7 +39,7 @@ HttpThread::run()
 {
     while(m_abort == false)
     {
-        Kitsunemimi::Event* event = Gateway::m_requestQueue->getSession();
+        Kitsunemimi::Event* event = Gateway::requestQueue->getSession();
         if(event != nullptr)
         {
             event->processEvent();

@@ -46,8 +46,8 @@ protected:
     void run();
 
 private:
-    std::string m_address = "";
-    uint16_t m_port = 0;
+    const std::string m_address = "";
+    const uint16_t m_port = 0;
     std::vector<WebSocketSession*> m_sessions;
 };
 

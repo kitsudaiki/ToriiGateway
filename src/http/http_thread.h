@@ -29,7 +29,7 @@ class HttpThread
         : public Kitsunemimi::Thread
 {
 public:
-    HttpThread();
+    HttpThread(const std::string &threadName);
 
 protected:
     void run();

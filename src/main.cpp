@@ -30,56 +30,35 @@
 #include <libKitsunemimiArgs/arg_parser.h>
 #include <libKitsunemimiCommon/logger.h>
 #include <libKitsunemimiConfig/config_handler.h>
+#include <libKitsunemimiHanamiCommon/generic_main.h>
+
+using Kitsunemimi::Hanami::initMain;
 
 int main(int argc, char *argv[])
 {
-    Kitsunemimi::initConsoleLogger(true);
-
-    // create and init argument-parser
-    Kitsunemimi::Args::ArgParser argParser;
-    ToriiGateway::registerArguments(argParser);
-
-    // parse cli-input
-    if(argParser.parse(argc, argv) == false) {
+    if(initMain(argc, argv, "ToriiGateway", &registerArguments, &registerConfigs) == false) {
         return 1;
     }
-
-    // init config-file
-    std::string configPath = argParser.getStringValue("config");
-    if(configPath == "") {
-        configPath = "/etc/ToriiGateway/ToriiGateway.conf";
-    }
-    if(Kitsunemimi::Config::initConfig(configPath) == false) {
-        return 1;
-    }
-    registerConfigs();
-
-    // get config-parameter for logger
-    bool success = false;
-    const bool enableDebug = GET_BOOL_CONFIG("DEFAULT", "debug", success);
-    assert(success);
-    const std::string logPath = GET_STRING_CONFIG("DEFAULT", "log_path", success);
-    assert(success);
-
-    // init logger
-    Kitsunemimi::initConsoleLogger(enableDebug);
-    Kitsunemimi::initFileLogger(logPath, "ToriiGateway", enableDebug);
 
     // init gateway
+    Kitsunemimi::ErrorContainer error;
     Gateway gateway;
     if(gateway.initHttpServer() == false)
     {
-        LOG_ERROR("initializing http-server failed");
+        error.errorMessage = "initializing http-server failed";
+        LOG_ERROR(error);
         return 1;
     }
     if(gateway.initWebSocketServer() == false)
     {
-        LOG_ERROR("initializing websocket-server failed");
+        error.errorMessage = "initializing websocket-server failed";
+        LOG_ERROR(error);
         return 1;
     }
     if(gateway.initInternalSession() == false)
     {
-        LOG_ERROR("initializing connection to backend failed");
+        error.errorMessage = "initializing connection to backend failed";
+        LOG_ERROR(error);
         return 1;
     }
 

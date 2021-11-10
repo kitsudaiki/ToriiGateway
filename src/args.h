@@ -24,9 +24,7 @@
 #define ARGS_H
 
 #include <libKitsunemimiArgs/arg_parser.h>
-
-namespace ToriiGateway
-{
+#include <libKitsunemimiHanamiCommon/args.h>
 
 /**
  * @brief register cli-arguments
@@ -36,13 +34,13 @@ namespace ToriiGateway
  * @return true if successful, else false
  */
 bool
-registerArguments(Kitsunemimi::Args::ArgParser &argparser)
+registerArguments(Kitsunemimi::Args::ArgParser* argparser)
 {
-    return argparser.registerString("config,c",
-                                    "absolute path to config-file",
-                                    false);
-}
+    if(Kitsunemimi::Hanami::registerArguments(*argparser) == false) {
+        return false;
+    }
 
+    return true;
 }
 
 #endif // ARGS_H

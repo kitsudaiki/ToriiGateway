@@ -43,18 +43,17 @@ using tcp = boost::asio::ip::tcp;
 
 namespace Kitsunemimi {
 namespace Hanami {
-class MessagingClient;
-class MessagingController;
+class HanamiMessaging;
 }
 }
 
-using Kitsunemimi::Hanami::MessagingController;
+using Kitsunemimi::Hanami::HanamiMessaging;
 
 class WebSocketSession
         : public Kitsunemimi::Thread
 {
 public:
-    WebSocketSession(tcp::socket &&socket);
+    WebSocketSession(tcp::socket &&socket, const std::string &threadName);
 
     bool initSessionToBackend(const std::string &identifier);
 
@@ -64,7 +63,6 @@ protected:
     void run();
     void closeSession();
 
-    Kitsunemimi::Hanami::MessagingClient* m_client = nullptr;
     websocket::stream<beast::tcp_stream> m_webSocket;
     std::string m_session = "";
 };
