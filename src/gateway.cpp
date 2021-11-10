@@ -20,7 +20,6 @@
  *      limitations under the License.
  */
 
-
 #include "gateway.h"
 
 #include <callbacks.h>
@@ -109,11 +108,11 @@ Gateway::initHttpServer()
     bool success = false;
 
     // get stuff from config
-    const uint16_t port = static_cast<uint16_t>(GET_INT_CONFIG("server", "http_port", success));
-    const std::string ip = GET_STRING_CONFIG("server", "ip", success);
-    const std::string cert = GET_STRING_CONFIG("server", "certificate", success);
-    const std::string key = GET_STRING_CONFIG("server", "key", success);
-    const uint32_t numberOfThreads = GET_INT_CONFIG("server", "number_of_threads", success);
+    const uint16_t port =            GET_INT_CONFIG(    "server", "http_port",         success);
+    const std::string ip =           GET_STRING_CONFIG( "server", "ip",                success);
+    const std::string cert =         GET_STRING_CONFIG( "server", "certificate",       success);
+    const std::string key =          GET_STRING_CONFIG( "server", "key",               success);
+    const uint32_t numberOfThreads = GET_INT_CONFIG(    "server", "number_of_threads", success);
 
     // start threads
     for(uint32_t i = 0; i < numberOfThreads; i++)

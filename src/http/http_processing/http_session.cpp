@@ -22,14 +22,14 @@
 
 #include "http_session.h"
 #include <gateway.h>
-#include <http/file_send.h>
-#include <http/response_builds.h>
+#include <http/http_processing/file_send.h>
+#include <http/http_processing/response_builds.h>
+#include <http/http_processing/string_functions.h>
 
 #include <libKitsunemimiConfig/config_handler.h>
 #include <libKitsunemimiJson/json_item.h>
 
 #include <libKitsunemimiCommon/common_items/data_items.h>
-#include <libKitsunemimiCommon/common_methods/string_methods.h>
 #include <libKitsunemimiCommon/logger.h>
 
 #include <libKitsunemimiHanamiMessaging/hanami_messaging.h>
@@ -97,55 +97,60 @@ HttpRequestEvent::processRequest()
     m_httpResponse.result(http::status::ok);
     m_httpResponse.set(http::field::content_type, "text/plain");
 
+    // collect and prepare relevant data
+    const http::verb messageType = m_httpRequest.method();
+    std::string path = m_httpRequest.target().to_string();
+    std::string payload = "{}";
+
     // Request path must be absolute and not contain "..".
-    if(m_httpRequest.target().empty()
-            || m_httpRequest.target()[0] != '/'
-            || m_httpRequest.target().find("..") != beast::string_view::npos)
+    if(checkPath(path) == false)
     {
-        // "Illegal request-target"
         m_httpResponse.result(http::status::bad_request);
         return;
     }
 
-    std::string path = m_httpRequest.target().to_string();
-    switch(m_httpRequest.method())
+    // check if http-type is supported
+    if(messageType != http::verb::get
+            && messageType != http::verb::post
+            && messageType != http::verb::put
+            && messageType != http::verb::delete_)
     {
-        case http::verb::get:
-        {
-            processGetRequest(path);
-            break;
-        }
-
-        case http::verb::post:
-        {
-            processPostRequest(path);
-            break;
-        }
-
-        case http::verb::put:
-        {
-            processPutRequest(path);
-            break;
-        }
-
-        case http::verb::delete_:
-        {
-            processDelesteRequest(path);
-            break;
-        }
-
-        default:
-        {
-            m_httpResponse.result(http::status::bad_request);
-            Kitsunemimi::ErrorContainer error;
-            error.errorMessage = "Invalid request-method '"
-                                 + std::string(m_httpRequest.method_string())
-                                 + "'";
-            LOG_ERROR(error);
-            beast::ostream(m_httpResponse.body()) << error.errorMessage;
-            break;
-        }
+        m_httpResponse.result(http::status::bad_request);
+        Kitsunemimi::ErrorContainer error;
+        error.errorMessage = "Invalid request-method '"
+                             + std::string(m_httpRequest.method_string())
+                             + "'";
+        LOG_ERROR(error);
+        beast::ostream(m_httpResponse.body()) << error.errorMessage;
+        return;
     }
+
+    // check for dashboard-client-request
+    if(messageType == http::verb::get
+            && cutPath(path, "/client"))
+    {
+        processClientRequest(m_httpResponse, path);
+        return;
+    }
+
+    // get payload of message
+    if(messageType == http::verb::post
+            || messageType == http::verb::put)
+    {
+        payload = m_httpRequest.body().data();
+    }
+
+    // handle control-messages
+    if(cutPath(path, "/control/"))
+    {
+        processControlRequest(path, payload, static_cast<HttpRequestType>(messageType));
+        return;
+    }
+
+    // handle default, if nothing was found
+    genericError_ResponseBuild(m_httpResponse,
+                               HttpResponseTypes::NOT_FOUND_RTYPE,
+                               "no matchin endpoint");
 }
 
 /**
@@ -167,11 +172,13 @@ HttpRequestEvent::sendConnectionInfo(const std::string &client,
     const std::string ip = GET_STRING_CONFIG("DEFAULT", "ip", success);
 
     // pack information into a response-message
-    const std::string result = "{\"port\":"
-                               + std::to_string(port)
-                               + ",\"ip\":\""
-                               + ip
-                               + "\"}";
+    std::string result = "";
+    result.append("{\"port\":");
+    result.append(std::to_string(port));
+    result.append(",\"ip\":\"");
+    result.append(ip);
+    result.append("\"}");
+
     m_httpResponse.set(http::field::content_type, "text/json");
     beast::ostream(m_httpResponse.body()) << result;
 
@@ -228,92 +235,6 @@ HttpRequestEvent::sendResponse()
     return true;
 }
 
-bool
-HttpRequestEvent::cutPath(std::string &path, const std::string &cut)
-{
-    if(path.compare(0, cut.size(), cut) == 0)
-    {
-        path.erase(0, cut.size());
-        return true;
-    }
-
-    return false;
-}
-
-/**
- * @brief forward incoming get-requests
- *
- * @return true, if successful, else false
- */
-bool
-HttpRequestEvent::processGetRequest(std::string &path)
-{
-    if(cutPath(path, "/client")) {
-        return processClientRequest(m_httpResponse, path);
-    }
-
-    if(cutPath(path, "/control/")) {
-        return processControlRequest(path, "{}", HttpRequestType::GET_TYPE);
-    }
-
-    genericError_ResponseBuild(m_httpResponse,
-                               HttpResponseTypes::NOT_FOUND_RTYPE,
-                               "no matchin endpoint");
-    return false;
-}
-
-/**
- * @brief forward incoming post-requests
- *
- * @return true, if successful, else false
- */
-bool
-HttpRequestEvent::processPostRequest(std::string &path)
-{
-    if(cutPath(path, "/control/")) {
-        return processControlRequest(path, m_httpRequest.body().data(), HttpRequestType::POST_TYPE);
-    }
-
-
-    genericError_ResponseBuild(m_httpResponse,
-                               HttpResponseTypes::NOT_FOUND_RTYPE,
-                               "no matchin endpoint");
-    return false;}
-
-/**
- * @brief HttpRequestEvent::processPutRequest
- * @return
- */
-bool
-HttpRequestEvent::processPutRequest(std::string &path)
-{
-    if(cutPath(path, "/control/")) {
-        return processControlRequest(path, m_httpRequest.body().data(), HttpRequestType::PUT_TYPE);
-    }
-
-
-    genericError_ResponseBuild(m_httpResponse,
-                               HttpResponseTypes::NOT_FOUND_RTYPE,
-                               "no matchin endpoint");
-    return false;}
-
-/**
- * @brief HttpRequestEvent::processDelesteRequest
- * @return
- */
-bool
-HttpRequestEvent::processDelesteRequest(std::string &path)
-{
-    if(cutPath(path, "/control/")) {
-        return processControlRequest(path, "{}", HttpRequestType::DELETE_TYPE);
-    }
-
-
-    genericError_ResponseBuild(m_httpResponse,
-                               HttpResponseTypes::NOT_FOUND_RTYPE,
-                               "no matchin endpoint");
-    return false;
-}
 
 /**
  * @brief HttpRequestEvent::requestToken
@@ -353,64 +274,6 @@ HttpRequestEvent::requestToken(const std::string &target,
 }
 
 /**
- * @brief parseUri
- * @param path
- * @param inputValues
- * @param uri
- * @return
- */
-bool
-HttpRequestEvent::parseUri(Kitsunemimi::Json::JsonItem &parsedInputValues,
-                           std::string &target,
-                           Kitsunemimi::Hanami::RequestMessage &request,
-                           const std::string &uri,
-                           std::string &errorMessage)
-{
-    // first split of uri
-    std::vector<std::string> parts;
-    Kitsunemimi::splitStringByDelimiter(parts, uri, '?');
-    std::string key;
-    std::string val;
-
-    // check split-result
-    if(parts.size() == 0) {
-        return false;
-    }
-    if(parts.at(0).find("/") == std::string::npos) {
-        return false;
-    }
-
-    if(parsedInputValues.parse(request.inputValues, errorMessage) == false) {
-        return false;
-    }
-
-    // split first part again to get target and real part
-    const size_t cutPos = parts.at(0).find("/");
-    const std::string* mainPart = &parts[0];
-    target = mainPart->substr(0, cutPos);
-    request.id = mainPart->substr(cutPos + 1, mainPart->size() - 1);
-
-    // prepare payload, if exist
-    if(parts.size() > 1)
-    {
-        std::vector<std::string> kvPairs;
-        Kitsunemimi::splitStringByDelimiter(kvPairs, parts[1], '&');
-
-        for(const std::string &kvPair : kvPairs)
-        {
-            const size_t cutPos = kvPair.find('=');
-            key = kvPair.substr(0, cutPos);
-            val = kvPair.substr(cutPos + 1, kvPair.size() - 1);
-            parsedInputValues.insert(key, val, true);
-        }
-    }
-
-    request.inputValues = parsedInputValues.toString();
-
-    return true;
-}
-
-/**
  * @brief HttpRequestEvent::checkPermission
  * @param token
  * @param component
@@ -421,23 +284,24 @@ HttpRequestEvent::parseUri(Kitsunemimi::Json::JsonItem &parsedInputValues,
 bool
 HttpRequestEvent::checkPermission(const std::string &token,
                                   const std::string &component,
-                                  const std::string &endpoint,
-                                  const HttpRequestType type,
+                                  const Kitsunemimi::Hanami::RequestMessage &hanamiRequest,
                                   Kitsunemimi::Hanami::ResponseMessage &responseMsg,
                                   std::string &errorMessage)
 {
     Kitsunemimi::Hanami::RequestMessage requestMsg;
 
     requestMsg.id = "auth";
-    requestMsg.inputValues = "{\"token\":\""
-                             + token
-                             + "\",\"component\":\""
-                             + component
-                             + "\",\"endpoint\":\""
-                             + endpoint
-                             + "\",\"http_type\":\""
-                             + std::to_string(static_cast<uint32_t>(type))
-                             + "\"}";
+    requestMsg.inputValues = "";
+    requestMsg.inputValues.append("{\"token\":\"");
+    requestMsg.inputValues.append(token);
+    requestMsg.inputValues.append("\",\"component\":\"");
+    requestMsg.inputValues.append(component);
+    requestMsg.inputValues.append("\",\"endpoint\":\"");
+    requestMsg.inputValues.append(hanamiRequest.id);
+    requestMsg.inputValues.append("\",\"http_type\":");
+    requestMsg.inputValues.append(std::to_string(static_cast<uint32_t>(hanamiRequest.httpType)));
+    requestMsg.inputValues.append("}");
+
     requestMsg.httpType = HttpRequestType::GET_TYPE;
 
     HanamiMessaging* messaging = HanamiMessaging::getInstance();
@@ -457,6 +321,7 @@ HttpRequestEvent::processControlRequest(const std::string &uri,
 {
     std::string errorMessage = "";
     std::string target = "";
+    std::string token = "";
     Kitsunemimi::Hanami::RequestMessage hanamiRequest;
     Kitsunemimi::Hanami::ResponseMessage hanamiResponse;
     HanamiMessaging* messaging = HanamiMessaging::getInstance();
@@ -465,8 +330,7 @@ HttpRequestEvent::processControlRequest(const std::string &uri,
     // parse uri
     hanamiRequest.httpType = httpType;
     hanamiRequest.inputValues = inputValues;
-    Kitsunemimi::Json::JsonItem parsedInputValues;
-    if(parseUri(parsedInputValues, target, hanamiRequest, uri, errorMessage) == false) {
+    if(parseUri(target, token, hanamiRequest, uri, errorMessage) == false) {
         return invalid_ResponseBuild(m_httpResponse, "failed to parse uri");
     }
 
@@ -476,13 +340,7 @@ HttpRequestEvent::processControlRequest(const std::string &uri,
     }
 
     // check authentication
-    if(checkPermission(parsedInputValues.get("token").getString(),
-                       target,
-                       hanamiRequest.id,
-                       hanamiRequest.httpType,
-                       hanamiResponse,
-                       errorMessage) == false)
-    {
+    if(checkPermission(token, target, hanamiRequest, hanamiResponse, errorMessage) == false) {
         return internalError_ResponseBuild(m_httpResponse, errorMessage);
     }
 

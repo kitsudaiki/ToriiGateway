@@ -24,7 +24,7 @@
 
 #include <gateway.h>
 
-#include <http/http_session.h>
+#include <http/http_processing/http_session.h>
 #include <http/http_thread.h>
 #include <http/request_queue.h>
 

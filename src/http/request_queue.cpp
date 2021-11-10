@@ -22,7 +22,7 @@
 
 #include "request_queue.h"
 
-#include <http/http_session.h>
+#include <http/http_processing/http_session.h>
 #include <libKitsunemimiCommon/logger.h>
 
 RequestQueue::RequestQueue() {}
