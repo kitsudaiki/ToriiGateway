@@ -32,29 +32,18 @@ class HttpServer;
 class HttpThread;
 class RequestQueue;
 
-namespace Kitsunemimi {
-namespace Hanami {
-class MessagingClient;
-}
-}
-
-using Kitsunemimi::Hanami::MessagingClient;
-
 class Gateway
 {
 public:
     Gateway();
-    ~Gateway();
 
     bool initInternalSession();
     bool initWebSocketServer();
     bool initHttpServer();
 
-    WebSocketServer* m_websocketServer = nullptr;
-    HttpServer* m_httpServer = nullptr;
-    static Gateway* m_instance;
-    static RequestQueue* m_requestQueue;
-    static MessagingClient* m_kyoukoMindClient;
+    WebSocketServer* websocketServer = nullptr;
+    HttpServer* httpServer = nullptr;
+    static RequestQueue* requestQueue;
 
 private:
     std::vector<HttpThread*> m_threads;

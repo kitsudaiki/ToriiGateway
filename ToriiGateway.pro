@@ -4,7 +4,6 @@ TARGET = ToriiGateway
 CONFIG += console c++17
 CONFIG -= app_bundle
 
-
 LIBS += -L../libKitsunemimiHanamiMessaging/src -lKitsunemimiHanamiMessaging
 LIBS += -L../libKitsunemimiHanamiMessaging/src/debug -lKitsunemimiHanamiMessaging
 LIBS += -L../libKitsunemimiHanamiMessaging/src/release -lKitsunemimiHanamiMessaging
@@ -55,29 +54,44 @@ LIBS += -L../libKitsunemimiIni/src/debug -lKitsunemimiIni
 LIBS += -L../libKitsunemimiIni/src/release -lKitsunemimiIni
 INCLUDEPATH += ../libKitsunemimiIni/include
 
-LIBS += -lpthread -lcrypto -lssl
+LIBS += -L../libKitsunemimiHanamiEndpoints/src -lKitsunemimiHanamiEndpoints
+LIBS += -L../libKitsunemimiHanamiEndpoints/src/debug -lKitsunemimiHanamiEndpoints
+LIBS += -L../libKitsunemimiHanamiEndpoints/src/release -lKitsunemimiHanamiEndpoints
+INCLUDEPATH += ../libKitsunemimiHanamiEndpoints/include
+
+LIBS += -L../libKitsunemimiHanamiCommon/src -lKitsunemimiHanamiCommon
+LIBS += -L../libKitsunemimiHanamiCommon/src/debug -lKitsunemimiHanamiCommon
+LIBS += -L../libKitsunemimiHanamiCommon/src/release -lKitsunemimiHanamiCommon
+INCLUDEPATH += ../libKitsunemimiHanamiCommon/include
+
+LIBS += -lpthread -lcrypto -lssl -luuid
 
 INCLUDEPATH += $$PWD \
                src
 
 SOURCES += \
-    src/http/request_queue.cpp \
+        src/http/http_processing/file_send.cpp \
+        src/http/request_queue.cpp \
+        src/http/http_processing/string_functions.cpp \
         src/main.cpp \
         src/gateway.cpp \
-    src/websocket/web_socket_server.cpp \
-    src/websocket/web_socket_session.cpp \
-    src/http/http_server.cpp \
-    src/http/http_session.cpp \
-    src/http/http_thread.cpp
+        src/websocket/web_socket_server.cpp \
+        src/websocket/web_socket_session.cpp \
+        src/http/http_server.cpp \
+        src/http/http_processing/http_session.cpp \
+        src/http/http_thread.cpp
 
 HEADERS += \
-    src/gateway.h \
-    src/args.h \
-    src/http/request_queue.h \
-    src/websocket/web_socket_server.h \
-    src/websocket/web_socket_session.h \
-    src/http/http_server.h \
-    src/http/http_session.h \
-    src/config.h \
-    src/callbacks.h \
-    src/http/http_thread.h
+        src/gateway.h \
+        src/args.h \
+        src/http/http_processing/file_send.h \
+        src/http/request_queue.h \
+        src/http/http_processing/response_builds.h \
+        src/http/http_processing/string_functions.h \
+        src/websocket/web_socket_server.h \
+        src/websocket/web_socket_session.h \
+        src/http/http_server.h \
+        src/http/http_processing/http_session.h \
+        src/config.h \
+        src/callbacks.h \
+        src/http/http_thread.h

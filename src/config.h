@@ -23,7 +23,11 @@
 #ifndef GATEWAY_CONFIG_H
 #define GATEWAY_CONFIG_H
 
+#include <filesystem>
+
 #include <libKitsunemimiConfig/config_handler.h>
+#include <libKitsunemimiCommon/logger.h>
+#include <libKitsunemimiHanamiCommon/config.h>
 
 /**
  * @brief register configs
@@ -31,24 +35,52 @@
 void
 registerConfigs()
 {
-    // DEFAULT-section
-    REGISTER_BOOL_CONFIG("DEFAULT", "debug", false);
-    REGISTER_STRING_CONFIG("DEFAULT", "log_path", "/var/log");
+    Kitsunemimi::Hanami::registerBasicConfigs();
 
     // server-section
-    REGISTER_BOOL_CONFIG("server", "enable_websocket", false);
-    REGISTER_BOOL_CONFIG("server", "enable_dashboard", false);
-    REGISTER_STRING_CONFIG("server", "dashboard_files", "/etc/ToriiGateway/MikoClient");
-    REGISTER_STRING_CONFIG("server", "ip", "0.0.0.0");
-    REGISTER_STRING_CONFIG("server", "certificate", "");
-    REGISTER_STRING_CONFIG("server", "key", "");
-    REGISTER_INT_CONFIG("server", "http_port", 12345);
-    REGISTER_INT_CONFIG("server", "websocket_port", 13345);
-    REGISTER_INT_CONFIG("server", "number_of_threads", 4);
+    const std::string serverGroup = "server";
+    REGISTER_BOOL_CONFIG(   serverGroup, "enable_websocket",  false);
+    REGISTER_BOOL_CONFIG(   serverGroup, "enable_dashboard",  false);
+    REGISTER_STRING_CONFIG( serverGroup, "dashboard_files",   "");
+    REGISTER_STRING_CONFIG( serverGroup, "certificate",       "",        true);
+    REGISTER_STRING_CONFIG( serverGroup, "key",               "",        true);
+    REGISTER_STRING_CONFIG( serverGroup, "ip",                "0.0.0.0", true);
+    REGISTER_INT_CONFIG(    serverGroup, "http_port",         12345,     true);
+    REGISTER_INT_CONFIG(    serverGroup, "websocket_port",    13345);
+    REGISTER_INT_CONFIG(    serverGroup, "number_of_threads", 4);
+}
 
-    // KyoukoMind-section
-    REGISTER_STRING_CONFIG("KyoukoMind", "address", "/tmp/KyoukoMind_uds.sock");
-    REGISTER_INT_CONFIG("KyoukoMind", "port", 0);
+bool
+validateConfig()
+{
+    bool valid = Kitsunemimi::Config::isConfigValid();
+    if(valid == false) {
+        return false;
+    }
+
+    const std::string fileLocation = GET_STRING_CONFIG("server", "dashboard_files", valid);
+    if(valid == false) {
+        return false;
+    }
+
+    if(std::filesystem::exists(fileLocation) == false) {
+        return false;
+    }
+
+    const long port = GET_INT_CONFIG("server", "websocket_port", valid);
+    if(port <= 0
+            || port > 64000)
+    {
+        Kitsunemimi::ErrorContainer error;
+        error.errorMessage = "port for websocket is not valid. Port in config: "
+                             + std::to_string(port);
+        LOG_ERROR(error);
+        return false;
+    }
+
+    const std::string ip = GET_STRING_CONFIG("server", "ip", valid);
+
+    return true;
 }
 
 #endif // GATEWAY_CONFIG_H

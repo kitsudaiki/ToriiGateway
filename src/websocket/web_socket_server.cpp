@@ -35,10 +35,10 @@
  */
 WebSocketServer::WebSocketServer(const std::string &address,
                                  const uint16_t port)
-{
-    m_address = address;
-    m_port = port;
-}
+    : Kitsunemimi::Thread("WebSocketServer"),
+      m_address(address),
+      m_port(port)
+{}
 
 /**
  * @brief run server-thread
@@ -50,6 +50,7 @@ WebSocketServer::run()
              + m_address
              + " and port "
              + std::to_string(m_port));
+    uint32_t counter = 0;
     try
     {
         // create server
@@ -62,9 +63,11 @@ WebSocketServer::run()
             // create socket-object for incoming connection
             tcp::socket socket{ioc};
             acceptor.accept(socket);
+            counter++;
 
             // initialize session
-            WebSocketSession* session = new WebSocketSession(std::move(socket));
+            const std::string name = "WebSocketSession_" + std::to_string(counter);
+            WebSocketSession* session = new WebSocketSession(std::move(socket), name);
             const bool ret = session->initSessionToBackend("test");
             if(ret)
             {
@@ -77,7 +80,10 @@ WebSocketServer::run()
             }
         }
     }
-    catch (const std::exception& e) {
-        LOG_ERROR("Error in websocket-server with message: " + std::string(e.what()));
+    catch (const std::exception& e)
+    {
+        Kitsunemimi::ErrorContainer error;
+        error.errorMessage = "Error in websocket-server with message: " + std::string(e.what());
+        LOG_ERROR(error);
     }
 }

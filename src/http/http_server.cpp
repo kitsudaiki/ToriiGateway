@@ -24,7 +24,7 @@
 
 #include <gateway.h>
 
-#include <http/http_session.h>
+#include <http/http_processing/http_session.h>
 #include <http/http_thread.h>
 #include <http/request_queue.h>
 
@@ -41,12 +41,12 @@ HttpServer::HttpServer(const std::string &address,
                        const uint16_t port,
                        const std::string &cert,
                        const std::string &key)
-{
-    m_address = address;
-    m_port = port;
-    m_cert = cert;
-    m_key = key;
-}
+    : Kitsunemimi::Thread("HttpServer"),
+      m_address(address),
+      m_port(port),
+      m_cert(cert),
+      m_key(key)
+{}
 
 /**
  * @brief HttpServer::loadCertificates
@@ -59,13 +59,6 @@ HttpServer::loadCertificates(boost::asio::ssl::context& ctx,
                              const std::string &certFile,
                              const std::string &keyFile)
 {
-    /*ctx.set_password_callback(
-        [](std::size_t,
-            boost::asio::ssl::context_base::password_purpose)
-        {
-            return "test";
-        });*/
-
     std::string errorMessage = "";
     std::string cert = "";
     std::string key = "";
@@ -74,14 +67,18 @@ HttpServer::loadCertificates(boost::asio::ssl::context& ctx,
     ret = Kitsunemimi::readFile(cert, certFile, errorMessage);
     if(ret == false)
     {
-        LOG_ERROR(errorMessage);
+        Kitsunemimi::ErrorContainer error;
+        error.errorMessage = errorMessage;
+        LOG_ERROR(error);
         return false;
     }
 
     ret = Kitsunemimi::readFile(key, keyFile, errorMessage);
     if(ret == false)
     {
-        LOG_ERROR(errorMessage);
+        Kitsunemimi::ErrorContainer error;
+        error.errorMessage = errorMessage;
+        LOG_ERROR(error);
         return false;
     }
 
@@ -115,7 +112,10 @@ HttpServer::loadCertificates(boost::asio::ssl::context& ctx,
 void
 HttpServer::run()
 {
-    LOG_INFO("start HTTP-server on address " + m_address + " and port " + std::to_string(m_port));
+    LOG_INFO("start HTTP-server on address "
+             + m_address
+             + " and port "
+             + std::to_string(m_port));
     try
     {
         // create server
@@ -123,7 +123,10 @@ HttpServer::run()
         net::io_context ioc{1};
         tcp::acceptor acceptor{ioc, {address, m_port}};
         boost::asio::ssl::context ctx{boost::asio::ssl::context::tlsv12};
-        loadCertificates(ctx, m_cert, m_key);
+        const bool loadResult = loadCertificates(ctx, m_cert, m_key);
+        if(loadResult == false) {
+            return;
+        }
 
         while(m_abort == false)
         {
@@ -133,7 +136,7 @@ HttpServer::run()
 
             // process http-request within an already existing thread
             HttpRequestEvent* event = new HttpRequestEvent(std::move(socket), std::ref(ctx));
-            Gateway::m_requestQueue->addSession(event);
+            Gateway::requestQueue->addSession(event);
         }
     }
     catch (const std::exception& e)

@@ -22,7 +22,8 @@
 
 #include "request_queue.h"
 
-#include <http/http_session.h>
+#include <http/http_processing/http_session.h>
+#include <libKitsunemimiCommon/logger.h>
 
 RequestQueue::RequestQueue() {}
 
@@ -33,18 +34,14 @@ RequestQueue::RequestQueue() {}
 HttpRequestEvent*
 RequestQueue::getSession()
 {
-    HttpRequestEvent* result = nullptr;
-    if(m_queue.size() == 0) {
-        return result;
-    }
+    std::lock_guard<std::mutex> guard(m_queueMutex);
 
-    m_queueMutex.lock();
-    if(m_queue.size() >= 0)
+    HttpRequestEvent* result = nullptr;
+    if(m_queue.size() > 0)
     {
         result = m_queue.front();
         m_queue.pop_front();
     }
-    m_queueMutex.unlock();
 
     return result;
 }
@@ -56,7 +53,6 @@ RequestQueue::getSession()
 void
 RequestQueue::addSession(HttpRequestEvent *session)
 {
-    m_queueMutex.lock();
+    std::lock_guard<std::mutex> guard(m_queueMutex);
     m_queue.push_back(session);
-    m_queueMutex.unlock();
 }

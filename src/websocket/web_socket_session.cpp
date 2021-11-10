@@ -25,19 +25,19 @@
 #include <gateway.h>
 #include <websocket/web_socket_server.h>
 
-#include <libKitsunemimiHanamiMessaging/messaging_client.h>
-#include <libKitsunemimiHanamiMessaging/messaging_controller.h>
+#include <libKitsunemimiHanamiMessaging/hanami_messaging.h>
 #include <libKitsunemimiConfig/config_handler.h>
 
 #include <libKitsunemimiCommon/logger.h>
 
-using Kitsunemimi::Hanami::MessagingController;
+using Kitsunemimi::Hanami::HanamiMessaging;
 
 /**
  * @brief constructor
  */
-WebSocketSession::WebSocketSession(tcp::socket &&socket)
-    : m_webSocket(std::move(socket))
+WebSocketSession::WebSocketSession(tcp::socket &&socket, const std::string &threadName)
+    : Kitsunemimi::Thread(threadName),
+      m_webSocket(std::move(socket))
 {
 }
 
@@ -53,12 +53,8 @@ WebSocketSession::initSessionToBackend(const std::string &identifier)
     const std::string address = GET_STRING_CONFIG("KyoukoMind", "address", success);
     const uint16_t port = static_cast<uint16_t>(GET_INT_CONFIG("KyoukoMind", "port", success));
 
-    MessagingController* contr = MessagingController::getInstance();
-    m_client = contr->createClient(identifier, identifier, address, port);
-
-    if(m_client == nullptr) {
-        return false;
-    }
+    //HanamiMessaging* contr = HanamiMessaging::getInstance();
+    //m_client = contr->createClient(identifier, identifier, address, port);
 
     return true;
 }
@@ -93,13 +89,18 @@ WebSocketSession::sendText(const std::string &text)
         }
         else
         {
-            LOG_ERROR("Error while sending data over websocket with message: "
-                      + se.code().message());
+            Kitsunemimi::ErrorContainer error;
+            error.errorMessage = "Error while sending data over websocket with message: "
+                                 + se.code().message();
+            LOG_ERROR(error);
         }
     }
     catch(const std::exception& e)
     {
-        LOG_ERROR("Error while sending data over websocket with message: " + std::string(e.what()));
+        Kitsunemimi::ErrorContainer error;
+        error.errorMessage = "Error while sending data over websocket with message: "
+                             + std::string(e.what());
+        LOG_ERROR(error);
     }
 
     return false;
@@ -128,7 +129,7 @@ WebSocketSession::run()
         {
             beast::flat_buffer buffer;
             m_webSocket.read(buffer);
-            m_client->sendStreamData(buffer.data().data(), buffer.data().size());
+            //m_client->sendStreamData(buffer.data().data(), buffer.data().size());
         }
     }
     catch(const beast::system_error& se)
@@ -140,14 +141,18 @@ WebSocketSession::run()
         }
         else
         {
-            LOG_ERROR("Error while receiving data over websocket with message: "
-                      + se.code().message());
+            Kitsunemimi::ErrorContainer error;
+            error.errorMessage = "Error while receiving data over websocket with message: "
+                                 + se.code().message();
+            LOG_ERROR(error);
         }
     }
     catch(const std::exception& e)
     {
-        LOG_ERROR("Error while receiving data over websocket with message: "
-                  + std::string(e.what()));
+        Kitsunemimi::ErrorContainer error;
+        error.errorMessage = "Error while receiving data over websocket with message: "
+                             + std::string(e.what());
+        LOG_ERROR(error);
     }
 }
 
@@ -158,8 +163,6 @@ void
 WebSocketSession::closeSession()
 {
     m_abort = true;
-
-    WebSocketServer* server = Gateway::m_instance->m_websocketServer;
 
     scheduleThreadForDeletion();
 }
