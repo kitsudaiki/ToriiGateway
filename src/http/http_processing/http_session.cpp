@@ -263,12 +263,14 @@ HttpRequestEvent::requestToken(const std::string &target,
 
 
     // handle failed authentication
-    if(hanamiResponse.type == Kitsunemimi::Hanami::UNAUTHORIZED_RTYPE)
+    if(hanamiResponse.type == Kitsunemimi::Hanami::UNAUTHORIZED_RTYPE
+            || hanamiResponse.success == false)
     {
         return genericError_ResponseBuild(m_httpResponse,
                                           hanamiResponse.type,
-                                          "authoriation failed!");
+                                          hanamiResponse.responseContent);
     }
+
 
     return success_ResponseBuild(m_httpResponse, hanamiResponse.responseContent);
 }
@@ -345,11 +347,12 @@ HttpRequestEvent::processControlRequest(const std::string &uri,
     }
 
     // handle failed authentication
-    if(hanamiResponse.type == Kitsunemimi::Hanami::UNAUTHORIZED_RTYPE)
+    if(hanamiResponse.type == Kitsunemimi::Hanami::UNAUTHORIZED_RTYPE
+            || hanamiResponse.success == false)
     {
         return genericError_ResponseBuild(m_httpResponse,
                                           hanamiResponse.type,
-                                          "authoriation failed!");
+                                          hanamiResponse.responseContent);
     }
 
     // make real request
@@ -358,7 +361,7 @@ HttpRequestEvent::processControlRequest(const std::string &uri,
     }
 
     // handle error-response
-    if(hanamiResponse.type != 0)
+    if(hanamiResponse.success == false)
     {
         return genericError_ResponseBuild(m_httpResponse,
                                           hanamiResponse.type,
