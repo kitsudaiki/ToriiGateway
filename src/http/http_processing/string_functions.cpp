@@ -33,7 +33,7 @@ parseUri(std::string &target,
          std::string &token,
          Kitsunemimi::Hanami::RequestMessage &request,
          const std::string &uri,
-         std::string &errorMessage)
+         Kitsunemimi::ErrorContainer &error)
 {
     // first split of uri
     Kitsunemimi::Json::JsonItem parsedInputValues;
@@ -50,7 +50,7 @@ parseUri(std::string &target,
         return false;
     }
 
-    if(parsedInputValues.parse(request.inputValues, errorMessage) == false) {
+    if(parsedInputValues.parse(request.inputValues, error) == false) {
         return false;
     }
 

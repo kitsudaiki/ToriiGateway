@@ -46,7 +46,8 @@ getResponseType(const std::string &ext)
 bool
 sendFileFromLocalLocation(http::response<http::dynamic_body> &response,
                           const std::string &dir,
-                          const std::string &relativePath)
+                          const std::string &relativePath,
+                          Kitsunemimi::ErrorContainer &error)
 {
     // create file-path
     std::string path = dir + relativePath;
@@ -65,9 +66,7 @@ sendFileFromLocalLocation(http::response<http::dynamic_body> &response,
 
     // read file and send content back
     std::string fileContent = "";
-    std::string errorMessage = "";
-    Kitsunemimi::ErrorContainer error;
-    if(Kitsunemimi::readFile(fileContent, path, errorMessage))
+    if(Kitsunemimi::readFile(fileContent, path, error))
     {
         beast::ostream(response.body()) << fileContent;
         return true;
@@ -75,7 +74,6 @@ sendFileFromLocalLocation(http::response<http::dynamic_body> &response,
 
     response.result(http::status::internal_server_error);
     response.set(http::field::content_type, "text/plain");
-    error.errorMessage = errorMessage;
     LOG_ERROR(error);
 
     return false;
@@ -88,9 +86,10 @@ sendFileFromLocalLocation(http::response<http::dynamic_body> &response,
  */
 bool
 processClientRequest(http::response<http::dynamic_body> &response,
-                     const std::string &path)
+                     const std::string &path,
+                     Kitsunemimi::ErrorContainer &error)
 {
     bool success = false;
     const std::string fileLocation = GET_STRING_CONFIG("server", "dashboard_files", success);
-    return sendFileFromLocalLocation(response, fileLocation, path);
+    return sendFileFromLocalLocation(response, fileLocation, path, error);
 }

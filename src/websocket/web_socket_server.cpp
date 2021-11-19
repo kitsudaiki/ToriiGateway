@@ -46,6 +46,8 @@ WebSocketServer::WebSocketServer(const std::string &address,
 void
 WebSocketServer::run()
 {
+    Kitsunemimi::ErrorContainer error;
+
     LOG_INFO("start Websocket-server on address "
              + m_address
              + " and port "
@@ -82,8 +84,7 @@ WebSocketServer::run()
     }
     catch (const std::exception& e)
     {
-        Kitsunemimi::ErrorContainer error;
-        error.errorMessage = "Error in websocket-server with message: " + std::string(e.what());
+        error.addMeesage("Error in websocket-server with message: " + std::string(e.what()));
         LOG_ERROR(error);
     }
 }

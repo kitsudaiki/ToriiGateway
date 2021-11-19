@@ -37,6 +37,8 @@
 #include <filesystem>
 
 #include <libKitsunemimiCommon/threading/event.h>
+#include <libKitsunemimiCommon/logger.h>
+
 #include <libKitsunemimiHanamiCommon/enums.h>
 #include <libKitsunemimiHanamiCommon/structs.h>
 
@@ -89,15 +91,15 @@ private:
     bool requestToken(const std::string &target,
                       Kitsunemimi::Hanami::RequestMessage &hanamiRequest,
                       Kitsunemimi::Hanami::ResponseMessage &hanamiResponse,
-                      std::string &errorMessage);
+                      Kitsunemimi::ErrorContainer &error);
     bool checkPermission(const std::string &token,
                          const std::string &component,
                          const Kitsunemimi::Hanami::RequestMessage &hanamiRequest,
                          Kitsunemimi::Hanami::ResponseMessage &responseMsg,
-                         std::string &errorMessage);
+                         Kitsunemimi::ErrorContainer &error);
     bool processControlRequest(const std::string &uri,
                                const std::string &inputValues,
-                               HttpRequestType httpType);
+                               HttpRequestType httpType, Kitsunemimi::ErrorContainer &error);
 
 };
 

@@ -57,27 +57,24 @@ HttpServer::HttpServer(const std::string &address,
 bool
 HttpServer::loadCertificates(boost::asio::ssl::context& ctx,
                              const std::string &certFile,
-                             const std::string &keyFile)
+                             const std::string &keyFile,
+                             Kitsunemimi::ErrorContainer &error)
 {
     std::string errorMessage = "";
     std::string cert = "";
     std::string key = "";
     bool ret = false;
 
-    ret = Kitsunemimi::readFile(cert, certFile, errorMessage);
+    ret = Kitsunemimi::readFile(cert, certFile, error);
     if(ret == false)
     {
-        Kitsunemimi::ErrorContainer error;
-        error.errorMessage = errorMessage;
         LOG_ERROR(error);
         return false;
     }
 
-    ret = Kitsunemimi::readFile(key, keyFile, errorMessage);
+    ret = Kitsunemimi::readFile(key, keyFile, error);
     if(ret == false)
     {
-        Kitsunemimi::ErrorContainer error;
-        error.errorMessage = errorMessage;
         LOG_ERROR(error);
         return false;
     }
@@ -112,6 +109,8 @@ HttpServer::loadCertificates(boost::asio::ssl::context& ctx,
 void
 HttpServer::run()
 {
+    Kitsunemimi::ErrorContainer error;
+
     LOG_INFO("start HTTP-server on address "
              + m_address
              + " and port "
@@ -123,8 +122,10 @@ HttpServer::run()
         net::io_context ioc{1};
         tcp::acceptor acceptor{ioc, {address, m_port}};
         boost::asio::ssl::context ctx{boost::asio::ssl::context::tlsv12};
-        const bool loadResult = loadCertificates(ctx, m_cert, m_key);
-        if(loadResult == false) {
+        const bool loadResult = loadCertificates(ctx, m_cert, m_key, error);
+        if(loadResult == false)
+        {
+            LOG_ERROR(error);
             return;
         }
 
@@ -141,6 +142,7 @@ HttpServer::run()
     }
     catch (const std::exception& e)
     {
-        std::cerr << "Error: " << e.what() << std::endl;
+        error.addMeesage("Error: " + std::string(e.what()));
+        LOG_ERROR(error);
     }
 }

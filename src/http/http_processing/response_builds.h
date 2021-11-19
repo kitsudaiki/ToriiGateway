@@ -42,7 +42,7 @@ invalid_ResponseBuild(http::response<http::dynamic_body> &httpResp,
     httpResp.set(http::field::content_type, "text/plain");
     beast::ostream(httpResp.body()) << message;
     Kitsunemimi::ErrorContainer error;
-    error.errorMessage = message;
+    error.addMeesage(message);
     LOG_ERROR(error);
     return false;
 }
@@ -54,12 +54,11 @@ invalid_ResponseBuild(http::response<http::dynamic_body> &httpResp,
  */
 bool
 internalError_ResponseBuild(http::response<http::dynamic_body> &httpResp,
-                            const std::string &message)
+                            Kitsunemimi::ErrorContainer &error)
 {
     httpResp.result(http::status::internal_server_error);
     httpResp.set(http::field::content_type, "text/plain");
-    Kitsunemimi::ErrorContainer error;
-    error.errorMessage = message;
+    beast::ostream(httpResp.body()) << error.toString();
     LOG_ERROR(error);
     return false;
 }
@@ -73,13 +72,14 @@ internalError_ResponseBuild(http::response<http::dynamic_body> &httpResp,
 bool
 genericError_ResponseBuild(http::response<http::dynamic_body> &httpResp,
                            const Kitsunemimi::Hanami::HttpResponseTypes type,
-                           const std::string &message)
+                           const std::string &errorMessage)
 {
     httpResp.result(static_cast<http::status>(type));
     httpResp.set(http::field::content_type, "text/plain");
-    beast::ostream(httpResp.body()) << message;
+    beast::ostream(httpResp.body()) << errorMessage;
+
     Kitsunemimi::ErrorContainer error;
-    error.errorMessage = message;
+    error.addMeesage(errorMessage);
     LOG_ERROR(error);
     return false;
 }

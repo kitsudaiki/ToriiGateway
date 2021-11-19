@@ -26,6 +26,7 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include <libKitsunemimiCommon/logger.h>
 
 class WebSocketServer;
 class HttpServer;
@@ -37,7 +38,7 @@ class Gateway
 public:
     Gateway();
 
-    bool initInternalSession();
+    bool initInternalSession(Kitsunemimi::ErrorContainer &error);
     bool initWebSocketServer();
     bool initHttpServer();
 

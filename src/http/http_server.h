@@ -36,6 +36,7 @@
 #include <string>
 
 #include <libKitsunemimiCommon/threading/thread.h>
+#include <libKitsunemimiCommon/logger.h>
 
 class HttpThread;
 
@@ -59,7 +60,8 @@ private:
 
     bool loadCertificates(boost::asio::ssl::context &ctx,
                           const std::string &certFile,
-                          const std::string &keyFile);
+                          const std::string &keyFile,
+                          Kitsunemimi::ErrorContainer &error);
 };
 
 #endif // HTTP_SERVER_H

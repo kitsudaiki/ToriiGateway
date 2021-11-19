@@ -27,7 +27,6 @@
 #include <http/request_queue.h>
 #include <http/http_thread.h>
 
-#include <libKitsunemimiCommon/logger.h>
 #include <libKitsunemimiCommon/buffer/data_buffer.h>
 #include <libKitsunemimiCommon/files/text_file.h>
 #include <libKitsunemimiConfig/config_handler.h>
@@ -56,13 +55,15 @@ Gateway::Gateway() {}
  * @return true, if successful, else false
  */
 bool
-Gateway::initInternalSession()
+Gateway::initInternalSession(Kitsunemimi::ErrorContainer &error)
 {
     bool success = false;
 
     std::vector<std::string> groups = { "Misaka" };
-    success = HanamiMessaging::getInstance()->initialize("ToriiGateway", groups, false);
-    if(success == false) {
+    success = HanamiMessaging::getInstance()->initialize("ToriiGateway", groups, error, false);
+    if(success == false)
+    {
+        LOG_ERROR(error);
         return false;
     }
 

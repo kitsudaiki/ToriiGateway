@@ -36,28 +36,28 @@ using Kitsunemimi::Hanami::initMain;
 
 int main(int argc, char *argv[])
 {
-    if(initMain(argc, argv, "ToriiGateway", &registerArguments, &registerConfigs) == false) {
+    Kitsunemimi::ErrorContainer error;
+    if(initMain(argc, argv, "ToriiGateway", &registerArguments, &registerConfigs, error) == false) {
         return 1;
     }
 
     // init gateway
-    Kitsunemimi::ErrorContainer error;
     Gateway gateway;
     if(gateway.initHttpServer() == false)
     {
-        error.errorMessage = "initializing http-server failed";
+        error.addMeesage("initializing http-server failed");
         LOG_ERROR(error);
         return 1;
     }
     if(gateway.initWebSocketServer() == false)
     {
-        error.errorMessage = "initializing websocket-server failed";
+        error.addMeesage("initializing websocket-server failed");
         LOG_ERROR(error);
         return 1;
     }
-    if(gateway.initInternalSession() == false)
+    if(gateway.initInternalSession(error) == false)
     {
-        error.errorMessage = "initializing connection to backend failed";
+        error.addMeesage("initializing connection to backend failed");
         LOG_ERROR(error);
         return 1;
     }

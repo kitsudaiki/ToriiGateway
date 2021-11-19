@@ -33,25 +33,25 @@
  * @brief register configs
  */
 void
-registerConfigs()
+registerConfigs(Kitsunemimi::ErrorContainer &error)
 {
-    Kitsunemimi::Hanami::registerBasicConfigs();
+    Kitsunemimi::Hanami::registerBasicConfigs(error);
 
     // server-section
     const std::string serverGroup = "server";
-    REGISTER_BOOL_CONFIG(   serverGroup, "enable_websocket",  false);
-    REGISTER_BOOL_CONFIG(   serverGroup, "enable_dashboard",  false);
-    REGISTER_STRING_CONFIG( serverGroup, "dashboard_files",   "");
-    REGISTER_STRING_CONFIG( serverGroup, "certificate",       "",        true);
-    REGISTER_STRING_CONFIG( serverGroup, "key",               "",        true);
-    REGISTER_STRING_CONFIG( serverGroup, "ip",                "0.0.0.0", true);
-    REGISTER_INT_CONFIG(    serverGroup, "http_port",         12345,     true);
-    REGISTER_INT_CONFIG(    serverGroup, "websocket_port",    13345);
-    REGISTER_INT_CONFIG(    serverGroup, "number_of_threads", 4);
+    REGISTER_BOOL_CONFIG(   serverGroup, "enable_websocket",  error, false);
+    REGISTER_BOOL_CONFIG(   serverGroup, "enable_dashboard",  error, false);
+    REGISTER_STRING_CONFIG( serverGroup, "dashboard_files",   error, "");
+    REGISTER_STRING_CONFIG( serverGroup, "certificate",       error, "",        true);
+    REGISTER_STRING_CONFIG( serverGroup, "key",               error, "",        true);
+    REGISTER_STRING_CONFIG( serverGroup, "ip",                error, "0.0.0.0", true);
+    REGISTER_INT_CONFIG(    serverGroup, "http_port",         error, 12345,     true);
+    REGISTER_INT_CONFIG(    serverGroup, "websocket_port",    error, 13345);
+    REGISTER_INT_CONFIG(    serverGroup, "number_of_threads", error, 4);
 }
 
 bool
-validateConfig()
+validateConfig(Kitsunemimi::ErrorContainer &error)
 {
     bool valid = Kitsunemimi::Config::isConfigValid();
     if(valid == false) {
@@ -71,9 +71,8 @@ validateConfig()
     if(port <= 0
             || port > 64000)
     {
-        Kitsunemimi::ErrorContainer error;
-        error.errorMessage = "port for websocket is not valid. Port in config: "
-                             + std::to_string(port);
+        error.addMeesage("port for websocket is not valid. Port in config: "
+                         + std::to_string(port));
         LOG_ERROR(error);
         return false;
     }

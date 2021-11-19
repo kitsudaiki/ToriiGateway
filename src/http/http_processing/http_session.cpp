@@ -53,7 +53,7 @@ HttpRequestEvent::HttpRequestEvent(tcp::socket &&socket,
     if(ec.failed())
     {
         Kitsunemimi::ErrorContainer error;
-        error.errorMessage = "SSL-Handshake failed!";
+        error.addMeesage("SSL-Handshake failed!");
         LOG_ERROR(error);
     }
 }
@@ -96,6 +96,7 @@ HttpRequestEvent::processRequest()
     m_httpResponse.set(http::field::server, "ToriiGateway");
     m_httpResponse.result(http::status::ok);
     m_httpResponse.set(http::field::content_type, "text/plain");
+    Kitsunemimi::ErrorContainer error;
 
     // collect and prepare relevant data
     const http::verb messageType = m_httpRequest.method();
@@ -117,11 +118,11 @@ HttpRequestEvent::processRequest()
     {
         m_httpResponse.result(http::status::bad_request);
         Kitsunemimi::ErrorContainer error;
-        error.errorMessage = "Invalid request-method '"
-                             + std::string(m_httpRequest.method_string())
-                             + "'";
+        error.addMeesage("Invalid request-method '"
+                         + std::string(m_httpRequest.method_string())
+                         + "'");
         LOG_ERROR(error);
-        beast::ostream(m_httpResponse.body()) << error.errorMessage;
+        beast::ostream(m_httpResponse.body()) << error.toString();
         return;
     }
 
@@ -129,7 +130,9 @@ HttpRequestEvent::processRequest()
     if(messageType == http::verb::get
             && cutPath(path, "/client"))
     {
-        processClientRequest(m_httpResponse, path);
+        if(processClientRequest(m_httpResponse, path, error) == false) {
+            LOG_ERROR(error);
+        }
         return;
     }
 
@@ -143,14 +146,18 @@ HttpRequestEvent::processRequest()
     // handle control-messages
     if(cutPath(path, "/control/"))
     {
-        processControlRequest(path, payload, static_cast<HttpRequestType>(messageType));
+        HttpRequestType hType = static_cast<HttpRequestType>(messageType);
+        if(processControlRequest(path, payload, hType, error) == false) {
+            LOG_ERROR(error);
+        }
         return;
     }
 
     // handle default, if nothing was found
+    error.addMeesage("no matching endpoint found");
     genericError_ResponseBuild(m_httpResponse,
                                HttpResponseTypes::NOT_FOUND_RTYPE,
-                               "no matchin endpoint");
+                               error.toString());
 }
 
 /**
@@ -204,7 +211,7 @@ HttpRequestEvent::readMessage()
     if(ec)
     {
         Kitsunemimi::ErrorContainer error;
-        error.errorMessage = "read: " + ec.message();
+        error.addMeesage("read: " + ec.message());
         LOG_ERROR(error);
         return false;
     }
@@ -227,7 +234,7 @@ HttpRequestEvent::sendResponse()
     if(ec)
     {
         Kitsunemimi::ErrorContainer error;
-        error.errorMessage = "write: " + ec.message();
+        error.addMeesage("write: " + ec.message());
         LOG_ERROR(error);
         return false;
     }
@@ -248,7 +255,7 @@ bool
 HttpRequestEvent::requestToken(const std::string &target,
                                Kitsunemimi::Hanami::RequestMessage &hanamiRequest,
                                Kitsunemimi::Hanami::ResponseMessage &hanamiResponse,
-                               std::string &errorMessage)
+                               Kitsunemimi::ErrorContainer &error)
 {
     HanamiMessaging* messaging = HanamiMessaging::getInstance();
 
@@ -256,9 +263,9 @@ HttpRequestEvent::requestToken(const std::string &target,
     if(messaging->triggerSakuraFile(target,
                                     hanamiResponse,
                                     hanamiRequest,
-                                    errorMessage) == false)
+                                    error) == false)
     {
-        return internalError_ResponseBuild(m_httpResponse, errorMessage);
+        return internalError_ResponseBuild(m_httpResponse, error);
     }
 
 
@@ -288,7 +295,7 @@ HttpRequestEvent::checkPermission(const std::string &token,
                                   const std::string &component,
                                   const Kitsunemimi::Hanami::RequestMessage &hanamiRequest,
                                   Kitsunemimi::Hanami::ResponseMessage &responseMsg,
-                                  std::string &errorMessage)
+                                  Kitsunemimi::ErrorContainer &error)
 {
     Kitsunemimi::Hanami::RequestMessage requestMsg;
 
@@ -307,7 +314,7 @@ HttpRequestEvent::checkPermission(const std::string &token,
     requestMsg.httpType = HttpRequestType::GET_TYPE;
 
     HanamiMessaging* messaging = HanamiMessaging::getInstance();
-    return messaging->triggerSakuraFile("Misaka", responseMsg, requestMsg, errorMessage);
+    return messaging->triggerSakuraFile("Misaka", responseMsg, requestMsg, error);
 }
 
 /**
@@ -319,9 +326,9 @@ HttpRequestEvent::checkPermission(const std::string &token,
 bool
 HttpRequestEvent::processControlRequest(const std::string &uri,
                                         const std::string &inputValues,
-                                        HttpRequestType httpType)
+                                        HttpRequestType httpType,
+                                        Kitsunemimi::ErrorContainer &error)
 {
-    std::string errorMessage = "";
     std::string target = "";
     std::string token = "";
     Kitsunemimi::Hanami::RequestMessage hanamiRequest;
@@ -332,18 +339,18 @@ HttpRequestEvent::processControlRequest(const std::string &uri,
     // parse uri
     hanamiRequest.httpType = httpType;
     hanamiRequest.inputValues = inputValues;
-    if(parseUri(target, token, hanamiRequest, uri, errorMessage) == false) {
+    if(parseUri(target, token, hanamiRequest, uri, error) == false) {
         return invalid_ResponseBuild(m_httpResponse, "failed to parse uri");
     }
 
     // handle token-request
     if(hanamiRequest.id == "token") {
-        return requestToken(target, hanamiRequest, hanamiResponse, errorMessage);
+        return requestToken(target, hanamiRequest, hanamiResponse, error);
     }
 
     // check authentication
-    if(checkPermission(token, target, hanamiRequest, hanamiResponse, errorMessage) == false) {
-        return internalError_ResponseBuild(m_httpResponse, errorMessage);
+    if(checkPermission(token, target, hanamiRequest, hanamiResponse, error) == false) {
+        return internalError_ResponseBuild(m_httpResponse, error);
     }
 
     // handle failed authentication
@@ -356,8 +363,8 @@ HttpRequestEvent::processControlRequest(const std::string &uri,
     }
 
     // make real request
-    if(messaging->triggerSakuraFile(target, hanamiResponse, hanamiRequest, errorMessage) == false) {
-        return internalError_ResponseBuild(m_httpResponse, errorMessage);
+    if(messaging->triggerSakuraFile(target, hanamiResponse, hanamiRequest, error) == false) {
+        return internalError_ResponseBuild(m_httpResponse, error);
     }
 
     // handle error-response
