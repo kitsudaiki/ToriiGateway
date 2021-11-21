@@ -57,10 +57,13 @@ Gateway::Gateway() {}
 bool
 Gateway::initInternalSession(Kitsunemimi::ErrorContainer &error)
 {
-    bool success = false;
-
     std::vector<std::string> groups = { "Misaka" };
-    success = HanamiMessaging::getInstance()->initialize("ToriiGateway", groups, error, false);
+    const bool success = HanamiMessaging::getInstance()->initialize("ToriiGateway",
+                                                                    groups,
+                                                                    nullptr,
+                                                                    streamDataCallback,
+                                                                    error,
+                                                                    false);
     if(success == false)
     {
         LOG_ERROR(error);

@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef KITSUNEMIMI_HANAMI_MESSAGING_CALLBACKS_H
-#define KITSUNEMIMI_HANAMI_MESSAGING_CALLBACKS_H
+#ifndef CALLBACKS_H
+#define CALLBACKS_H
 
 #include <gateway.h>
 
@@ -53,4 +53,18 @@ clientDataCallback(void* sessionPtr,
     }
 }
 
-#endif // KITSUNEMIMI_HANAMI_MESSAGING_CALLBACKS_H
+/**
+ * @brief streamDataCallback
+ * @param data
+ * @param dataSize
+ */
+void
+streamDataCallback(void*,
+                   Kitsunemimi::Sakura::Session*,
+                   const void* data,
+                   const uint64_t dataSize)
+{
+
+}
+
+#endif // CALLBACKS_H

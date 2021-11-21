@@ -260,12 +260,11 @@ HttpRequestEvent::requestToken(const std::string &target,
     HanamiMessaging* messaging = HanamiMessaging::getInstance();
 
     // make token-request
-    if(messaging->triggerSakuraFile(target,
-                                    hanamiResponse,
-                                    hanamiRequest,
-                                    error) == false)
+    if(messaging->triggerSakuraFile(target, hanamiResponse, hanamiRequest, error) == false)
     {
-        return internalError_ResponseBuild(m_httpResponse, error);
+        return genericError_ResponseBuild(m_httpResponse,
+                                          hanamiResponse.type,
+                                          hanamiResponse.responseContent);
     }
 
 
