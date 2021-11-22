@@ -57,7 +57,7 @@ Gateway::Gateway() {}
 bool
 Gateway::initInternalSession(Kitsunemimi::ErrorContainer &error)
 {
-    std::vector<std::string> groups = { "Misaka" };
+    std::vector<std::string> groups = { "Misaka", "Azuki", "Sagiri", "Kyouko"};
     const bool success = HanamiMessaging::getInstance()->initialize("ToriiGateway",
                                                                     groups,
                                                                     nullptr,
