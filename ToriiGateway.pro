@@ -64,7 +64,12 @@ LIBS += -L../libKitsunemimiHanamiCommon/src/debug -lKitsunemimiHanamiCommon
 LIBS += -L../libKitsunemimiHanamiCommon/src/release -lKitsunemimiHanamiCommon
 INCLUDEPATH += ../libKitsunemimiHanamiCommon/include
 
-LIBS += -lpthread -lcrypto -lssl -luuid
+LIBS += -L../libKitsunemimiCrypto/src -lKitsunemimiCrypto
+LIBS += -L../libKitsunemimiCrypto/src/debug -lKitsunemimiCrypto
+LIBS += -L../libKitsunemimiCrypto/src/release -lKitsunemimiCrypto
+INCLUDEPATH += ../libKitsunemimiCrypto/include
+
+LIBS += -lcryptopp -lssl -lcrypto
 
 INCLUDEPATH += $$PWD \
                src
