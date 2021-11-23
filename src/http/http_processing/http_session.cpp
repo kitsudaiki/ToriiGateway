@@ -313,7 +313,7 @@ HttpRequestEvent::checkPermission(const std::string &token,
     requestMsg.httpType = HttpRequestType::GET_TYPE;
 
     HanamiMessaging* messaging = HanamiMessaging::getInstance();
-    return messaging->triggerSakuraFile("Misaka", responseMsg, requestMsg, error);
+    return messaging->triggerSakuraFile("misaka", responseMsg, requestMsg, error);
 }
 
 /**

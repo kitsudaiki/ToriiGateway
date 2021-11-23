@@ -37,7 +37,7 @@ using Kitsunemimi::Hanami::initMain;
 int main(int argc, char *argv[])
 {
     Kitsunemimi::ErrorContainer error;
-    if(initMain(argc, argv, "ToriiGateway", &registerArguments, &registerConfigs, error) == false) {
+    if(initMain(argc, argv, "torii", &registerArguments, &registerConfigs, error) == false) {
         return 1;
     }
 
