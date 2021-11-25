@@ -32,8 +32,6 @@ create_image:
   image: docker:20.10.11
   stage: create_image
   script:
-    - mkdir -p /etc/docker
-    - echo '{"insecure-registries":["10.0.2.10:5000"]}' > /etc/docker/daemon.json
     - docker build -t 10.0.2.10:5000/torii_gateway:$CI_COMMIT_BRANCH .
   dependencies:
     - build
