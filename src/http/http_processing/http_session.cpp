@@ -31,6 +31,7 @@
 
 #include <libKitsunemimiCommon/common_items/data_items.h>
 #include <libKitsunemimiCommon/logger.h>
+#include <libKitsunemimiCommon/common_methods/string_methods.h>
 
 #include <libKitsunemimiHanamiMessaging/hanami_messaging.h>
 
@@ -143,11 +144,17 @@ HttpRequestEvent::processRequest()
         payload = m_httpRequest.body().data();
     }
 
+    // get token from request-header
+    std::string token = "";
+    if(m_httpRequest.count("X-Auth-Token") > 0) {
+        token = m_httpRequest.at("X-Auth-Token").to_string();
+    }
+
     // handle control-messages
     if(cutPath(path, "/control/"))
     {
         HttpRequestType hType = static_cast<HttpRequestType>(messageType);
-        if(processControlRequest(path, payload, hType, error) == false) {
+        if(processControlRequest(path, token, payload, hType, error) == false) {
             LOG_ERROR(error);
         }
         return;
@@ -324,12 +331,12 @@ HttpRequestEvent::checkPermission(const std::string &token,
  */
 bool
 HttpRequestEvent::processControlRequest(const std::string &uri,
+                                        const std::string &token,
                                         const std::string &inputValues,
                                         HttpRequestType httpType,
                                         Kitsunemimi::ErrorContainer &error)
 {
     std::string target = "";
-    std::string token = "";
     Kitsunemimi::Hanami::RequestMessage hanamiRequest;
     Kitsunemimi::Hanami::ResponseMessage hanamiResponse;
     HanamiMessaging* messaging = HanamiMessaging::getInstance();

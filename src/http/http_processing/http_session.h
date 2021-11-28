@@ -98,6 +98,7 @@ private:
                          Kitsunemimi::Hanami::ResponseMessage &responseMsg,
                          Kitsunemimi::ErrorContainer &error);
     bool processControlRequest(const std::string &uri,
+                               const std::string &token,
                                const std::string &inputValues,
                                HttpRequestType httpType, Kitsunemimi::ErrorContainer &error);
 

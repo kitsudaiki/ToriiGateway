@@ -16,7 +16,7 @@ class JsonItem;
 
 bool checkPath(const std::string &path);
 bool parseUri(std::string &target,
-              std::string &token,
+              const std::string &token,
               Kitsunemimi::Hanami::RequestMessage &request,
               const std::string &uri,
               Kitsunemimi::ErrorContainer &error);
