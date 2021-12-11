@@ -63,7 +63,7 @@ Gateway::initInternalSession(Kitsunemimi::ErrorContainer &error)
                                                                     nullptr,
                                                                     streamDataCallback,
                                                                     error,
-                                                                    false);
+                                                                    true);
     if(success == false)
     {
         LOG_ERROR(error);
