@@ -64,6 +64,11 @@ LIBS += -L../libKitsunemimiHanamiCommon/src/debug -lKitsunemimiHanamiCommon
 LIBS += -L../libKitsunemimiHanamiCommon/src/release -lKitsunemimiHanamiCommon
 INCLUDEPATH += ../libKitsunemimiHanamiCommon/include
 
+LIBS += -L../libKitsunemimiJwt/src -lKitsunemimiJwt
+LIBS += -L../libKitsunemimiJwt/src/debug -lKitsunemimiJwt
+LIBS += -L../libKitsunemimiJwti/src/release -lKitsunemimiJwt
+INCLUDEPATH += ../libKitsunemimiJwt/include
+
 LIBS += -L../libKitsunemimiCrypto/src -lKitsunemimiCrypto
 LIBS += -L../libKitsunemimiCrypto/src/debug -lKitsunemimiCrypto
 LIBS += -L../libKitsunemimiCrypto/src/release -lKitsunemimiCrypto
