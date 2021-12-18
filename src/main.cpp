@@ -31,6 +31,7 @@
 #include <libKitsunemimiCommon/logger.h>
 #include <libKitsunemimiConfig/config_handler.h>
 #include <libKitsunemimiHanamiCommon/generic_main.h>
+#include <libKitsunemimiHanamiPredefinitions/init_predefined_blossoms.h>
 
 using Kitsunemimi::Hanami::initMain;
 
@@ -40,6 +41,8 @@ int main(int argc, char *argv[])
     if(initMain(argc, argv, "torii", &registerArguments, &registerConfigs, error) == false) {
         return 1;
     }
+
+    Kitsunemimi::Hanami::initPredefinedBlossoms();
 
     // init gateway
     Gateway gateway;
