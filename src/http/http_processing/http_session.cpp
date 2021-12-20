@@ -305,7 +305,7 @@ HttpRequestEvent::checkPermission(const std::string &token,
 {
     Kitsunemimi::Hanami::RequestMessage requestMsg;
 
-    requestMsg.id = "auth";
+    requestMsg.id = "v1/auth";
     requestMsg.inputValues = "";
     requestMsg.inputValues.append("{\"token\":\"");
     requestMsg.inputValues.append(token);
@@ -350,7 +350,7 @@ HttpRequestEvent::processControlRequest(const std::string &uri,
     }
 
     // handle token-request
-    if(hanamiRequest.id == "token") {
+    if(hanamiRequest.id == "v1/token") {
         return requestToken(target, hanamiRequest, hanamiResponse, error);
     }
 
