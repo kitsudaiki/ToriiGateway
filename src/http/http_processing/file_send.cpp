@@ -1,3 +1,25 @@
+/**
+ * @file        file_send.cpp
+ *
+ * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
+ *
+ * @copyright   Apache License Version 2.0
+ *
+ *      Copyright 2019 Tobias Anker
+ *
+ *      Licensed under the Apache License, Version 2.0 (the "License");
+ *      you may not use this file except in compliance with the License.
+ *      You may obtain a copy of the License at
+ *
+ *          http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *      Unless required by applicable law or agreed to in writing, software
+ *      distributed under the License is distributed on an "AS IS" BASIS,
+ *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *      See the License for the specific language governing permissions and
+ *      limitations under the License.
+ */
+
 #include "file_send.h"
 
 #include <libKitsunemimiCommon/common_methods/string_methods.h>
@@ -6,9 +28,11 @@
 #include <libKitsunemimiConfig/config_handler.h>
 
 /**
- * @brief HttpRequestEvent::getResponseType
- * @param ext
- * @return
+ * @brief get response-type for the requested file
+ *
+ * @param ext file-extension
+ *
+ * @return response-type
  */
 const std::string
 getResponseType(const std::string &ext)
@@ -80,9 +104,11 @@ sendFileFromLocalLocation(http::response<http::dynamic_body> &response,
 }
 
 /**
- * @brief HttpRequestEvent::processClientRequest
- * @param path
- * @return
+ * @brief process file-request
+ *
+ * @param path requested file-apth
+ *
+ * @return false, if file not found, else true
  */
 bool
 processClientRequest(http::response<http::dynamic_body> &response,

@@ -46,12 +46,12 @@ WebSocketSession::WebSocketSession(tcp::socket &&socket, const std::string &thre
  * @return
  */
 bool
-WebSocketSession::initSessionToBackend(const std::string &identifier)
+WebSocketSession::initSessionToBackend(const std::string &)
 {
     bool success = false;
 
     const std::string address = GET_STRING_CONFIG("KyoukoMind", "address", success);
-    const uint16_t port = static_cast<uint16_t>(GET_INT_CONFIG("KyoukoMind", "port", success));
+    //const uint16_t port = static_cast<uint16_t>(GET_INT_CONFIG("KyoukoMind", "port", success));
 
     //HanamiMessaging* contr = HanamiMessaging::getInstance();
     //m_client = contr->createClient(identifier, identifier, address, port);

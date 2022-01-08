@@ -34,30 +34,32 @@
 /**
  * @brief constructor
  *
- * @param address address to listen on
- * @param port port to listen
+ * @param address listen address for the server
+ * @param port listen port for the server
+ * @param certFilePath path to cert-file
+ * @param keyFilePath path to key-file
  */
 HttpServer::HttpServer(const std::string &address,
                        const uint16_t port,
-                       const std::string &cert,
-                       const std::string &key)
+                       const std::string &certFilePath,
+                       const std::string &keyFilePath)
     : Kitsunemimi::Thread("HttpServer"),
       m_address(address),
       m_port(port),
-      m_cert(cert),
-      m_key(key)
+      m_certFilePath(certFilePath),
+      m_keyFilePath(keyFilePath)
 {}
 
 /**
- * @brief HttpServer::loadCertificates
- * @param ctx
- * @param cert
- * @param key
+ * @brief load certificates from files into ssl-context
+ *
+ * @param ctx ssl-context
+ * @param error reference for error-output
+ *
+ * @return true, if successful, else false
  */
 bool
 HttpServer::loadCertificates(boost::asio::ssl::context& ctx,
-                             const std::string &certFile,
-                             const std::string &keyFile,
                              Kitsunemimi::ErrorContainer &error)
 {
     std::string errorMessage = "";
@@ -65,14 +67,16 @@ HttpServer::loadCertificates(boost::asio::ssl::context& ctx,
     std::string key = "";
     bool ret = false;
 
-    ret = Kitsunemimi::readFile(cert, certFile, error);
+    // read certificate
+    ret = Kitsunemimi::readFile(cert, m_certFilePath, error);
     if(ret == false)
     {
         LOG_ERROR(error);
         return false;
     }
 
-    ret = Kitsunemimi::readFile(key, keyFile, error);
+    // read key
+    ret = Kitsunemimi::readFile(key, m_keyFilePath, error);
     if(ret == false)
     {
         LOG_ERROR(error);
@@ -122,7 +126,7 @@ HttpServer::run()
         net::io_context ioc{1};
         tcp::acceptor acceptor{ioc, {address, m_port}};
         boost::asio::ssl::context ctx{boost::asio::ssl::context::tlsv12};
-        const bool loadResult = loadCertificates(ctx, m_cert, m_key, error);
+        const bool loadResult = loadCertificates(ctx, error);
         if(loadResult == false)
         {
             LOG_ERROR(error);
@@ -137,7 +141,7 @@ HttpServer::run()
 
             // process http-request within an already existing thread
             HttpRequestEvent* event = new HttpRequestEvent(std::move(socket), std::ref(ctx));
-            Gateway::requestQueue->addSession(event);
+            Gateway::requestQueue->addRequest(event);
         }
     }
     catch (const std::exception& e)

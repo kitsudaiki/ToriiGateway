@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef HTTP_THREAD_H
-#define HTTP_THREAD_H
+#ifndef TORIIGATEWAY_HTTP_THREAD_H
+#define TORIIGATEWAY_HTTP_THREAD_H
 
 #include <libKitsunemimiCommon/threading/thread.h>
 
@@ -35,4 +35,4 @@ protected:
     void run();
 };
 
-#endif // HTTP_THREAD_H
+#endif // TORIIGATEWAY_HTTP_THREAD_H

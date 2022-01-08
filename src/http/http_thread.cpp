@@ -28,6 +28,9 @@
 
 #include <libKitsunemimiCommon/threading/event.h>
 
+/**
+ * @brief constructor
+ */
 HttpThread::HttpThread(const std::string &threadName)
     : Kitsunemimi::Thread(threadName) {}
 
@@ -39,7 +42,7 @@ HttpThread::run()
 {
     while(m_abort == false)
     {
-        Kitsunemimi::Event* event = Gateway::requestQueue->getSession();
+        Kitsunemimi::Event* event = Gateway::requestQueue->getRequest();
         if(event != nullptr)
         {
             event->processEvent();

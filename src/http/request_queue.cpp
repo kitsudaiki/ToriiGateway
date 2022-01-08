@@ -25,14 +25,18 @@
 #include <http/http_processing/http_session.h>
 #include <libKitsunemimiCommon/logger.h>
 
+/**
+ * @brief constructor
+ */
 RequestQueue::RequestQueue() {}
 
 /**
- * @brief RequestQueue::getSession
- * @return
+ * @brief get request from the queue
+ *
+ * @return request
  */
 HttpRequestEvent*
-RequestQueue::getSession()
+RequestQueue::getRequest()
 {
     std::lock_guard<std::mutex> guard(m_queueMutex);
 
@@ -47,12 +51,13 @@ RequestQueue::getSession()
 }
 
 /**
- * @brief RequestQueue::addSession
- * @param session
+ * @brief add request to queue
+ *
+ * @param newRequest new request for the queue
  */
 void
-RequestQueue::addSession(HttpRequestEvent *session)
+RequestQueue::addRequest(HttpRequestEvent* newRequest)
 {
     std::lock_guard<std::mutex> guard(m_queueMutex);
-    m_queue.push_back(session);
+    m_queue.push_back(newRequest);
 }

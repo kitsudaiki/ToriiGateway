@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef GATEWAYSERVER_H
-#define GATEWAYSERVER_H
+#ifndef TORIIGATEWAY_GATEWAYSERVER_H
+#define TORIIGATEWAY_GATEWAYSERVER_H
 
 #include <iostream>
 #include <map>
@@ -50,4 +50,4 @@ private:
     std::vector<HttpThread*> m_threads;
 };
 
-#endif // GATEWAYSERVER_H
+#endif // TORIIGATEWAY_GATEWAYSERVER_H

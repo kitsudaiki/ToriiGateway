@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef HTTP_SESSION_H
-#define HTTP_SESSION_H
+#ifndef TORIIGATEWAY_HTTP_SESSION_H
+#define TORIIGATEWAY_HTTP_SESSION_H
 
 #include <boost/beast/core.hpp>
 #include <boost/beast/http.hpp>
@@ -89,7 +89,7 @@ private:
     bool sendResponse();
 
     bool requestToken(const std::string &target,
-                      Kitsunemimi::Hanami::RequestMessage &hanamiRequest,
+                      const Kitsunemimi::Hanami::RequestMessage &hanamiRequest,
                       Kitsunemimi::Hanami::ResponseMessage &hanamiResponse,
                       Kitsunemimi::ErrorContainer &error);
     bool checkPermission(const std::string &token,
@@ -100,8 +100,9 @@ private:
     bool processControlRequest(const std::string &uri,
                                const std::string &token,
                                const std::string &inputValues,
-                               HttpRequestType httpType, Kitsunemimi::ErrorContainer &error);
+                               const Kitsunemimi::Hanami::HttpRequestType httpType,
+                               Kitsunemimi::ErrorContainer &error);
 
 };
 
-#endif // HTTP_SESSION_H
+#endif // TORIIGATEWAY_HTTP_SESSION_H

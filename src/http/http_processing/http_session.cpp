@@ -249,18 +249,19 @@ HttpRequestEvent::sendResponse()
     return true;
 }
 
-
 /**
- * @brief HttpRequestEvent::requestToken
- * @param target
- * @param hanamiRequest
- * @param hanamiResponse
- * @param errorMessage
- * @return
+ * @brief request token from misaka
+ *
+ * @param target target (misaka)
+ * @param hanamiRequest hanami-request for the token-request
+ * @param hanamiResponse reference for the response
+ * @param error reference for error-output
+ *
+ * @return true, if successful, else false
  */
 bool
 HttpRequestEvent::requestToken(const std::string &target,
-                               Kitsunemimi::Hanami::RequestMessage &hanamiRequest,
+                               const Kitsunemimi::Hanami::RequestMessage &hanamiRequest,
                                Kitsunemimi::Hanami::ResponseMessage &hanamiResponse,
                                Kitsunemimi::ErrorContainer &error)
 {
@@ -289,12 +290,15 @@ HttpRequestEvent::requestToken(const std::string &target,
 }
 
 /**
- * @brief HttpRequestEvent::checkPermission
- * @param token
- * @param component
- * @param endpoint
- * @param type
- * @return
+ * @brief send request to misaka to check permissions
+ *
+ * @param token token to validate
+ * @param component requested compoent
+ * @param hanamiRequest hanami-request to the requested endpoint
+ * @param responseMsg reference for the response
+ * @param error reference for error-output
+ *
+ * @return true, if successful, else false
  */
 bool
 HttpRequestEvent::checkPermission(const std::string &token,
@@ -324,16 +328,21 @@ HttpRequestEvent::checkPermission(const std::string &token,
 }
 
 /**
- * @brief process control request by forwarding it to the backend
+ * @brief process control request
  *
- * @param path path to forward as identifier to trigger sakura file
+ * @param uri requested uri
+ * @param token given token coming from the http-header
  * @param inputValues json-formated input-values
+ * @param httpType type of the http-request
+ * @param error reference for error-output
+ *
+ * @return true, if successful, else false
  */
 bool
 HttpRequestEvent::processControlRequest(const std::string &uri,
                                         const std::string &token,
                                         const std::string &inputValues,
-                                        HttpRequestType httpType,
+                                        const HttpRequestType httpType,
                                         Kitsunemimi::ErrorContainer &error)
 {
     std::string target = "";

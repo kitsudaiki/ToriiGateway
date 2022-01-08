@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef WEB_SOCKET_SESSION_H
-#define WEB_SOCKET_SESSION_H
+#ifndef TORIIGATEWAY_WEB_SOCKET_SESSION_H
+#define TORIIGATEWAY_WEB_SOCKET_SESSION_H
 
 #include <boost/beast/core.hpp>
 #include <boost/beast/websocket.hpp>
@@ -67,4 +67,4 @@ protected:
     std::string m_session = "";
 };
 
-#endif // WEB_SOCKET_SESSION_H
+#endif // TORIIGATEWAY_WEB_SOCKET_SESSION_H

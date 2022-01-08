@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef WEB_SOCKET_SERVER_H
-#define WEB_SOCKET_SERVER_H
+#ifndef TORIIGATEWAY_WEB_SOCKET_SERVER_H
+#define TORIIGATEWAY_WEB_SOCKET_SERVER_H
 
 #include <boost/beast/core.hpp>
 #include <boost/beast/websocket.hpp>
@@ -51,4 +51,4 @@ private:
     std::vector<WebSocketSession*> m_sessions;
 };
 
-#endif // WEB_SOCKET_SERVER_H
+#endif // TORIIGATEWAY_WEB_SOCKET_SERVER_H

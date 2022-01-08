@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef CALLBACKS_H
-#define CALLBACKS_H
+#ifndef TORIIGATEWAY_CALLBACKS_H
+#define TORIIGATEWAY_CALLBACKS_H
 
 #include <gateway.h>
 
@@ -61,10 +61,10 @@ clientDataCallback(void* sessionPtr,
 void
 streamDataCallback(void*,
                    Kitsunemimi::Sakura::Session*,
-                   const void* data,
-                   const uint64_t dataSize)
+                   const void*,
+                   const uint64_t)
 {
 
 }
 
-#endif // CALLBACKS_H
+#endif // TORIIGATEWAY_CALLBACKS_H

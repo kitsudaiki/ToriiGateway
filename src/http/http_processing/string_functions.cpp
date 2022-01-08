@@ -1,12 +1,36 @@
+/**
+ * @file        string_functions.cpp
+ *
+ * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
+ *
+ * @copyright   Apache License Version 2.0
+ *
+ *      Copyright 2019 Tobias Anker
+ *
+ *      Licensed under the Apache License, Version 2.0 (the "License");
+ *      you may not use this file except in compliance with the License.
+ *      You may obtain a copy of the License at
+ *
+ *          http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *      Unless required by applicable law or agreed to in writing, software
+ *      distributed under the License is distributed on an "AS IS" BASIS,
+ *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *      See the License for the specific language governing permissions and
+ *      limitations under the License.
+ */
+
 #include "string_functions.h"
 
 #include <libKitsunemimiCommon/common_methods/string_methods.h>
 #include <libKitsunemimiJson/json_item.h>
 
 /**
- * @brief checkPath
- * @param path
- * @return
+ * @brief precheck path
+ *
+ * @param path file-path to check
+ *
+ * @return false, if path is invalid, else true
  */
 bool
 checkPath(const std::string &path)
@@ -22,11 +46,15 @@ checkPath(const std::string &path)
 }
 
 /**
- * @brief parseUri
- * @param path
- * @param inputValues
- * @param uri
- * @return
+ * @brief parse uri
+ *
+ * @param target reference for teh target, which has to be parsed from the uri
+ * @param token jwt-token to add the the request
+ * @param request reference for the request, which should be filled by values from the uri
+ * @param uri uri to parse
+ * @param error reference for error-output
+ *
+ * @return true, if successful, else false
  */
 bool
 parseUri(std::string &target,
@@ -84,10 +112,12 @@ parseUri(std::string &target,
 }
 
 /**
- * @brief cutPath
- * @param path
- * @param cut
- * @return
+ * @brief cut first part of a string, if match
+ *
+ * @param path reference for the incoming path and updated path
+ * @param cut part, which have to match at the beginning of the path
+ *
+ * @return true, if first part match, else false
  */
 bool
 cutPath(std::string &path, const std::string &cut)

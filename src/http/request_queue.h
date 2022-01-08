@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef REQUEST_QUEUE_H
-#define REQUEST_QUEUE_H
+#ifndef TORIIGATEWAY_REQUEST_QUEUE_H
+#define TORIIGATEWAY_REQUEST_QUEUE_H
 
 #include <mutex>
 #include <deque>
@@ -33,12 +33,12 @@ class RequestQueue
 public:
     RequestQueue();
 
-    HttpRequestEvent* getSession();
-    void addSession(HttpRequestEvent* session);
+    HttpRequestEvent* getRequest();
+    void addRequest(HttpRequestEvent* newRequest);
 
 private:
     std::deque<HttpRequestEvent*> m_queue;
     std::mutex m_queueMutex;
 };
 
-#endif // REQUEST_QUEUE_H
+#endif // TORIIGATEWAY_REQUEST_QUEUE_H

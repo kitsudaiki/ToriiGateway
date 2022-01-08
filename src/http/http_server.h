@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef HTTP_SERVER_H
-#define HTTP_SERVER_H
+#ifndef TORIIGATEWAY_HTTP_SERVER_H
+#define TORIIGATEWAY_HTTP_SERVER_H
 
 #include <boost/beast/core.hpp>
 #include <boost/beast/http.hpp>
@@ -55,13 +55,11 @@ protected:
 private:
     const std::string m_address = "";
     const uint16_t m_port = 0;
-    const std::string m_cert = "";
-    const std::string m_key = "";
+    const std::string m_certFilePath = "";
+    const std::string m_keyFilePath = "";
 
     bool loadCertificates(boost::asio::ssl::context &ctx,
-                          const std::string &certFile,
-                          const std::string &keyFile,
                           Kitsunemimi::ErrorContainer &error);
 };
 
-#endif // HTTP_SERVER_H
+#endif // TORIIGATEWAY_HTTP_SERVER_H

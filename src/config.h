@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef GATEWAY_CONFIG_H
-#define GATEWAY_CONFIG_H
+#ifndef TORIIGATEWAY_GATEWAY_CONFIG_H
+#define TORIIGATEWAY_GATEWAY_CONFIG_H
 
 #include <filesystem>
 
@@ -82,4 +82,4 @@ validateConfig(Kitsunemimi::ErrorContainer &error)
     return true;
 }
 
-#endif // GATEWAY_CONFIG_H
+#endif // TORIIGATEWAY_GATEWAY_CONFIG_H
