@@ -1,0 +1,61 @@
+# Changelog
+
+## [0.3.0] - 2021-07-30
+
+### Added
+- support request of png-images
+
+### Removed
+- monitoring-endpoint removed
+
+
+### Changed
+
+## [0.2.0] - 2021-03-29
+
+### Changed
+- only use one port for all functionalities to avoid cross-site-scripting problems with policies in web-browser
+
+
+## [0.1.4] - 2021-01-02
+
+### Fixed
+- handling of the websocket for the client was broken
+- in some cases a http-request was broken because of an improper copy of a string
+
+
+## [0.1.3] - 2020-12-12
+
+### Fixed
+- error-code handling for web-sockets
+- close-process for websockets
+
+
+## [0.1.2] - 2020-12-06
+
+### Added
+- some more error-output
+
+### Changed
+- updated client-handling and internal callbacks for current version of libKitsunemimiSakuraMessaging
+
+### Fixed
+- race-condition at the start, which sometime could break the programm
+- added missing try-catch for web-sockets, which could also result in seg-fault
+
+
+## [0.1.1] - 2020-12-05
+
+### Added
+- add support to process POST-requests for control-connection
+
+
+## [0.1.0] - 2020-12-02
+
+### Added
+- initial version
+    - http-session and -server for client, monitoring and control
+    - websocket-session and -server for client and monitoring
+
+
+
