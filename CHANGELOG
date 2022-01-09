@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.4.0] - 2022-01-09
+
+### Changed
+- updated http-requests
+- connection to misaka to validate incomming requesets
+- updated to c++17
+
+
 ## [0.3.0] - 2021-07-30
 
 ### Added
@@ -8,8 +16,6 @@
 ### Removed
 - monitoring-endpoint removed
 
-
-### Changed
 
 ## [0.2.0] - 2021-03-29
 
