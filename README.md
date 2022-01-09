@@ -10,57 +10,44 @@ I write my projects with the Qt-creator, but without Qt itself.
 
 ### Requirements
 
-#### required tools to build
+#### Required build tools
 
 name | repository | version | task
 --- | --- | --- | ---
-clang++ | clang++ | >= 4.0 | Compiler for the C++ code. (compared to the other Kitsunemimi-repositories this project requires clang++ insteadk of g++ because of some special stuff in the boost beast library)
+g++ | g++ | >= 8.0 | Compiler for the C++ code.
 make | make | >= 4.0 | process the make-file, which is created by qmake to build the programm with g++
-qmake | qt5-qmake | >= 5.0 | This package provides the tool qmake, which is similar to cmake and create$
+qmake | qt5-qmake | >= 5.0 | This package provides the tool qmake, which is similar to cmake and create the make-file for compilation.
 FLEX | flex | >= 2.6 | Build the lexer-code for all used parser.
 GNU Bison | bison | >= 3.0 | Build the parser-code together with the lexer-code.
 
-Installation on Ubuntu/Debian:
+#### Required generic libraries
 
-```bash
-sudo apt-get install clang++ make qt5-qmake bison flex
-```
-
-#### required official libraries
-
-repository-name | version | task
---- | --- | ---
-libboost-filesystem-dev | >= 1.60 | Use for file-interactions like for example listing files in a direc$
-boost-beast library | (compiled form source) | 1.7x | provides http-server and websocket-server
+name | repository | version | task
+--- | --- | --- | ---
 ssl library | libssl-dev | 1.1.x | encryption for tls connections
+crpyto++ | libcrypto++-dev | >= 5.6 | provides encryption-functions like AES
+uuid | uuid-dev | >= 2.34 | generate uuid's
+boost-library | libboost1.71-dev | >= 1.71 | provides boost beast library for HTTP and Websocket client
 
-Installation on Ubuntu/Debian:
-
-```bash
-sudo apt-get install libboost-filesystem-dev libssl-dev
-```
-
-This are the version I have installed under Debian Stable via apt. Some older or newer version should w$
-
-IMPORTANT: All my projects are only tested on Linux.
-
-#### Kitsunemimi-repositories
-
-These repositories will be downloaded automatically by the build script of the tool itself (see next section). This list here is only as information to give an overview of all used Kitsunemimi libraries in this project.
+#### Required kitsunemimi libraries
 
 Repository-Name | Version-Tag | Download-Path
 --- | --- | ---
-libKitsunemimiCommon | v0.18.0 |  https://github.com/kitsudaiki/libKitsunemimiCommon.git
-libKitsunemimiPersistence | v0.10.2 | https://github.com/kitsudaiki/libKitsunemimiPersistence.git
-libKitsunemimiJson | v0.10.6 | https://github.com/kitsudaiki/libKitsunemimiJson.git
-libKitsunemimiJinja2 | v0.8.1 | https://github.com/kitsudaiki/libKitsunemimiJinja2.git
-libKitsunemimiIni | v0.4.7 | https://github.com/kitsudaiki/libKitsunemimiIni.git
-libKitsunemimiArgs | v0.2.2 | https://github.com/kitsudaiki/libKitsunemimiArgs.git
-libKitsunemimiConfig | v0.2.3 | https://github.com/kitsudaiki/libKitsunemimiConfig.git
-libKitsunemimiSakuraLang | v0.8.0 | https://github.com/kitsudaiki/libKitsunemimiSakuraLang.git
-libKitsunemimiNetwork | v0.6.6 | https://github.com/kitsudaiki/libKitsunemimiNetwork.git
-libKitsunemimiSakuraNetwork | v0.6.0 | https://github.com/kitsudaiki/libKitsunemimiSakuraNetwork.git
-libKitsunemimiSakuraMessaging | v0.4.1 | -
+libKitsunemimiCommon | v0.25.1 |  https://github.com/kitsudaiki/libKitsunemimiCommon.git
+libKitsunemimiJson | v0.11.3 |  https://github.com/kitsudaiki/libKitsunemimiJson.git
+libKitsunemimiJinja2 | v0.9.1 |  https://github.com/kitsudaiki/libKitsunemimiJinja2.git
+libKitsunemimiIni | v0.5.1 |  https://github.com/kitsudaiki/libKitsunemimiIni.git
+libKitsunemimiNetwork | v0.8.2 |  https://github.com/kitsudaiki/libKitsunemimiNetwork.git
+libKitsunemimiArgs | v0.4.0 |  https://github.com/kitsudaiki/libKitsunemimiArgs.git
+libKitsunemimiConfig | v0.4.0 |  https://github.com/kitsudaiki/libKitsunemimiConfig.git
+libKitsunemimiCrypto | v0.2.0 |  -
+libKitsunemimiJwt | v0.4.1 |  -
+libKitsunemimiSakuraNetwork | v0.8.2 |  https://github.com/kitsudaiki/libKitsunemimiSakuraNetwork.git
+libKitsunemimiSakuraLang | v0.12.0 |  https://github.com/kitsudaiki/libKitsunemimiSakuraLang.git
+libKitsunemimiHanamiCommon | v0.1.0 |  -
+libKitsunemimiHanamiEndpoints | v0.1.0 |  -
+libKitsunemimiHanamiMessaging | v0.2.0 |  -
+libKitsunemimiHanamiPredefinitions | v0.1.0 |  -
 
 ### build programm
 
