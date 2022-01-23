@@ -22,7 +22,7 @@
 
 #include "http_server.h"
 
-#include <gateway.h>
+#include <torii_root.h>
 
 #include <http/http_processing/http_session.h>
 #include <http/http_thread.h>
@@ -141,7 +141,7 @@ HttpServer::run()
 
             // process http-request within an already existing thread
             HttpRequestEvent* event = new HttpRequestEvent(std::move(socket), std::ref(ctx));
-            Gateway::requestQueue->addRequest(event);
+            ToriiGateway::requestQueue->addRequest(event);
         }
     }
     catch (const std::exception& e)

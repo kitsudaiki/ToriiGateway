@@ -22,18 +22,19 @@
 
 #include <iostream>
 
-#include <gateway.h>
 #include <config.h>
 #include <args.h>
 #include <thread>
+#include <callbacks.h>
+#include <torii_root.h>
 
-#include <libKitsunemimiArgs/arg_parser.h>
-#include <libKitsunemimiCommon/logger.h>
-#include <libKitsunemimiConfig/config_handler.h>
 #include <libKitsunemimiHanamiCommon/generic_main.h>
+#include <libKitsunemimiHanamiMessaging/hanami_messaging.h>
 #include <libKitsunemimiHanamiPredefinitions/init_predefined_blossoms.h>
 
+using Kitsunemimi::Hanami::HanamiMessaging;
 using Kitsunemimi::Hanami::initMain;
+using Kitsunemimi::Sakura::Session;
 
 int main(int argc, char *argv[])
 {
@@ -43,25 +44,22 @@ int main(int argc, char *argv[])
     }
 
     Kitsunemimi::Hanami::initPredefinedBlossoms();
+    // initialize server and connections based on the config-file
+    const std::vector<std::string> groupNames = { "misaka", "azuki", "sagiri", "kyouko"};
+    if(HanamiMessaging::getInstance()->initialize("torii",
+                                                  groupNames,
+                                                  nullptr,
+                                                  &streamForwardCallback,
+                                                  error,
+                                                  true) == false)
+    {
+        LOG_ERROR(error);
+        return 1;
+    }
 
     // init gateway
-    Gateway gateway;
-    if(gateway.initHttpServer() == false)
-    {
-        error.addMeesage("initializing http-server failed");
-        LOG_ERROR(error);
-        return 1;
-    }
-    if(gateway.initWebSocketServer() == false)
-    {
-        error.addMeesage("initializing websocket-server failed");
-        LOG_ERROR(error);
-        return 1;
-    }
-    if(gateway.initInternalSession(error) == false)
-    {
-        error.addMeesage("initializing connection to backend failed");
-        LOG_ERROR(error);
+    ToriiGateway rootObj;
+    if(rootObj.init() == false) {
         return 1;
     }
 

@@ -1,5 +1,5 @@
 /**
- * @file        gateway.h
+ * @file        torii_root.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef TORIIGATEWAY_GATEWAYSERVER_H
-#define TORIIGATEWAY_GATEWAYSERVER_H
+#ifndef TORIIGATEWAY_TORIIROOT_H
+#define TORIIGATEWAY_TORIIROOT_H
 
 #include <iostream>
 #include <map>
@@ -33,14 +33,12 @@ class HttpServer;
 class HttpThread;
 class RequestQueue;
 
-class Gateway
+class ToriiGateway
 {
 public:
-    Gateway();
+    ToriiGateway();
 
-    bool initInternalSession(Kitsunemimi::ErrorContainer &error);
-    bool initWebSocketServer();
-    bool initHttpServer();
+    bool init();
 
     WebSocketServer* websocketServer = nullptr;
     HttpServer* httpServer = nullptr;
@@ -48,6 +46,10 @@ public:
 
 private:
     std::vector<HttpThread*> m_threads;
+
+    bool initWebSocketServer();
+    bool initHttpServer();
+    bool initSakuraServer();
 };
 
-#endif // TORIIGATEWAY_GATEWAYSERVER_H
+#endif // TORIIGATEWAY_TORIIROOT_H
