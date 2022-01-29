@@ -22,7 +22,7 @@
 
 #include "web_socket_session.h"
 
-#include <gateway.h>
+#include <torii_root.h>
 #include <websocket/web_socket_server.h>
 
 #include <libKitsunemimiHanamiMessaging/hanami_messaging.h>

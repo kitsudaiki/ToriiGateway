@@ -21,7 +21,7 @@
  */
 
 #include "http_session.h"
-#include <gateway.h>
+#include <torii_root.h>
 #include <http/http_processing/file_send.h>
 #include <http/http_processing/response_builds.h>
 #include <http/http_processing/string_functions.h>
@@ -33,9 +33,12 @@
 #include <libKitsunemimiCommon/logger.h>
 #include <libKitsunemimiCommon/common_methods/string_methods.h>
 
+#include <libKitsunemimiSakuraLang/sakura_lang_interface.h>
+
 #include <libKitsunemimiHanamiMessaging/hanami_messaging.h>
 
 using Kitsunemimi::Hanami::HanamiMessaging;
+using Kitsunemimi::Sakura::SakuraLangInterface;
 
 /**
  * @brief constructor
@@ -328,6 +331,56 @@ HttpRequestEvent::checkPermission(const std::string &token,
 }
 
 /**
+ * @brief handle api-request within the torii
+ *
+ * @param hanamiRequest request-data
+ * @param responseMsg reference for the response-message
+ * @param error reference for error-ourpur
+ */
+void
+HttpRequestEvent::internalRequest(const Kitsunemimi::Hanami::RequestMessage &hanamiRequest,
+                                  Kitsunemimi::Hanami::ResponseMessage &responseMsg,
+                                  Kitsunemimi::ErrorContainer &error)
+{
+    SakuraLangInterface* interface = SakuraLangInterface::getInstance();
+    Kitsunemimi::DataMap result;
+    Kitsunemimi::DataMap context;
+    Kitsunemimi::Sakura::BlossomStatus status;
+
+    // parse json-formated input values
+    Kitsunemimi::Json::JsonItem inputValues;
+    if(inputValues.parse(hanamiRequest.inputValues, error) == false)
+    {
+        responseMsg.success = false;
+        responseMsg.type = Kitsunemimi::Hanami::BAD_REQUEST_RTYPE;
+        return;
+    }
+
+    // remove token from request, with would be normally done by the messaging-lib
+    Kitsunemimi::DataMap* inputs = inputValues.getItemContent()->toMap();
+    inputs->remove("token");
+
+    // trigger blossom within the torii
+    if(interface->triggerBlossom(result,
+                                 hanamiRequest.id,
+                                 "proxy",
+                                 context,
+                                 *inputs,
+                                 status,
+                                 error) == false)
+    {
+        responseMsg.success = false;
+        responseMsg.type = static_cast<HttpResponseTypes>(status.statusCode);
+        responseMsg.responseContent = status.errorMessage;
+        return;
+    }
+
+    responseMsg.success = true;
+
+    return;
+}
+
+/**
  * @brief process control request
  *
  * @param uri requested uri
@@ -349,7 +402,20 @@ HttpRequestEvent::processControlRequest(const std::string &uri,
     Kitsunemimi::Hanami::RequestMessage hanamiRequest;
     Kitsunemimi::Hanami::ResponseMessage hanamiResponse;
     HanamiMessaging* messaging = HanamiMessaging::getInstance();
-    LOG_DEBUG("process uir: \'" + uri + "\'");
+    std::string stringType = "";
+    if(httpType == HttpRequestType::GET_TYPE) {
+        stringType = "get";
+    }
+    if(httpType == HttpRequestType::POST_TYPE) {
+        stringType = "post";
+    }
+    if(httpType == HttpRequestType::PUT_TYPE) {
+        stringType = "put";
+    }
+    if(httpType == HttpRequestType::DELETE_TYPE) {
+        stringType = "delete";
+    }
+    LOG_DEBUG("process uri: \'" + uri + "\' with type '" + stringType + "'");
 
     // parse uri
     hanamiRequest.httpType = httpType;
@@ -377,9 +443,16 @@ HttpRequestEvent::processControlRequest(const std::string &uri,
                                           hanamiResponse.responseContent);
     }
 
-    // make real request
-    if(messaging->triggerSakuraFile(target, hanamiResponse, hanamiRequest, error) == false) {
-        return internalError_ResponseBuild(m_httpResponse, error);
+    if(target == "torii")
+    {
+        internalRequest(hanamiRequest, hanamiResponse, error);
+    }
+    else
+    {
+        // make real request
+        if(messaging->triggerSakuraFile(target, hanamiResponse, hanamiRequest, error) == false) {
+            return internalError_ResponseBuild(m_httpResponse, error);
+        }
     }
 
     // handle error-response

@@ -23,48 +23,22 @@
 #ifndef TORIIGATEWAY_CALLBACKS_H
 #define TORIIGATEWAY_CALLBACKS_H
 
-#include <gateway.h>
+#include <stdint.h>
 
-#include <libKitsunemimiHanamiMessaging/hanami_messaging.h>
-
-#include <websocket/web_socket_server.h>
-#include <websocket/web_socket_session.h>
-#include <http/http_server.h>
-
-/**
- * @brief callback for stream-messages for the client
- *
- * @param target pointer to the Gateway-instance
- * @param data incoming data
- * @param dataSize number of incoming bytes
- */
-void
-clientDataCallback(void* sessionPtr,
-                   Kitsunemimi::Sakura::Session*,
-                   const void* data,
-                   const uint64_t dataSize)
-{
-    const std::string text(static_cast<const char*>(data), dataSize);
-
-    // forward content to client
-    WebSocketSession* session = static_cast<WebSocketSession*>(sessionPtr);
-    if(session != nullptr) {
-        session->sendText(text);
-    }
+namespace Kitsunemimi {
+namespace Sakura {
+class Session;
+}
 }
 
-/**
- * @brief streamDataCallback
- * @param data
- * @param dataSize
- */
-void
-streamDataCallback(void*,
-                   Kitsunemimi::Sakura::Session*,
-                   const void*,
-                   const uint64_t)
-{
+void clientDataCallback(void*,
+                        Kitsunemimi::Sakura::Session*,
+                        const void* data,
+                        const uint64_t dataSize);
 
-}
+void streamForwardCallback(void* target,
+                           Kitsunemimi::Sakura::Session*,
+                           const void* data,
+                           const uint64_t dataSize);
 
 #endif // TORIIGATEWAY_CALLBACKS_H

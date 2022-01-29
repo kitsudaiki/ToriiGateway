@@ -1,11 +1,11 @@
 /**
- * @file        http_thread.cpp
+ * @file        forward_session.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
  * @copyright   Apache License Version 2.0
  *
- *      Copyright 2019 Tobias Anker
+ *      Copyright 2021 Tobias Anker
  *
  *      Licensed under the Apache License, Version 2.0 (the "License");
  *      you may not use this file except in compliance with the License.
@@ -20,38 +20,22 @@
  *      limitations under the License.
  */
 
-#include "http_thread.h"
+#ifndef TORIIGATEWAY_FORWARD_SESSION_H
+#define TORIIGATEWAY_FORWARD_SESSION_H
 
-#include <torii_root.h>
-#include <http/request_queue.h>
-#include <http/http_processing/http_session.h>
+#include <libKitsunemimiSakuraLang/blossom.h>
 
-#include <libKitsunemimiCommon/threading/event.h>
-
-/**
- * @brief constructor
- */
-HttpThread::HttpThread(const std::string &threadName)
-    : Kitsunemimi::Thread(threadName) {}
-
-/**
- * @brief HttpThread::run
- */
-void
-HttpThread::run()
+class ForwardSession
+        : public Kitsunemimi::Sakura::Blossom
 {
-    while(m_abort == false)
-    {
-        Kitsunemimi::Event* event = ToriiGateway::requestQueue->getRequest();
-        if(event != nullptr)
-        {
-            event->processEvent();
-            delete event;
-        }
-        else
-        {
-            sleepThread(10000);
-        }
-    }
-}
+public:
+    ForwardSession();
 
+protected:
+    bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf,
+                 const Kitsunemimi::DataMap &,
+                 Kitsunemimi::Sakura::BlossomStatus &status,
+                 Kitsunemimi::ErrorContainer &error);
+};
+
+#endif // TORIIGATEWAY_FORWARD_SESSION_H
