@@ -62,3 +62,12 @@ streamForwardCallback(void* target,
     Kitsunemimi::Sakura::Session* tSession = static_cast<Kitsunemimi::Sakura::Session*>(target);
     tSession->sendStreamData(data, dataSize, error);
 }
+
+
+void genericCallback(Kitsunemimi::Sakura::Session*,
+                     const void*,
+                     const uint64_t,
+                     const uint64_t)
+{
+
+}
