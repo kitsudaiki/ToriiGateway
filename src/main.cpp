@@ -50,6 +50,7 @@ int main(int argc, char *argv[])
                                                   groupNames,
                                                   nullptr,
                                                   &streamForwardCallback,
+                                                  &genericCallback,
                                                   error,
                                                   true) == false)
     {
