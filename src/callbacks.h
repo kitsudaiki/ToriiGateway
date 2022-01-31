@@ -26,6 +26,9 @@
 #include <stdint.h>
 
 namespace Kitsunemimi {
+namespace Json {
+class JsonItem;
+}
 namespace Sakura {
 class Session;
 }
@@ -42,8 +45,7 @@ void streamForwardCallback(void* target,
                            const uint64_t dataSize);
 
 void genericCallback(Kitsunemimi::Sakura::Session*,
-                     const void*,
-                     const uint64_t,
+                     const Kitsunemimi::Json::JsonItem&,
                      const uint64_t);
 
 #endif // TORIIGATEWAY_CALLBACKS_H

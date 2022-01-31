@@ -22,6 +22,8 @@
 
 #include <callbacks.h>
 
+#include <libKitsunemimiJson/json_item.h>
+
 #include <libKitsunemimiSakuraNetwork/session.h>
 
 /**
@@ -65,8 +67,7 @@ streamForwardCallback(void* target,
 
 
 void genericCallback(Kitsunemimi::Sakura::Session*,
-                     const void*,
-                     const uint64_t,
+                     const Kitsunemimi::Json::JsonItem&,
                      const uint64_t)
 {
 
