@@ -30,7 +30,8 @@
 
 #include <libKitsunemimiHanamiCommon/generic_main.h>
 #include <libKitsunemimiHanamiMessaging/hanami_messaging.h>
-#include <libKitsunemimiHanamiPredefinitions/init_predefined_blossoms.h>
+
+#include <libAzukiHeart/azuki_input.h>
 
 using Kitsunemimi::Hanami::HanamiMessaging;
 using Kitsunemimi::Hanami::initMain;
@@ -43,7 +44,9 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    Kitsunemimi::Hanami::initPredefinedBlossoms();
+    // init included components
+    Azuki::initAzukiBlossoms();
+
     // initialize server and connections based on the config-file
     const std::vector<std::string> groupNames = { "misaka", "azuki", "sagiri", "kyouko"};
     if(HanamiMessaging::getInstance()->initialize("torii",
