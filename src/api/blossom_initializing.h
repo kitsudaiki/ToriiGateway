@@ -36,7 +36,7 @@ using Kitsunemimi::Sakura::SakuraLangInterface;
  * @brief init special blossoms
  */
 void
-proxyBlossoms()
+dataSetBlossoms()
 {
     SakuraLangInterface* interface = SakuraLangInterface::getInstance();
     const std::string group = "proxy";
@@ -47,7 +47,7 @@ proxyBlossoms()
 void
 initBlossoms()
 {
-    proxyBlossoms();
+    dataSetBlossoms();
 }
 
 #endif // SAGIRIARCHIVE_BLOSSOM_INITIALIZING_H

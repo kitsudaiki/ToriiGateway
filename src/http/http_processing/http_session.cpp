@@ -404,16 +404,16 @@ HttpRequestEvent::processControlRequest(const std::string &uri,
     HanamiMessaging* messaging = HanamiMessaging::getInstance();
     std::string stringType = "";
     if(httpType == HttpRequestType::GET_TYPE) {
-        stringType = "get";
+        stringType = "GET";
     }
     if(httpType == HttpRequestType::POST_TYPE) {
-        stringType = "post";
+        stringType = "POST";
     }
     if(httpType == HttpRequestType::PUT_TYPE) {
-        stringType = "put";
+        stringType = "PUT";
     }
     if(httpType == HttpRequestType::DELETE_TYPE) {
-        stringType = "delete";
+        stringType = "DELETE";
     }
     LOG_DEBUG("process uri: \'" + uri + "\' with type '" + stringType + "'");
 
