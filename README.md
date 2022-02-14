@@ -33,7 +33,7 @@ boost-library | libboost1.71-dev | >= 1.71 | provides boost beast library for HT
 
 Repository-Name | Version-Tag | Download-Path
 --- | --- | ---
-libKitsunemimiCommon | v0.25.1 |  https://github.com/kitsudaiki/libKitsunemimiCommon.git
+libKitsunemimiCommon | v0.25.3 |  https://github.com/kitsudaiki/libKitsunemimiCommon.git
 libKitsunemimiJson | v0.11.3 |  https://github.com/kitsudaiki/libKitsunemimiJson.git
 libKitsunemimiJinja2 | v0.9.1 |  https://github.com/kitsudaiki/libKitsunemimiJinja2.git
 libKitsunemimiIni | v0.5.1 |  https://github.com/kitsudaiki/libKitsunemimiIni.git
@@ -42,11 +42,11 @@ libKitsunemimiArgs | v0.4.0 |  https://github.com/kitsudaiki/libKitsunemimiArgs.
 libKitsunemimiConfig | v0.4.0 |  https://github.com/kitsudaiki/libKitsunemimiConfig.git
 libKitsunemimiCrypto | v0.2.0 |  -
 libKitsunemimiJwt | v0.4.1 |  -
-libKitsunemimiSakuraNetwork | v0.8.2 |  https://github.com/kitsudaiki/libKitsunemimiSakuraNetwork.git
+libKitsunemimiSakuraNetwork | v0.8.4 |  https://github.com/kitsudaiki/libKitsunemimiSakuraNetwork.git
 libKitsunemimiSakuraLang | v0.12.0 |  https://github.com/kitsudaiki/libKitsunemimiSakuraLang.git
 libKitsunemimiHanamiCommon | v0.1.0 |  -
 libKitsunemimiHanamiEndpoints | v0.1.0 |  -
-libKitsunemimiHanamiMessaging | v0.2.0 |  -
+libKitsunemimiHanamiMessaging | v0.3.0 |  -
 libKitsunemimiHanamiPredefinitions | v0.1.0 |  -
 
 ### build programm
