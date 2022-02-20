@@ -36,8 +36,10 @@
 #include <libKitsunemimiSakuraLang/sakura_lang_interface.h>
 
 #include <libKitsunemimiHanamiMessaging/hanami_messaging.h>
+#include <libKitsunemimiHanamiMessaging/hanami_messaging_client.h>
 
 using Kitsunemimi::Hanami::HanamiMessaging;
+using Kitsunemimi::Hanami::HanamiMessagingClient;
 using Kitsunemimi::Sakura::SakuraLangInterface;
 
 /**
@@ -269,9 +271,16 @@ HttpRequestEvent::requestToken(const std::string &target,
                                Kitsunemimi::ErrorContainer &error)
 {
     HanamiMessaging* messaging = HanamiMessaging::getInstance();
+    HanamiMessagingClient* client = messaging->getOutgoingClient(target);
+    if(client == nullptr)
+    {
+        return genericError_ResponseBuild(m_httpResponse,
+                                          hanamiResponse.type,
+                                          "Client '" + target + "' not found");
+    }
 
     // make token-request
-    if(messaging->triggerSakuraFile(target, hanamiResponse, hanamiRequest, error) == false)
+    if(client->triggerSakuraFile(hanamiResponse, hanamiRequest, error) == false)
     {
         return genericError_ResponseBuild(m_httpResponse,
                                           hanamiResponse.type,
@@ -327,7 +336,12 @@ HttpRequestEvent::checkPermission(const std::string &token,
     requestMsg.httpType = HttpRequestType::GET_TYPE;
 
     HanamiMessaging* messaging = HanamiMessaging::getInstance();
-    return messaging->triggerSakuraFile("misaka", responseMsg, requestMsg, error);
+    if(messaging->misakaClient == nullptr)
+    {
+        // TODO: handle error
+        return false;
+    }
+    return messaging->misakaClient->triggerSakuraFile(responseMsg, requestMsg, error);
 }
 
 /**
@@ -449,8 +463,16 @@ HttpRequestEvent::processControlRequest(const std::string &uri,
     }
     else
     {
+        HanamiMessagingClient* client = messaging->getOutgoingClient(target);
+        if(client == nullptr)
+        {
+            return genericError_ResponseBuild(m_httpResponse,
+                                              hanamiResponse.type,
+                                              "Client '" + target + "' not found");
+        }
+
         // make real request
-        if(messaging->triggerSakuraFile(target, hanamiResponse, hanamiRequest, error) == false) {
+        if(client->triggerSakuraFile(hanamiResponse, hanamiRequest, error) == false) {
             return internalError_ResponseBuild(m_httpResponse, error);
         }
     }

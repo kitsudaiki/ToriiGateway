@@ -66,9 +66,10 @@ streamForwardCallback(void* target,
 }
 
 
-void genericCallback(Kitsunemimi::Sakura::Session*,
-                     const Kitsunemimi::Json::JsonItem&,
-                     const uint64_t)
+void
+genericCallback(Kitsunemimi::Sakura::Session*,
+                const Kitsunemimi::Json::JsonItem&,
+                const uint64_t)
 {
 
 }
