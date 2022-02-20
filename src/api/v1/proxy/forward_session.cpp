@@ -23,8 +23,8 @@
 #include "forward_session.h"
 
 #include <libKitsunemimiHanamiMessaging/hanami_messaging.h>
+#include <libKitsunemimiHanamiMessaging/hanami_messaging_client.h>
 #include <libKitsunemimiHanamiCommon/enums.h>
-#include <libKitsunemimiSakuraNetwork/session.h>
 
 #include <callbacks.h>
 
@@ -71,7 +71,7 @@ ForwardSession::runTask(Sakura::BlossomLeaf &blossomLeaf,
     Hanami::HanamiMessaging* messageInterface = Hanami::HanamiMessaging::getInstance();
 
     // get source-session by name
-    Sakura::Session* sourceSession = messageInterface->getIncomingSession(sourceName);
+    Hanami::HanamiMessagingClient* sourceSession = messageInterface->getIncomingClient(sourceName);
     if(sourceSession == nullptr)
     {
         status.statusCode = Hanami::NOT_FOUND_RTYPE;
@@ -81,7 +81,7 @@ ForwardSession::runTask(Sakura::BlossomLeaf &blossomLeaf,
     }
 
     // get target-session by name
-    Sakura::Session* targetSession = messageInterface->getOutgoingSession(targetName);
+    Hanami::HanamiMessagingClient* targetSession = messageInterface->getOutgoingClient(targetName);
     if(targetSession == nullptr)
     {
         status.statusCode = Hanami::NOT_FOUND_RTYPE;
@@ -89,7 +89,5 @@ ForwardSession::runTask(Sakura::BlossomLeaf &blossomLeaf,
         error.addMeesage(status.errorMessage);
     }
 
-    sourceSession->setStreamCallback(targetSession, &streamForwardCallback);
-
-    return true;
+    return sourceSession->setStreamCallback(targetSession, &streamForwardCallback);
 }
