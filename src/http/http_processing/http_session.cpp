@@ -38,6 +38,8 @@
 #include <libKitsunemimiHanamiMessaging/hanami_messaging.h>
 #include <libKitsunemimiHanamiMessaging/hanami_messaging_client.h>
 
+#include <libSagiriArchive/sagiri_send.h>
+
 using Kitsunemimi::Hanami::HanamiMessaging;
 using Kitsunemimi::Hanami::HanamiMessagingClient;
 using Kitsunemimi::Sakura::SakuraLangInterface;
@@ -416,20 +418,6 @@ HttpRequestEvent::processControlRequest(const std::string &uri,
     Kitsunemimi::Hanami::RequestMessage hanamiRequest;
     Kitsunemimi::Hanami::ResponseMessage hanamiResponse;
     HanamiMessaging* messaging = HanamiMessaging::getInstance();
-    std::string stringType = "";
-    if(httpType == HttpRequestType::GET_TYPE) {
-        stringType = "GET";
-    }
-    if(httpType == HttpRequestType::POST_TYPE) {
-        stringType = "POST";
-    }
-    if(httpType == HttpRequestType::PUT_TYPE) {
-        stringType = "PUT";
-    }
-    if(httpType == HttpRequestType::DELETE_TYPE) {
-        stringType = "DELETE";
-    }
-    LOG_DEBUG("process uri: \'" + uri + "\' with type '" + stringType + "'");
 
     // parse uri
     hanamiRequest.httpType = httpType;
@@ -457,6 +445,19 @@ HttpRequestEvent::processControlRequest(const std::string &uri,
                                           hanamiResponse.responseContent);
     }
 
+    // parse response to get user-uuid of the token
+    Kitsunemimi::Json::JsonItem userData;
+    if(userData.parse(hanamiResponse.responseContent, error) == false) {
+        return internalError_ResponseBuild(m_httpResponse, error);
+    }
+
+    // send audit-message to sagiri
+    Sagiri::sendAuditMessage(target,
+                             hanamiRequest.id,
+                             userData.get("uuid").getString(),
+                             hanamiRequest.httpType);
+
+    // forward real request
     if(target == "torii")
     {
         internalRequest(hanamiRequest, hanamiResponse, error);
