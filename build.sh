@@ -108,6 +108,7 @@ echo ""
 echo "###########################################################################################################"
 echo ""
 get_required_private_repo_gitlab "libAzukiHeart" "v0.1.0" "glpat-R3vZd81MXGVUTSxgHz1q" 8
+get_required_private_repo_gitlab "libSagiriArchive" "master" "glpat-dCkDLv96JmBscfZey4zJ" 8
 echo ""
 echo "###########################################################################################################"
 
