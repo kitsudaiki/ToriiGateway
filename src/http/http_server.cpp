@@ -26,7 +26,6 @@
 
 #include <http/http_processing/http_session.h>
 #include <http/http_thread.h>
-#include <http/request_queue.h>
 
 #include <libKitsunemimiCommon/logger.h>
 #include <libKitsunemimiCommon/files/text_file.h>
@@ -44,6 +43,7 @@ HttpServer::HttpServer(const std::string &address,
                        const std::string &certFilePath,
                        const std::string &keyFilePath)
     : Kitsunemimi::Thread("HttpServer"),
+      m_ctx{boost::asio::ssl::context::tlsv12},
       m_address(address),
       m_port(port),
       m_certFilePath(certFilePath),
@@ -125,8 +125,7 @@ HttpServer::run()
         const net::ip::address address = net::ip::make_address(m_address);
         net::io_context ioc{1};
         tcp::acceptor acceptor{ioc, {address, m_port}};
-        boost::asio::ssl::context ctx{boost::asio::ssl::context::tlsv12};
-        const bool loadResult = loadCertificates(ctx, error);
+        const bool loadResult = loadCertificates(m_ctx, error);
         if(loadResult == false)
         {
             LOG_ERROR(error);
@@ -136,12 +135,9 @@ HttpServer::run()
         while(m_abort == false)
         {
             // create socket-object for incoming connection
-            tcp::socket socket{ioc};
-            acceptor.accept(socket);
-
-            // process http-request within an already existing thread
-            HttpRequestEvent* event = new HttpRequestEvent(std::move(socket), std::ref(ctx));
-            ToriiGateway::requestQueue->addRequest(event);
+            tcp::socket* socket = new tcp::socket{ioc};
+            acceptor.accept(*socket);
+            addSocket(socket);
         }
     }
     catch (const std::exception& e)
@@ -149,4 +145,36 @@ HttpServer::run()
         error.addMeesage("Error: " + std::string(e.what()));
         LOG_ERROR(error);
     }
+}
+
+/**
+ * @brief get socket from the queue
+ *
+ * @return socket
+ */
+tcp::socket*
+HttpServer::getSocket()
+{
+    std::lock_guard<std::mutex> guard(m_queueMutex);
+
+    tcp::socket* result = nullptr;
+    if(m_queue.size() > 0)
+    {
+        result = m_queue.front();
+        m_queue.pop_front();
+    }
+
+    return result;
+}
+
+/**
+ * @brief add socket to queue
+ *
+ * @param socket new socket for the queue
+ */
+void
+HttpServer::addSocket(tcp::socket* socket)
+{
+    std::lock_guard<std::mutex> guard(m_queueMutex);
+    m_queue.push_back(socket);
 }

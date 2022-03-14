@@ -93,7 +93,6 @@ SOURCES += \
         src/api/v1/proxy/forward_session.cpp \
         src/callbacks.cpp \
         src/http/http_processing/file_send.cpp \
-        src/http/request_queue.cpp \
         src/http/http_processing/string_functions.cpp \
         src/main.cpp \
         src/torii_root.cpp \
@@ -108,7 +107,6 @@ HEADERS += \
         src/api/v1/proxy/forward_session.h \
         src/args.h \
         src/http/http_processing/file_send.h \
-        src/http/request_queue.h \
         src/http/http_processing/response_builds.h \
         src/http/http_processing/string_functions.h \
         src/torii_root.h \

@@ -47,13 +47,13 @@ using Kitsunemimi::Sakura::SakuraLangInterface;
 /**
  * @brief constructor
  */
-HttpRequestEvent::HttpRequestEvent(tcp::socket &&socket,
+HttpRequestEvent::HttpRequestEvent(tcp::socket* socket,
                                    boost::asio::ssl::context &ctx)
-    : m_socket(std::move(socket)),
-      m_stream{m_socket, ctx} // the stupid template of the constructor for the variable m_stream
-                              // doesn't accept the std::move function. Because result of std::move
-                              // have to be written into it own variable first, before using this
-                              // for the m_stream varible. So the order of these two is important!
+    : m_socket(socket),
+      m_stream{*m_socket, ctx} // the stupid template of the constructor for the variable m_stream
+                                // doesn't accept the std::move function. Because result of std::move
+                                // have to be written into it own variable first, before using this
+                                // for the m_stream varible. So the order of these two is important!
 {
     // Perform the SSL handshake
     beast::error_code ec;

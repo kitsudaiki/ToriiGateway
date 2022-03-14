@@ -31,7 +31,6 @@
 class WebSocketServer;
 class HttpServer;
 class HttpThread;
-class RequestQueue;
 
 class ToriiGateway
 {
@@ -41,8 +40,7 @@ public:
     bool init();
 
     WebSocketServer* websocketServer = nullptr;
-    HttpServer* httpServer = nullptr;
-    static RequestQueue* requestQueue;
+    static HttpServer* httpServer;
 
 private:
     std::vector<HttpThread*> m_threads;

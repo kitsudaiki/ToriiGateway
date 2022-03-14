@@ -27,6 +27,7 @@
 #include <boost/beast/http.hpp>
 #include <boost/beast/version.hpp>
 #include <boost/beast/ssl.hpp>
+#include <boost/asio/ip/tcp.hpp>
 
 #include <chrono>
 #include <cstdlib>
@@ -34,9 +35,13 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <mutex>
+#include <deque>
 
 #include <libKitsunemimiCommon/threading/thread.h>
 #include <libKitsunemimiCommon/logger.h>
+
+using tcp = boost::asio::ip::tcp;
 
 class HttpThread;
 
@@ -49,6 +54,11 @@ public:
                const std::string &cert,
                const std::string &key);
 
+    boost::asio::ssl::context m_ctx;
+
+    tcp::socket* getSocket();
+    void addSocket(tcp::socket* socket);
+
 protected:
     void run();
 
@@ -57,6 +67,9 @@ private:
     const uint16_t m_port = 0;
     const std::string m_certFilePath = "";
     const std::string m_keyFilePath = "";
+
+    std::deque<tcp::socket*> m_queue;
+    std::mutex m_queueMutex;
 
     bool loadCertificates(boost::asio::ssl::context &ctx,
                           Kitsunemimi::ErrorContainer &error);

@@ -23,7 +23,7 @@
 #include "http_thread.h"
 
 #include <torii_root.h>
-#include <http/request_queue.h>
+#include <http/http_server.h>
 #include <http/http_processing/http_session.h>
 
 #include <libKitsunemimiCommon/threading/event.h>
@@ -42,11 +42,12 @@ HttpThread::run()
 {
     while(m_abort == false)
     {
-        Kitsunemimi::Event* event = ToriiGateway::requestQueue->getRequest();
-        if(event != nullptr)
+        tcp::socket* socket = ToriiGateway::httpServer->getSocket();
+        if(socket != nullptr)
         {
-            event->processEvent();
-            delete event;
+            HttpRequestEvent event(socket, std::ref(ToriiGateway::httpServer->m_ctx));
+            event.processEvent();
+            delete socket;
         }
         else
         {

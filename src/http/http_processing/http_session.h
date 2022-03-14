@@ -60,7 +60,7 @@ class HttpRequestEvent
         : public Kitsunemimi::Event
 {
 public:
-    HttpRequestEvent(tcp::socket &&socket,
+    HttpRequestEvent(tcp::socket* socket,
                      boost::asio::ssl::context &ctx);
 
     bool processEvent();
@@ -77,7 +77,7 @@ private:
         bool containsValues = false;
     };
 
-    tcp::socket m_socket;
+    tcp::socket* m_socket;
     beast::ssl_stream<tcp::socket&> m_stream;
     http::request<http::string_body> m_httpRequest;
     http::response<http::dynamic_body> m_httpResponse;

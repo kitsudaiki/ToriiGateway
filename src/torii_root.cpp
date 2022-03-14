@@ -22,7 +22,6 @@
 
 #include "torii_root.h"
 
-#include <http/request_queue.h>
 #include <http/http_thread.h>
 
 #include <libKitsunemimiCommon/buffer/data_buffer.h>
@@ -41,7 +40,7 @@ using Kitsunemimi::Hanami::HanamiMessaging;
 #include <http/http_server.h>
 #include <api/blossom_initializing.h>
 
-RequestQueue* ToriiGateway::requestQueue = new RequestQueue();
+HttpServer* ToriiGateway::httpServer = nullptr;
 
 /**
  * @brief constructor
@@ -134,6 +133,11 @@ ToriiGateway::initHttpServer()
     const std::string key =          GET_STRING_CONFIG( "http", "key",               success);
     const uint32_t numberOfThreads = GET_INT_CONFIG(    "http", "number_of_threads", success);
 
+
+    // create server
+    httpServer = new HttpServer(ip, port, cert, key);
+    httpServer->startThread();
+
     // start threads
     for(uint32_t i = 0; i < numberOfThreads; i++)
     {
@@ -142,10 +146,6 @@ ToriiGateway::initHttpServer()
         httpThread->startThread();
         m_threads.push_back(httpThread);
     }
-
-    // create server
-    httpServer = new HttpServer(ip, port, cert, key);
-    httpServer->startThread();
 
     return true;
 }
