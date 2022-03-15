@@ -67,19 +67,7 @@ WebSocketServer::run()
             acceptor.accept(socket);
             counter++;
 
-            // initialize session
-            const std::string name = "WebSocketSession_" + std::to_string(counter);
-            WebSocketSession* session = new WebSocketSession(std::move(socket), name);
-            const bool ret = session->initSessionToBackend("test");
-            if(ret)
-            {
-                m_sessions.push_back(session);
-                session->startThread();
-            }
-            else
-            {
-                delete session;
-            }
+
         }
     }
     catch (const std::exception& e)

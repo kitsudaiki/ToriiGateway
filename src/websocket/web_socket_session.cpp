@@ -35,26 +35,53 @@ using Kitsunemimi::Hanami::HanamiMessaging;
 /**
  * @brief constructor
  */
-WebSocketSession::WebSocketSession(tcp::socket &&socket, const std::string &threadName)
+WebSocketSession::WebSocketSession(beast::ssl_stream<tcp::socket&> &stream,
+                                   const std::string &threadName)
     : Kitsunemimi::Thread(threadName),
-      m_webSocket(std::move(socket))
+      m_webSocket(std::move(stream))
 {
 }
 
-/**
- * @brief WebSocketSession::initSessionToBackend
- * @return
- */
 bool
-WebSocketSession::initSessionToBackend(const std::string &)
+WebSocketSession::init(http::request<http::string_body> &httpRequest)
 {
-    bool success = false;
+    try
+    {
+        // Set a decorator to change the Server of the handshake
+        m_webSocket.set_option(websocket::stream_base::decorator(
+            [](websocket::response_type& res)
+            {
+                res.set(http::field::server,
+                    std::string(BOOST_BEAST_VERSION_STRING) +
+                        " torii-websocket-ssl");
+            }));
 
-    const std::string address = GET_STRING_CONFIG("KyoukoMind", "address", success);
-    //const uint16_t port = static_cast<uint16_t>(GET_INT_CONFIG("KyoukoMind", "port", success));
-
-    //HanamiMessaging* contr = HanamiMessaging::getInstance();
-    //m_client = contr->createClient(identifier, identifier, address, port);
+        // Accept the websocket handshake
+        m_webSocket.accept(std::move(httpRequest));
+    }
+    catch(const beast::system_error& se)
+    {
+        if(se.code() == websocket::error::closed)
+        {
+            LOG_INFO("Close websocket");
+        }
+        else
+        {
+            Kitsunemimi::ErrorContainer error;
+            error.addMeesage("Error while receiving data over websocket with message: "
+                             + se.code().message());
+            LOG_ERROR(error);
+            return false;
+        }
+    }
+    catch(const std::exception& e)
+    {
+        Kitsunemimi::ErrorContainer error;
+        error.addMeesage("Error while receiving data over websocket with message: "
+                         + std::string(e.what()));
+        LOG_ERROR(error);
+        return false;
+    }
 
     return true;
 }
@@ -114,22 +141,19 @@ WebSocketSession::run()
 {
     try
     {
-        // Set a decorator to change the Server of the handshake
-        m_webSocket.set_option(websocket::stream_base::decorator(
-            [](websocket::response_type& res)
-            {
-                res.set(http::field::server,
-                        std::string(BOOST_BEAST_VERSION_STRING) + " websocket-server-sync");
-            }));
-
-        // Accept the websocket handshake
-        m_webSocket.accept();
+        isInit = true;
 
         while(m_abort == false)
         {
+            // This buffer will hold the incoming message
             beast::flat_buffer buffer;
+
+            // Read a message
             m_webSocket.read(buffer);
-            //m_client->sendStreamData(buffer.data().data(), buffer.data().size());
+
+            // Echo the message back
+            m_webSocket.text(m_webSocket.got_text());
+            m_webSocket.write(buffer.data());
         }
     }
     catch(const beast::system_error& se)

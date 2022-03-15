@@ -26,6 +26,7 @@
 #include <boost/beast/core.hpp>
 #include <boost/beast/websocket.hpp>
 #include <boost/asio/ip/tcp.hpp>
+#include <boost/beast/ssl.hpp>
 #include <cstdlib>
 #include <functional>
 #include <iostream>
@@ -40,6 +41,7 @@ namespace http = beast::http;           // from <boost/beast/http.hpp>
 namespace websocket = beast::websocket; // from <boost/beast/websocket.hpp>
 namespace net = boost::asio;            // from <boost/asio.hpp>
 using tcp = boost::asio::ip::tcp;
+namespace ssl = boost::asio::ssl;       // from <boost/asio/ssl.hpp>
 
 namespace Kitsunemimi {
 namespace Hanami {
@@ -53,17 +55,20 @@ class WebSocketSession
         : public Kitsunemimi::Thread
 {
 public:
-    WebSocketSession(tcp::socket &&socket, const std::string &threadName);
+    WebSocketSession(beast::ssl_stream<tcp::socket&> &stream,
+                     const std::string &threadName);
 
-    bool initSessionToBackend(const std::string &identifier);
-
+    bool init(http::request<http::string_body> &httpRequest);
     bool sendText(const std::string &text);
+
+    bool isInit = false;
 
 protected:
     void run();
     void closeSession();
 
-    websocket::stream<beast::tcp_stream> m_webSocket;
+    websocket::stream<beast::ssl_stream<tcp::socket&>> m_webSocket;
+
     std::string m_session = "";
 };
 

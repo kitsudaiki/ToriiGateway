@@ -25,6 +25,8 @@
 #include <http/http_processing/file_send.h>
 #include <http/http_processing/response_builds.h>
 #include <http/http_processing/string_functions.h>
+#include <http/http_server.h>
+#include <websocket/web_socket_session.h>
 
 #include <libKitsunemimiConfig/config_handler.h>
 #include <libKitsunemimiJson/json_item.h>
@@ -78,16 +80,34 @@ HttpRequestEvent::processEvent()
         return false;
     }
 
-    processRequest();
-    m_httpRequest.clear();
+    if(websocket::is_upgrade(m_httpRequest))
+    {
+        // initialize session
+        const std::string name = "WebSocketSession";
+        WebSocketSession* session = new WebSocketSession(m_stream, name);
+        if(session->init(m_httpRequest) == false) {
+            return false;
+        }
 
-    if(sendResponse() == false) {
-        return false;
+        session->startThread();
+        while(session->isInit == false) {
+            usleep(10000);
+        }
+
     }
+    else
+    {
+        processRequest();
+        m_httpRequest.clear();
 
-    // close socket gain
-    beast::error_code ec;
-    m_stream.shutdown(ec);
+        if(sendResponse() == false) {
+            return false;
+        }
+
+        // close socket gain
+        beast::error_code ec;
+        m_stream.shutdown(ec);
+    }
 
     return true;
 }

@@ -29,6 +29,7 @@
 #include <boost/beast/ssl.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/config.hpp>
+#include <boost/beast/websocket.hpp>
 
 #include <cstdlib>
 #include <iostream>
@@ -46,6 +47,8 @@ namespace beast = boost::beast;         // from <boost/beast.hpp>
 namespace http = beast::http;           // from <boost/beast/http.hpp>
 namespace net = boost::asio;            // from <boost/asio.hpp>
 using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
+namespace websocket = beast::websocket; // from <boost/beast/websocket.hpp>
+namespace ssl = boost::asio::ssl;       // from <boost/asio/ssl.hpp>
 
 using Kitsunemimi::Hanami::HttpRequestType;
 using Kitsunemimi::Hanami::HttpResponseTypes;
