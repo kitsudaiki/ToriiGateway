@@ -92,28 +92,26 @@ INCLUDEPATH += $$PWD \
 SOURCES += \
         src/api/v1/proxy/forward_session.cpp \
         src/callbacks.cpp \
-        src/http/http_processing/file_send.cpp \
-        src/http/http_processing/string_functions.cpp \
+        src/core/http_processing/file_send.cpp \
+        src/core/http_processing/string_functions.cpp \
         src/main.cpp \
         src/torii_root.cpp \
-        src/websocket/web_socket_server.cpp \
-        src/websocket/web_socket_session.cpp \
-        src/http/http_server.cpp \
-        src/http/http_processing/http_session.cpp \
-        src/http/http_thread.cpp
+        src/core/web_socket_session.cpp \
+        src/core/http_server.cpp \
+        src/core/http_processing/http_session.cpp \
+        src/core/http_thread.cpp
 
 HEADERS += \
         src/api/blossom_initializing.h \
         src/api/v1/proxy/forward_session.h \
         src/args.h \
-        src/http/http_processing/file_send.h \
-        src/http/http_processing/response_builds.h \
-        src/http/http_processing/string_functions.h \
+        src/core/http_processing/file_send.h \
+        src/core/http_processing/response_builds.h \
+        src/core/http_processing/string_functions.h \
         src/torii_root.h \
-        src/websocket/web_socket_server.h \
-        src/websocket/web_socket_session.h \
-        src/http/http_server.h \
-        src/http/http_processing/http_session.h \
+        src/core/web_socket_session.h \
+        src/core/http_server.h \
+        src/core/http_processing/http_session.h \
         src/config.h \
         src/callbacks.h \
-        src/http/http_thread.h
+        src/core/http_thread.h

@@ -22,7 +22,7 @@
 
 #include "torii_root.h"
 
-#include <http/http_thread.h>
+#include <core/http_thread.h>
 
 #include <libKitsunemimiCommon/buffer/data_buffer.h>
 #include <libKitsunemimiCommon/files/text_file.h>
@@ -35,9 +35,8 @@
 
 using Kitsunemimi::Hanami::HanamiMessaging;
 
-#include <websocket/web_socket_server.h>
-#include <websocket/web_socket_session.h>
-#include <http/http_server.h>
+#include <core/web_socket_session.h>
+#include <core/http_server.h>
 #include <api/blossom_initializing.h>
 
 HttpServer* ToriiGateway::httpServer = nullptr;
@@ -64,13 +63,6 @@ ToriiGateway::init()
         return false;
     }
 
-    if(initWebSocketServer() == false)
-    {
-        error.addMeesage("initializing websocket-server failed");
-        LOG_ERROR(error);
-        return false;
-    }
-
     if(initSakuraServer() == false)
     {
         error.addMeesage("initializing sakura-server failed");
@@ -79,34 +71,6 @@ ToriiGateway::init()
     }
 
     initBlossoms();
-
-    return true;
-}
-
-/**
- * @brief initialze websocket server
- *
- * @param group group-name in config-file
- *
- * @return true, if successful, else false
- */
-bool
-ToriiGateway::initWebSocketServer()
-{
-    bool success = false;
-
-    // check if websocket is enabled
-    if(GET_BOOL_CONFIG("websocket", "enable", success) == false) {
-        return true;
-    }
-
-    // get stuff from config
-    const long port = GET_INT_CONFIG("websocket", "port", success);
-    const std::string ip = GET_STRING_CONFIG("websocket", "ip", success);
-
-    // start websocket-server
-    websocketServer = new WebSocketServer(ip, static_cast<uint16_t>(port));
-    websocketServer->startThread();
 
     return true;
 }

@@ -45,7 +45,6 @@ public:
 private:
     std::vector<HttpThread*> m_threads;
 
-    bool initWebSocketServer();
     bool initHttpServer();
     bool initSakuraServer();
 };
