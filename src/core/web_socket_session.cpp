@@ -23,27 +23,37 @@
 #include "web_socket_session.h"
 
 #include <torii_root.h>
+#include <core/http_processing/http_processing.h>
 
 #include <libKitsunemimiHanamiMessaging/hanami_messaging.h>
-#include <libKitsunemimiConfig/config_handler.h>
+#include <libKitsunemimiHanamiMessaging/hanami_messaging_client.h>
+#include <libKitsunemimiHanamiCommon/enums.h>
+#include <libKitsunemimiHanamiCommon/structs.h>
 
+#include <libKitsunemimiConfig/config_handler.h>
+#include <libKitsunemimiJson/json_item.h>
 #include <libKitsunemimiCommon/logger.h>
 
 using Kitsunemimi::Hanami::HanamiMessaging;
+using Kitsunemimi::Hanami::HttpRequestType;
+using Kitsunemimi::Hanami::HttpResponseTypes;
+using namespace Kitsunemimi;
 
 /**
  * @brief constructor
  */
-WebSocketSession::WebSocketSession(beast::ssl_stream<tcp::socket&> &stream,
+WebSocketSession::WebSocketSession(beast::ssl_stream<tcp::socket&>* stream,
                                    const std::string &threadName)
     : Kitsunemimi::Thread(threadName),
-      m_webSocket(std::move(stream))
+      m_webSocket(std::move(*stream)),
+      m_stream(stream)
 {
 }
 
 bool
-WebSocketSession::init(http::request<http::string_body> &httpRequest)
+WebSocketSession::init(http::request<http::string_body>* httpRequest)
 {
+    m_httpRequest = httpRequest;
     try
     {
         // Set a decorator to change the Server of the handshake
@@ -56,7 +66,7 @@ WebSocketSession::init(http::request<http::string_body> &httpRequest)
             }));
 
         // Accept the websocket handshake
-        m_webSocket.accept(std::move(httpRequest));
+        m_webSocket.accept(std::move(*m_httpRequest));
     }
     catch(const beast::system_error& se)
     {
@@ -93,18 +103,18 @@ WebSocketSession::init(http::request<http::string_body> &httpRequest)
  * @return true, if successful, else false
  */
 bool
-WebSocketSession::sendText(const std::string &text)
+WebSocketSession::sendText(const void* data,
+                           const uint64_t dataSize)
 {
     if(m_abort) {
         return false;
     }
 
-    beast::flat_buffer buffer;
-    m_webSocket.text(true);
     try
     {
-        boost::beast::ostream(buffer) << text;
-        return m_webSocket.write(buffer.data());
+        beast::flat_buffer buffer;
+        m_webSocket.binary(true);
+        m_webSocket.write(net::buffer(data, dataSize));
     }
     catch(const beast::system_error& se)
     {
@@ -132,6 +142,50 @@ WebSocketSession::sendText(const std::string &text)
     return false;
 }
 
+bool
+WebSocketSession::processInitialMessage(const std::string &message,
+                                        Kitsunemimi::ErrorContainer &error)
+{
+    Hanami::HanamiMessaging* messageInterface = Hanami::HanamiMessaging::getInstance();
+    Kitsunemimi::Json::JsonItem content;
+    if(content.parse(message, error) == false) {
+        return false;
+    }
+
+    const std::string target = content.get("target").getString();
+
+    Kitsunemimi::Hanami::RequestMessage requestMsg;
+    Kitsunemimi::Hanami::ResponseMessage responseMsg;
+
+    requestMsg.id = "v1/foreward";
+    requestMsg.httpType = HttpRequestType::GET_TYPE;
+
+    // check authentication
+    if(checkPermission(content.get("token").getString(),
+                       target,
+                       requestMsg,
+                       responseMsg,
+                       error) == false)
+    {
+        return false;
+    }
+
+    // handle failed authentication
+    if(responseMsg.type == Kitsunemimi::Hanami::UNAUTHORIZED_RTYPE
+            || responseMsg.success == false)
+    {
+        return false;
+    }
+
+    // get target-session by name
+    m_session = messageInterface->getOutgoingClient(target);
+    if(m_session == nullptr) {
+        return false;
+    }
+
+    return false;
+}
+
 /**
  * @brief run session-thread to process incoming messages from the websocket
  */
@@ -141,18 +195,35 @@ WebSocketSession::run()
     try
     {
         isInit = true;
+        Kitsunemimi::ErrorContainer error;
 
         while(m_abort == false)
         {
-            // This buffer will hold the incoming message
+            // read message from socket
             beast::flat_buffer buffer;
-
-            // Read a message
             m_webSocket.read(buffer);
 
-            // Echo the message back
-            m_webSocket.text(m_webSocket.got_text());
-            m_webSocket.write(buffer.data());
+            //m_webSocket.text(m_webSocket.got_text());
+            if(m_session == nullptr)
+            {
+                const std::string msg(static_cast<const char*>(buffer.data().data()),
+                                      buffer.data().size());
+                LOG_DEBUG("got initial websocket-message: '" + msg + "'");
+                std::string response = "success";
+                if(processInitialMessage(msg, error) == false)  {
+                    response = "failed";
+                }
+
+                m_webSocket.binary(true);
+                m_webSocket.write(net::buffer(response, response.size()));
+            }
+            else
+            {
+                m_session->sendStreamMessage(buffer.data().data(),
+                                             buffer.data().size(),
+                                             false,
+                                             error);
+            }
         }
     }
     catch(const beast::system_error& se)

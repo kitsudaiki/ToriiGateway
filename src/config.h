@@ -39,22 +39,22 @@ registerConfigs(Kitsunemimi::ErrorContainer &error)
 
     // http-section
     const std::string httpGroup = "http";
-    REGISTER_BOOL_CONFIG(   httpGroup, "enable",           error, false);
-    REGISTER_BOOL_CONFIG(   httpGroup, "enable_dashboard", error, false);
-    REGISTER_STRING_CONFIG( httpGroup, "dashboard_files",  error, "");
-    REGISTER_STRING_CONFIG( httpGroup, "certificate",      error, "",        true);
-    REGISTER_STRING_CONFIG( httpGroup, "key",              error, "",        true);
-    REGISTER_STRING_CONFIG( httpGroup, "ip",               error, "0.0.0.0", true);
-    REGISTER_INT_CONFIG(    httpGroup, "port",             error, 12345,     true);
+    REGISTER_BOOL_CONFIG(   httpGroup, "enable",            error, false);
+    REGISTER_BOOL_CONFIG(   httpGroup, "enable_dashboard",  error, false);
+    REGISTER_STRING_CONFIG( httpGroup, "dashboard_files",   error, "");
+    REGISTER_STRING_CONFIG( httpGroup, "certificate",       error, "",        true);
+    REGISTER_STRING_CONFIG( httpGroup, "key",               error, "",        true);
+    REGISTER_STRING_CONFIG( httpGroup, "ip",                error, "0.0.0.0", true);
+    REGISTER_INT_CONFIG(    httpGroup, "port",              error, 12345,     true);
     REGISTER_INT_CONFIG(    httpGroup, "number_of_threads", error, 4);
 
     // sakura-section
     const std::string sakuraGroup = "sakura";
-    REGISTER_BOOL_CONFIG(   sakuraGroup, "enable",  error, false);
-    REGISTER_STRING_CONFIG( sakuraGroup, "certificate",      error, "",        true);
-    REGISTER_STRING_CONFIG( sakuraGroup, "key",              error, "",        true);
-    REGISTER_STRING_CONFIG( sakuraGroup, "ip",               error, "0.0.0.0", true);
-    REGISTER_INT_CONFIG(    sakuraGroup, "port",             error, 12345,     true);
+    REGISTER_BOOL_CONFIG(   sakuraGroup, "enable",          error, false);
+    REGISTER_STRING_CONFIG( sakuraGroup, "certificate",     error, "",        true);
+    REGISTER_STRING_CONFIG( sakuraGroup, "key",             error, "",        true);
+    REGISTER_STRING_CONFIG( sakuraGroup, "ip",              error, "0.0.0.0", true);
+    REGISTER_INT_CONFIG(    sakuraGroup, "port",            error, 12345,     true);
 }
 
 bool

@@ -38,6 +38,7 @@
 #include <filesystem>
 
 #include <libKitsunemimiCommon/threading/thread.h>
+#include <libKitsunemimiCommon/logger.h>
 
 namespace beast = boost::beast;         // from <boost/beast.hpp>
 namespace http = beast::http;           // from <boost/beast/http.hpp>
@@ -56,10 +57,14 @@ protected:
     void run();
 
 private:
+    bool handleSocket(tcp::socket* socket,
+                      Kitsunemimi::ErrorContainer &error);
     bool readMessage(beast::ssl_stream<tcp::socket&> &stream,
-                     http::request<http::string_body> &httpRequest);
+                     http::request<http::string_body> &httpRequest,
+                     Kitsunemimi::ErrorContainer &error);
     bool sendResponse(beast::ssl_stream<tcp::socket&> &stream,
-                      http::response<http::dynamic_body> &httpResponse);
+                      http::response<http::dynamic_body> &httpResponse,
+                      Kitsunemimi::ErrorContainer &error);
 };
 
 #endif // TORIIGATEWAY_HTTP_THREAD_H

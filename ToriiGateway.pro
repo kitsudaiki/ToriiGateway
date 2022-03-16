@@ -93,12 +93,12 @@ SOURCES += \
         src/api/v1/proxy/forward_session.cpp \
         src/callbacks.cpp \
         src/core/http_processing/file_send.cpp \
+        src/core/http_processing/http_processing.cpp \
         src/core/http_processing/string_functions.cpp \
         src/main.cpp \
         src/torii_root.cpp \
         src/core/web_socket_session.cpp \
         src/core/http_server.cpp \
-        src/core/http_processing/http_session.cpp \
         src/core/http_thread.cpp
 
 HEADERS += \
@@ -106,12 +106,12 @@ HEADERS += \
         src/api/v1/proxy/forward_session.h \
         src/args.h \
         src/core/http_processing/file_send.h \
+        src/core/http_processing/http_processing.h \
         src/core/http_processing/response_builds.h \
         src/core/http_processing/string_functions.h \
         src/torii_root.h \
         src/core/web_socket_session.h \
         src/core/http_server.h \
-        src/core/http_processing/http_session.h \
         src/config.h \
         src/callbacks.h \
         src/core/http_thread.h

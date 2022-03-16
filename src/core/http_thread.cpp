@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file        http_thread.cpp
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
@@ -24,9 +24,9 @@
 
 #include <torii_root.h>
 #include <core/http_server.h>
-#include <core/http_processing/http_session.h>
+#include <core/http_processing/http_processing.h>
 #include <core/web_socket_session.h>
-#include <core/http_processing/http_session.h>
+#include <core/http_processing/http_processing.h>
 
 #include <libKitsunemimiCommon/threading/event.h>
 
@@ -47,57 +47,11 @@ HttpThread::run()
         tcp::socket* socket = ToriiGateway::httpServer->getSocket();
         if(socket != nullptr)
         {
-            do
-            {
-                beast::ssl_stream<tcp::socket&> stream{*socket,
-                                                       std::ref(ToriiGateway::httpServer->m_ctx)};
-                http::request<http::string_body> httpRequest;
-                http::response<http::dynamic_body> httpResponse;
+            Kitsunemimi::ErrorContainer error;
 
-                // Perform the SSL handshake
-                beast::error_code ec;
-                stream.handshake(boost::asio::ssl::stream_base::server, ec);
-                if(ec.failed())
-                {
-                    Kitsunemimi::ErrorContainer error;
-                    error.addMeesage("SSL-Handshake failed!");
-                    LOG_ERROR(error);
-                }
-
-                if(readMessage(stream, httpRequest) == false) {
-                    break;
-                }
-
-                if(websocket::is_upgrade(httpRequest))
-                {
-                    // initialize session
-                    const std::string name = "WebSocketSession";
-                    WebSocketSession* session = new WebSocketSession(stream, name);
-                    if(session->init(httpRequest) == false) {
-                        break;
-                    }
-
-                    session->startThread();
-                    while(session->isInit == false) {
-                        usleep(10000);
-                    }
-                }
-                else
-                {
-                    processRequest(httpRequest, httpResponse);
-                    httpRequest.clear();
-
-                    if(sendResponse(stream, httpResponse) == false) {
-                        break;
-                    }
-
-                    // close socket gain
-                    beast::error_code ec;
-                    stream.shutdown(ec);
-                }
+            if(handleSocket(socket, error) == false) {
+                LOG_ERROR(error);
             }
-            while(false);
-
             delete socket;
         }
         else
@@ -108,13 +62,95 @@ HttpThread::run()
 }
 
 /**
+ * @brief handle new incoming http-connection
+ *
+ * @param socket pointer to new socket to process
+ * @param error reference for error-output
+ *
+ * @return true, if successful, else false
+ */
+bool
+HttpThread::handleSocket(tcp::socket* socket,
+                         Kitsunemimi::ErrorContainer &error)
+{
+    beast::ssl_stream<tcp::socket&>* stream = nullptr;
+    stream = new beast::ssl_stream<tcp::socket&>{*socket, std::ref(ToriiGateway::httpServer->m_ctx)};
+    http::request<http::string_body>* httpRequest = nullptr;
+    httpRequest = new http::request<http::string_body>();
+    http::response<http::dynamic_body> httpResponse;
+
+    // perform the SSL handshake
+    beast::error_code ec;
+    stream->handshake(boost::asio::ssl::stream_base::server, ec);
+    if(ec.failed())
+    {
+        error.addMeesage("SSL-Handshake failed while receiving new http-connection");
+        return false;
+    }
+
+    // read http-message
+    if(readMessage(*stream, *httpRequest, error) == false)
+    {
+        error.addMeesage("Can not send http-response.");
+        return false;
+    }
+
+    // check if request belongs to a new websocket-request
+    if(websocket::is_upgrade(*httpRequest))
+    {
+        // initialize new websocket-session
+        const std::string name = "WebSocketSession";
+        WebSocketSession* session = new WebSocketSession(stream, name);
+        if(session->init(httpRequest) == false)
+        {
+            error.addMeesage("Can not init websocket.");
+            return false;
+        }
+
+        // start new session-thread and wait until it reach its processing-loop to ensure, that the
+        // websocket is ready to receive messages
+        session->startThread();
+        while(session->isInit == false) {
+            usleep(10000);
+        }
+
+        sleep(10);
+    }
+    else
+    {
+        // process request
+        processRequest(*httpRequest, httpResponse);
+        if(sendResponse(*stream, httpResponse, error) == false)
+        {
+            error.addMeesage("Can not send http-response.");
+            return false;
+        }
+
+        // close socket gain
+        beast::error_code ec;
+        stream->shutdown(ec);
+        delete httpRequest;
+        delete stream;
+
+        if(ec)
+        {
+            error.addMeesage("error while closing http-stream: " + ec.message());
+            return false;
+        }
+    }
+
+    return true;
+}
+
+/**
  * @brief read message into buffer
  *
  * @return true, if successful, else false
  */
 bool
 HttpThread::readMessage(beast::ssl_stream<tcp::socket&> &stream,
-                        http::request<http::string_body> &httpRequest)
+                        http::request<http::string_body> &httpRequest,
+                        Kitsunemimi::ErrorContainer &error)
 {
     beast::error_code ec;
     beast::flat_buffer buffer;
@@ -126,9 +162,7 @@ HttpThread::readMessage(beast::ssl_stream<tcp::socket&> &stream,
 
     if(ec)
     {
-        Kitsunemimi::ErrorContainer error;
-        error.addMeesage("read: " + ec.message());
-        LOG_ERROR(error);
+        error.addMeesage("error while read: " + ec.message());
         return false;
     }
 
@@ -142,7 +176,8 @@ HttpThread::readMessage(beast::ssl_stream<tcp::socket&> &stream,
  */
 bool
 HttpThread::sendResponse(beast::ssl_stream<tcp::socket&> &stream,
-                         http::response<http::dynamic_body> &httpResponse)
+                         http::response<http::dynamic_body> &httpResponse,
+                         Kitsunemimi::ErrorContainer &error)
 {
     beast::error_code ec;
     httpResponse.content_length(httpResponse.body().size());
@@ -150,9 +185,7 @@ HttpThread::sendResponse(beast::ssl_stream<tcp::socket&> &stream,
 
     if(ec)
     {
-        Kitsunemimi::ErrorContainer error;
-        error.addMeesage("write: " + ec.message());
-        LOG_ERROR(error);
+        error.addMeesage("error while write: " + ec.message());
         return false;
     }
 

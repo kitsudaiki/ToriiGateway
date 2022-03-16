@@ -1,5 +1,5 @@
 /**
- * @file        http_session.h
+ * @file        http_processing.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef TORIIGATEWAY_HTTP_SESSION_H
-#define TORIIGATEWAY_HTTP_SESSION_H
+#ifndef TORIIGATEWAY_HTTP_PROCESSING_H
+#define TORIIGATEWAY_HTTP_PROCESSING_H
 
 #include <boost/beast/core.hpp>
 #include <boost/beast/http.hpp>
@@ -82,4 +82,4 @@ void internalRequest(const Kitsunemimi::Hanami::RequestMessage &hanamiRequest,
                      Kitsunemimi::Hanami::ResponseMessage &responseMsg,
                      Kitsunemimi::ErrorContainer &error);
 
-#endif // TORIIGATEWAY_HTTP_SESSION_H
+#endif // TORIIGATEWAY_HTTP_PROCESSING_H

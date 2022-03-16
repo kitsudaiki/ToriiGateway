@@ -1,5 +1,5 @@
 /**
- * @file        http_session.cpp
+ * @file        http_processing.cpp
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,19 +20,16 @@
  *      limitations under the License.
  */
 
-#include "http_session.h"
+#include "http_processing.h"
+
 #include <torii_root.h>
 #include <core/http_processing/file_send.h>
 #include <core/http_processing/response_builds.h>
 #include <core/http_processing/string_functions.h>
 #include <core/http_server.h>
 
-#include <libKitsunemimiConfig/config_handler.h>
 #include <libKitsunemimiJson/json_item.h>
-
-#include <libKitsunemimiCommon/common_items/data_items.h>
 #include <libKitsunemimiCommon/logger.h>
-#include <libKitsunemimiCommon/common_methods/string_methods.h>
 
 #include <libKitsunemimiSakuraLang/sakura_lang_interface.h>
 
@@ -172,7 +169,6 @@ requestToken(http::response<http::dynamic_body> &httpResponse,
                                           hanamiResponse.responseContent);
     }
 
-
     return success_ResponseBuild(httpResponse, hanamiResponse.responseContent);
 }
 
@@ -189,15 +185,17 @@ requestToken(http::response<http::dynamic_body> &httpResponse,
  */
 bool
 checkPermission(const std::string &token,
-                                  const std::string &component,
-                                  const Kitsunemimi::Hanami::RequestMessage &hanamiRequest,
-                                  Kitsunemimi::Hanami::ResponseMessage &responseMsg,
-                                  Kitsunemimi::ErrorContainer &error)
+                const std::string &component,
+                const Kitsunemimi::Hanami::RequestMessage &hanamiRequest,
+                Kitsunemimi::Hanami::ResponseMessage &responseMsg,
+                Kitsunemimi::ErrorContainer &error)
 {
     Kitsunemimi::Hanami::RequestMessage requestMsg;
 
     requestMsg.id = "v1/auth";
+    requestMsg.httpType = HttpRequestType::GET_TYPE;
     requestMsg.inputValues = "";
+
     requestMsg.inputValues.append("{\"token\":\"");
     requestMsg.inputValues.append(token);
     requestMsg.inputValues.append("\",\"component\":\"");
@@ -207,8 +205,6 @@ checkPermission(const std::string &token,
     requestMsg.inputValues.append("\",\"http_type\":");
     requestMsg.inputValues.append(std::to_string(static_cast<uint32_t>(hanamiRequest.httpType)));
     requestMsg.inputValues.append("}");
-
-    requestMsg.httpType = HttpRequestType::GET_TYPE;
 
     HanamiMessaging* messaging = HanamiMessaging::getInstance();
     if(messaging->misakaClient == nullptr)
@@ -228,8 +224,8 @@ checkPermission(const std::string &token,
  */
 void
 internalRequest(const Kitsunemimi::Hanami::RequestMessage &hanamiRequest,
-                                  Kitsunemimi::Hanami::ResponseMessage &responseMsg,
-                                  Kitsunemimi::ErrorContainer &error)
+                Kitsunemimi::Hanami::ResponseMessage &responseMsg,
+                Kitsunemimi::ErrorContainer &error)
 {
     SakuraLangInterface* interface = SakuraLangInterface::getInstance();
     Kitsunemimi::DataMap result;

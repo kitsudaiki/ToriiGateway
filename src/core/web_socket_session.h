@@ -34,6 +34,7 @@
 #include <thread>
 #include <random>
 
+#include <libKitsunemimiCommon/logger.h>
 #include <libKitsunemimiCommon/threading/thread.h>
 
 namespace beast = boost::beast;         // from <boost/beast.hpp>
@@ -45,21 +46,22 @@ namespace ssl = boost::asio::ssl;       // from <boost/asio/ssl.hpp>
 
 namespace Kitsunemimi {
 namespace Hanami {
-class HanamiMessaging;
+class HanamiMessagingClient;
 }
 }
-
-using Kitsunemimi::Hanami::HanamiMessaging;
 
 class WebSocketSession
         : public Kitsunemimi::Thread
 {
 public:
-    WebSocketSession(beast::ssl_stream<tcp::socket&> &stream,
+    WebSocketSession(beast::ssl_stream<tcp::socket&>* stream,
                      const std::string &threadName);
 
-    bool init(http::request<http::string_body> &httpRequest);
-    bool sendText(const std::string &text);
+    bool init(http::request<http::string_body>* httpRequest);
+    bool sendText(const void* data, const uint64_t dataSize);
+
+    bool processInitialMessage(const std::string &message,
+                               Kitsunemimi::ErrorContainer &error);
 
     bool isInit = false;
 
@@ -68,8 +70,10 @@ protected:
     void closeSession();
 
     websocket::stream<beast::ssl_stream<tcp::socket&>> m_webSocket;
-
-    std::string m_session = "";
+    beast::ssl_stream<tcp::socket&>* m_stream = nullptr;
+    http::request<http::string_body>* m_httpRequest = nullptr;
+    Kitsunemimi::Hanami::HanamiMessagingClient* m_session = nullptr;
+    bool m_isConnectedToBackend = false;
 };
 
 #endif // TORIIGATEWAY_WEB_SOCKET_SESSION_H
