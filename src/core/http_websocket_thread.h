@@ -1,5 +1,5 @@
 /**
- * @file        http_thread.h
+ * @file        http_websocket_thread.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -47,14 +47,22 @@ using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 namespace websocket = beast::websocket; // from <boost/beast/websocket.hpp>
 namespace ssl = boost::asio::ssl;       // from <boost/asio/ssl.hpp>
 
-class HttpThread
+namespace Kitsunemimi {
+namespace Hanami {
+class HanamiMessagingClient;
+}
+}
+
+class HttpWebsocketThread
         : public Kitsunemimi::Thread
 {
 public:
-    HttpThread(const std::string &threadName);
+    HttpWebsocketThread(const std::string &threadName);
 
 protected:
     void run();
+
+    bool sendData(const void* data, const uint64_t dataSize);
 
 private:
     bool handleSocket(tcp::socket* socket,
@@ -65,6 +73,16 @@ private:
     bool sendResponse(beast::ssl_stream<tcp::socket&> &stream,
                       http::response<http::dynamic_body> &httpResponse,
                       Kitsunemimi::ErrorContainer &error);
+
+    // websocket-functions and variables
+    bool init(websocket::stream<beast::ssl_stream<tcp::socket&>> &webSocket,
+              http::request<http::string_body> &httpRequest);
+    void runWebsocket(websocket::stream<beast::ssl_stream<tcp::socket&>> &webSocket);
+    bool processInitialMessage(const std::string &message,
+                               Kitsunemimi::ErrorContainer &error);
+
+    websocket::stream<beast::ssl_stream<tcp::socket&>> *m_webSocket = nullptr;
+    Kitsunemimi::Hanami::HanamiMessagingClient* m_session = nullptr;
 };
 
 #endif // TORIIGATEWAY_HTTP_THREAD_H

@@ -43,7 +43,7 @@
 
 using tcp = boost::asio::ip::tcp;
 
-class HttpThread;
+class HttpWebsocketThread;
 
 class HttpServer
         : public Kitsunemimi::Thread

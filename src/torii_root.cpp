@@ -22,7 +22,7 @@
 
 #include "torii_root.h"
 
-#include <core/http_thread.h>
+#include <core/http_websocket_thread.h>
 
 #include <libKitsunemimiCommon/buffer/data_buffer.h>
 #include <libKitsunemimiCommon/files/text_file.h>
@@ -35,7 +35,6 @@
 
 using Kitsunemimi::Hanami::HanamiMessaging;
 
-#include <core/web_socket_session.h>
 #include <core/http_server.h>
 #include <api/blossom_initializing.h>
 
@@ -106,7 +105,7 @@ ToriiGateway::initHttpServer()
     for(uint32_t i = 0; i < numberOfThreads; i++)
     {
         const std::string name = "HttpThread";
-        HttpThread* httpThread = new HttpThread(name);
+        HttpWebsocketThread* httpThread = new HttpWebsocketThread(name);
         httpThread->startThread();
         m_threads.push_back(httpThread);
     }

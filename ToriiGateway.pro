@@ -95,11 +95,10 @@ SOURCES += \
         src/core/http_processing/file_send.cpp \
         src/core/http_processing/http_processing.cpp \
         src/core/http_processing/string_functions.cpp \
+        src/core/http_websocket_thread.cpp \
         src/main.cpp \
         src/torii_root.cpp \
-        src/core/web_socket_session.cpp \
-        src/core/http_server.cpp \
-        src/core/http_thread.cpp
+        src/core/http_server.cpp
 
 HEADERS += \
         src/api/blossom_initializing.h \
@@ -109,9 +108,8 @@ HEADERS += \
         src/core/http_processing/http_processing.h \
         src/core/http_processing/response_builds.h \
         src/core/http_processing/string_functions.h \
+        src/core/http_websocket_thread.h \
         src/torii_root.h \
-        src/core/web_socket_session.h \
         src/core/http_server.h \
         src/config.h \
-        src/callbacks.h \
-        src/core/http_thread.h
+        src/callbacks.h

@@ -25,7 +25,7 @@
 #include <torii_root.h>
 
 #include <core/http_processing/http_processing.h>
-#include <core/http_thread.h>
+#include <core/http_websocket_thread.h>
 
 #include <libKitsunemimiCommon/logger.h>
 #include <libKitsunemimiCommon/files/text_file.h>

@@ -30,7 +30,7 @@
 
 class WebSocketServer;
 class HttpServer;
-class HttpThread;
+class HttpWebsocketThread;
 
 class ToriiGateway
 {
@@ -43,7 +43,7 @@ public:
     static HttpServer* httpServer;
 
 private:
-    std::vector<HttpThread*> m_threads;
+    std::vector<HttpWebsocketThread*> m_threads;
 
     bool initHttpServer();
     bool initSakuraServer();
