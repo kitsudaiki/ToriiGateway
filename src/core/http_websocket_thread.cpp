@@ -92,7 +92,7 @@ HttpWebsocketThread::handleSocket(tcp::socket* socket,
     // read http-message
     if(readMessage(stream, httpRequest, error) == false)
     {
-        error.addMeesage("Can not send http-response.");
+        error.addMeesage("Can read http-request");
         return false;
     }
 
@@ -101,7 +101,7 @@ HttpWebsocketThread::handleSocket(tcp::socket* socket,
     {
         // initialize new websocket-session
         websocket::stream<beast::ssl_stream<tcp::socket&>> webSocket(std::move(stream));
-        m_webSocket = &webSocket;
+        m_webSocket = &webSocket;        
         if(init(webSocket, httpRequest) == false)
         {
             error.addMeesage("Can not init websocket.");
@@ -126,7 +126,7 @@ HttpWebsocketThread::handleSocket(tcp::socket* socket,
 
         if(ec)
         {
-            error.addMeesage("error while closing http-stream: " + ec.message());
+            error.addMeesage("Error while closing http-stream: " + ec.message());
             return false;
         }
     }
@@ -154,7 +154,7 @@ HttpWebsocketThread::readMessage(beast::ssl_stream<tcp::socket&> &stream,
 
     if(ec)
     {
-        error.addMeesage("error while read: " + ec.message());
+        error.addMeesage("Error while reading http-message: '" + ec.message() + "'");
         return false;
     }
 
@@ -168,8 +168,8 @@ HttpWebsocketThread::readMessage(beast::ssl_stream<tcp::socket&> &stream,
  */
 bool
 HttpWebsocketThread::sendResponse(beast::ssl_stream<tcp::socket&> &stream,
-                         http::response<http::dynamic_body> &httpResponse,
-                         ErrorContainer &error)
+                                  http::response<http::dynamic_body> &httpResponse,
+                                  ErrorContainer &error)
 {
     beast::error_code ec;
     httpResponse.content_length(httpResponse.body().size());
@@ -177,7 +177,7 @@ HttpWebsocketThread::sendResponse(beast::ssl_stream<tcp::socket&> &stream,
 
     if(ec)
     {
-        error.addMeesage("error while write: " + ec.message());
+        error.addMeesage("Error while writing http-message: '" + ec.message() + "'");
         return false;
     }
 
@@ -240,7 +240,7 @@ HttpWebsocketThread::init(websocket::stream<beast::ssl_stream<tcp::socket&>> &we
  */
 bool
 HttpWebsocketThread::sendData(const void* data,
-                     const uint64_t dataSize)
+                              const uint64_t dataSize)
 {
     if(m_abort) {
         return false;
@@ -277,13 +277,23 @@ HttpWebsocketThread::sendData(const void* data,
     return false;
 }
 
+/**
+ * @brief HttpWebsocketThread::processInitialMessage
+ *
+ * @param message
+ * @param error
+ *
+ * @return
+ */
 bool
 HttpWebsocketThread::processInitialMessage(const std::string &message,
                                            ErrorContainer &error)
 {
     Hanami::HanamiMessaging* messageInterface = Hanami::HanamiMessaging::getInstance();
     Json::JsonItem content;
-    if(content.parse(message, error) == false) {
+    if(content.parse(message, error) == false)
+    {
+        error.addMeesage("Parsing of initial websocket-message failed");
         return false;
     }
 
@@ -302,6 +312,7 @@ HttpWebsocketThread::processInitialMessage(const std::string &message,
                        responseMsg,
                        error) == false)
     {
+        error.addMeesage("Request to misaka for token-check failed");
         return false;
     }
 
@@ -309,12 +320,15 @@ HttpWebsocketThread::processInitialMessage(const std::string &message,
     if(responseMsg.type == Hanami::UNAUTHORIZED_RTYPE
             || responseMsg.success == false)
     {
+        error.addMeesage("Permission-check for token over websocket failed");
         return false;
     }
 
     // get target-session by name
     m_session = messageInterface->getOutgoingClient(target);
-    if(m_session == nullptr) {
+    if(m_session == nullptr)
+    {
+        error.addMeesage("Forwarind of websocket to target '" + target + "' failed");
         return false;
     }
 
@@ -346,8 +360,11 @@ HttpWebsocketThread::runWebsocket(websocket::stream<beast::ssl_stream<tcp::socke
                                       buffer.data().size());
                 LOG_DEBUG("got initial websocket-message: '" + msg + "'");
                 std::string response = "success";
-                if(processInitialMessage(msg, error) == false)  {
+                if(processInitialMessage(msg, error) == false)
+                {
                     response = "failed";
+                    LOG_ERROR(error);
+                    error = ErrorContainer();
                 }
 
                 webSocket.binary(true);

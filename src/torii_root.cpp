@@ -104,10 +104,10 @@ ToriiGateway::initHttpServer()
     // start threads
     for(uint32_t i = 0; i < numberOfThreads; i++)
     {
-        const std::string name = "HttpThread";
-        HttpWebsocketThread* httpThread = new HttpWebsocketThread(name);
-        httpThread->startThread();
-        m_threads.push_back(httpThread);
+        const std::string name = "HttpWebsocketThread";
+        HttpWebsocketThread* httpWebsocketThread = new HttpWebsocketThread(name);
+        httpWebsocketThread->startThread();
+        m_threads.push_back(httpWebsocketThread);
     }
 
     return true;

@@ -59,7 +59,7 @@ HttpServer::HttpServer(const std::string &address,
  * @return true, if successful, else false
  */
 bool
-HttpServer::loadCertificates(boost::asio::ssl::context& ctx,
+HttpServer::loadCertificates(boost::asio::ssl::context &ctx,
                              Kitsunemimi::ErrorContainer &error)
 {
     std::string errorMessage = "";
@@ -71,6 +71,7 @@ HttpServer::loadCertificates(boost::asio::ssl::context& ctx,
     ret = Kitsunemimi::readFile(cert, m_certFilePath, error);
     if(ret == false)
     {
+        error.addMeesage("failed to read certificate-file: '" + m_certFilePath + "'");
         LOG_ERROR(error);
         return false;
     }
@@ -79,6 +80,7 @@ HttpServer::loadCertificates(boost::asio::ssl::context& ctx,
     ret = Kitsunemimi::readFile(key, m_keyFilePath, error);
     if(ret == false)
     {
+        error.addMeesage("failed to read key-file: '" + m_certFilePath + "'");
         LOG_ERROR(error);
         return false;
     }
@@ -142,7 +144,9 @@ HttpServer::run()
     }
     catch (const std::exception& e)
     {
-        error.addMeesage("Error: " + std::string(e.what()));
+        error.addMeesage("Error-message while running http-server: '"
+                         + std::string(e.what())
+                         + "'");
         LOG_ERROR(error);
     }
 }
