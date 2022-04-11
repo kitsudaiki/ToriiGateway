@@ -109,6 +109,7 @@ HttpWebsocketThread::handleSocket(tcp::socket* socket,
         }
 
         runWebsocket(webSocket);
+        m_session = nullptr;
     }
     else
     {
@@ -332,7 +333,7 @@ HttpWebsocketThread::processInitialMessage(const std::string &message,
         return false;
     }
 
-    return false;
+    return true;
 }
 
 /**
