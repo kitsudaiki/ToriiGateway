@@ -74,11 +74,15 @@ sendFileFromLocalLocation(http::response<http::dynamic_body> &response,
                           Kitsunemimi::ErrorContainer &error)
 {
     // create file-path
-    std::string path = dir + relativePath;
+    std::string path = dir;
     if(relativePath == "/"
             || relativePath == "")
     {
-        path = "/index.html";
+        path += "/index.html";
+    }
+    else
+    {
+        path += relativePath;
     }
 
     LOG_DEBUG("load file " + path);
@@ -116,6 +120,7 @@ processClientRequest(http::response<http::dynamic_body> &response,
                      Kitsunemimi::ErrorContainer &error)
 {
     bool success = false;
-    const std::string fileLocation = GET_STRING_CONFIG("server", "dashboard_files", success);
+    const std::string fileLocation = GET_STRING_CONFIG("http", "dashboard_files", success);
+    // TODO: check success-flag
     return sendFileFromLocalLocation(response, fileLocation, path, error);
 }
