@@ -1,5 +1,5 @@
 /**
- * @file        web_socket_server.h
+ * @file        http_server.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,27 +20,44 @@
  *      limitations under the License.
  */
 
-#ifndef TORIIGATEWAY_WEB_SOCKET_SERVER_H
-#define TORIIGATEWAY_WEB_SOCKET_SERVER_H
+#ifndef TORIIGATEWAY_HTTP_SERVER_H
+#define TORIIGATEWAY_HTTP_SERVER_H
 
 #include <boost/beast/core.hpp>
-#include <boost/beast/websocket.hpp>
+#include <boost/beast/http.hpp>
+#include <boost/beast/version.hpp>
+#include <boost/beast/ssl.hpp>
 #include <boost/asio/ip/tcp.hpp>
+
+#include <chrono>
 #include <cstdlib>
-#include <functional>
+#include <ctime>
 #include <iostream>
+#include <memory>
 #include <string>
+#include <mutex>
+#include <deque>
 
 #include <libKitsunemimiCommon/threading/thread.h>
+#include <libKitsunemimiCommon/logger.h>
 
-class WebSocketSession;
+using tcp = boost::asio::ip::tcp;
 
-class WebSocketServer
+class HttpWebsocketThread;
+
+class HttpServer
         : public Kitsunemimi::Thread
 {
 public:
-    WebSocketServer(const std::string &address,
-                    const uint16_t port);
+    HttpServer(const std::string &address,
+               const uint16_t port,
+               const std::string &cert,
+               const std::string &key);
+
+    boost::asio::ssl::context m_ctx;
+
+    tcp::socket* getSocket();
+    void addSocket(tcp::socket* socket);
 
 protected:
     void run();
@@ -48,7 +65,14 @@ protected:
 private:
     const std::string m_address = "";
     const uint16_t m_port = 0;
-    std::vector<WebSocketSession*> m_sessions;
+    const std::string m_certFilePath = "";
+    const std::string m_keyFilePath = "";
+
+    std::deque<tcp::socket*> m_queue;
+    std::mutex m_queueMutex;
+
+    bool loadCertificates(boost::asio::ssl::context &ctx,
+                          Kitsunemimi::ErrorContainer &error);
 };
 
-#endif // TORIIGATEWAY_WEB_SOCKET_SERVER_H
+#endif // TORIIGATEWAY_HTTP_SERVER_H

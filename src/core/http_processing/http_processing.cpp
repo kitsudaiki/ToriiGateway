@@ -1,5 +1,5 @@
 /**
- * @file        http_session.cpp
+ * @file        http_processing.cpp
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,18 +20,16 @@
  *      limitations under the License.
  */
 
-#include "http_session.h"
+#include "http_processing.h"
+
 #include <torii_root.h>
-#include <http/http_processing/file_send.h>
-#include <http/http_processing/response_builds.h>
-#include <http/http_processing/string_functions.h>
+#include <core/http_processing/file_send.h>
+#include <core/http_processing/response_builds.h>
+#include <core/http_processing/string_functions.h>
+#include <core/http_server.h>
 
-#include <libKitsunemimiConfig/config_handler.h>
 #include <libKitsunemimiJson/json_item.h>
-
-#include <libKitsunemimiCommon/common_items/data_items.h>
 #include <libKitsunemimiCommon/logger.h>
-#include <libKitsunemimiCommon/common_methods/string_methods.h>
 
 #include <libKitsunemimiSakuraLang/sakura_lang_interface.h>
 
@@ -45,76 +43,29 @@ using Kitsunemimi::Hanami::HanamiMessagingClient;
 using Kitsunemimi::Sakura::SakuraLangInterface;
 
 /**
- * @brief constructor
- */
-HttpRequestEvent::HttpRequestEvent(tcp::socket &&socket,
-                                   boost::asio::ssl::context &ctx)
-    : m_socket(std::move(socket)),
-      m_stream{m_socket, ctx} // the stupid template of the constructor for the variable m_stream
-                              // doesn't accept the std::move function. Because result of std::move
-                              // have to be written into it own variable first, before using this
-                              // for the m_stream varible. So the order of these two is important!
-{
-    // Perform the SSL handshake
-    beast::error_code ec;
-    m_stream.handshake(boost::asio::ssl::stream_base::server, ec);
-    if(ec.failed())
-    {
-        Kitsunemimi::ErrorContainer error;
-        error.addMeesage("SSL-Handshake failed!");
-        LOG_ERROR(error);
-    }
-}
-
-/**
- * @brief process http-session
- *
- * @return true, if successful, else false
- */
-bool
-HttpRequestEvent::processEvent()
-{
-    if(readMessage() == false) {
-        return false;
-    }
-
-    processRequest();
-    m_httpRequest.clear();
-
-    if(sendResponse() == false) {
-        return false;
-    }
-
-    // close socket gain
-    beast::error_code ec;
-    m_stream.shutdown(ec);
-
-    return true;
-}
-
-/**
  * @brief process request and build response
  */
 void
-HttpRequestEvent::processRequest()
+processRequest(http::request<http::string_body> &httpRequest,
+               http::response<http::dynamic_body> &httpResponse)
 {
     // build default-header for response
-    m_httpResponse.version(m_httpRequest.version());
-    m_httpResponse.keep_alive(false);
-    m_httpResponse.set(http::field::server, "ToriiGateway");
-    m_httpResponse.result(http::status::ok);
-    m_httpResponse.set(http::field::content_type, "text/plain");
+    httpResponse.version(httpRequest.version());
+    httpResponse.keep_alive(false);
+    httpResponse.set(http::field::server, "ToriiGateway");
+    httpResponse.result(http::status::ok);
+    httpResponse.set(http::field::content_type, "text/plain");
     Kitsunemimi::ErrorContainer error;
 
     // collect and prepare relevant data
-    const http::verb messageType = m_httpRequest.method();
-    std::string path = m_httpRequest.target().to_string();
+    const http::verb messageType = httpRequest.method();
+    std::string path = httpRequest.target().to_string();
     std::string payload = "{}";
 
     // Request path must be absolute and not contain "..".
     if(checkPath(path) == false)
     {
-        m_httpResponse.result(http::status::bad_request);
+        httpResponse.result(http::status::bad_request);
         return;
     }
 
@@ -124,13 +75,13 @@ HttpRequestEvent::processRequest()
             && messageType != http::verb::put
             && messageType != http::verb::delete_)
     {
-        m_httpResponse.result(http::status::bad_request);
+        httpResponse.result(http::status::bad_request);
         Kitsunemimi::ErrorContainer error;
         error.addMeesage("Invalid request-method '"
-                         + std::string(m_httpRequest.method_string())
+                         + std::string(httpRequest.method_string())
                          + "'");
         LOG_ERROR(error);
-        beast::ostream(m_httpResponse.body()) << error.toString();
+        beast::ostream(httpResponse.body()) << error.toString();
         return;
     }
 
@@ -138,7 +89,7 @@ HttpRequestEvent::processRequest()
     if(messageType == http::verb::get
             && cutPath(path, "/client"))
     {
-        if(processClientRequest(m_httpResponse, path, error) == false) {
+        if(processClientRequest(httpResponse, path, error) == false) {
             LOG_ERROR(error);
         }
         return;
@@ -148,20 +99,20 @@ HttpRequestEvent::processRequest()
     if(messageType == http::verb::post
             || messageType == http::verb::put)
     {
-        payload = m_httpRequest.body().data();
+        payload = httpRequest.body().data();
     }
 
     // get token from request-header
     std::string token = "";
-    if(m_httpRequest.count("X-Auth-Token") > 0) {
-        token = m_httpRequest.at("X-Auth-Token").to_string();
+    if(httpRequest.count("X-Auth-Token") > 0) {
+        token = httpRequest.at("X-Auth-Token").to_string();
     }
 
     // handle control-messages
     if(cutPath(path, "/control/"))
     {
         HttpRequestType hType = static_cast<HttpRequestType>(messageType);
-        if(processControlRequest(path, token, payload, hType, error) == false) {
+        if(processControlRequest(httpResponse, path, token, payload, hType, error) == false) {
             LOG_ERROR(error);
         }
         return;
@@ -169,91 +120,9 @@ HttpRequestEvent::processRequest()
 
     // handle default, if nothing was found
     error.addMeesage("no matching endpoint found");
-    genericError_ResponseBuild(m_httpResponse,
+    genericError_ResponseBuild(httpResponse,
                                HttpResponseTypes::NOT_FOUND_RTYPE,
                                error.toString());
-}
-
-/**
- * @brief send information of the websocket-connection
- *
- * @param client client-type (client, control, monitoring)
- * @param portName port-type (websocket_port, http_port)
- *
- * @return true, if successful, else false
- */
-bool
-HttpRequestEvent::sendConnectionInfo(const std::string &client,
-                                     const std::string &portName)
-{
-    bool success = false;
-
-    // get stuff from config
-    const uint16_t port = static_cast<uint16_t>(GET_INT_CONFIG(client, portName, success));
-    const std::string ip = GET_STRING_CONFIG("DEFAULT", "ip", success);
-
-    // pack information into a response-message
-    std::string result = "";
-    result.append("{\"port\":");
-    result.append(std::to_string(port));
-    result.append(",\"ip\":\"");
-    result.append(ip);
-    result.append("\"}");
-
-    m_httpResponse.set(http::field::content_type, "text/json");
-    beast::ostream(m_httpResponse.body()) << result;
-
-    return true;
-}
-
-/**
- * @brief read message into buffer
- *
- * @return true, if successful, else false
- */
-bool
-HttpRequestEvent::readMessage()
-{
-    beast::error_code ec;
-    beast::flat_buffer buffer;
-    http::read(m_stream, buffer, m_httpRequest, ec);
-
-    if(ec == http::error::end_of_stream) {
-         return true;
-    }
-
-    if(ec)
-    {
-        Kitsunemimi::ErrorContainer error;
-        error.addMeesage("read: " + ec.message());
-        LOG_ERROR(error);
-        return false;
-    }
-
-    return true;
-}
-
-/**
- * @brief send prebuild response
- *
- * @return true, if successful, else false
- */
-bool
-HttpRequestEvent::sendResponse()
-{
-    beast::error_code ec;
-    m_httpResponse.content_length(m_httpResponse.body().size());
-    http::write(m_stream, m_httpResponse, ec);
-
-    if(ec)
-    {
-        Kitsunemimi::ErrorContainer error;
-        error.addMeesage("write: " + ec.message());
-        LOG_ERROR(error);
-        return false;
-    }
-
-    return true;
 }
 
 /**
@@ -267,16 +136,17 @@ HttpRequestEvent::sendResponse()
  * @return true, if successful, else false
  */
 bool
-HttpRequestEvent::requestToken(const std::string &target,
-                               const Kitsunemimi::Hanami::RequestMessage &hanamiRequest,
-                               Kitsunemimi::Hanami::ResponseMessage &hanamiResponse,
-                               Kitsunemimi::ErrorContainer &error)
+requestToken(http::response<http::dynamic_body> &httpResponse,
+             const std::string &target,
+             const Kitsunemimi::Hanami::RequestMessage &hanamiRequest,
+             Kitsunemimi::Hanami::ResponseMessage &hanamiResponse,
+             Kitsunemimi::ErrorContainer &error)
 {
     HanamiMessaging* messaging = HanamiMessaging::getInstance();
     HanamiMessagingClient* client = messaging->getOutgoingClient(target);
     if(client == nullptr)
     {
-        return genericError_ResponseBuild(m_httpResponse,
+        return genericError_ResponseBuild(httpResponse,
                                           hanamiResponse.type,
                                           "Client '" + target + "' not found");
     }
@@ -284,7 +154,7 @@ HttpRequestEvent::requestToken(const std::string &target,
     // make token-request
     if(client->triggerSakuraFile(hanamiResponse, hanamiRequest, error) == false)
     {
-        return genericError_ResponseBuild(m_httpResponse,
+        return genericError_ResponseBuild(httpResponse,
                                           hanamiResponse.type,
                                           hanamiResponse.responseContent);
     }
@@ -294,13 +164,12 @@ HttpRequestEvent::requestToken(const std::string &target,
     if(hanamiResponse.type == Kitsunemimi::Hanami::UNAUTHORIZED_RTYPE
             || hanamiResponse.success == false)
     {
-        return genericError_ResponseBuild(m_httpResponse,
+        return genericError_ResponseBuild(httpResponse,
                                           hanamiResponse.type,
                                           hanamiResponse.responseContent);
     }
 
-
-    return success_ResponseBuild(m_httpResponse, hanamiResponse.responseContent);
+    return success_ResponseBuild(httpResponse, hanamiResponse.responseContent);
 }
 
 /**
@@ -315,16 +184,18 @@ HttpRequestEvent::requestToken(const std::string &target,
  * @return true, if successful, else false
  */
 bool
-HttpRequestEvent::checkPermission(const std::string &token,
-                                  const std::string &component,
-                                  const Kitsunemimi::Hanami::RequestMessage &hanamiRequest,
-                                  Kitsunemimi::Hanami::ResponseMessage &responseMsg,
-                                  Kitsunemimi::ErrorContainer &error)
+checkPermission(const std::string &token,
+                const std::string &component,
+                const Kitsunemimi::Hanami::RequestMessage &hanamiRequest,
+                Kitsunemimi::Hanami::ResponseMessage &responseMsg,
+                Kitsunemimi::ErrorContainer &error)
 {
     Kitsunemimi::Hanami::RequestMessage requestMsg;
 
     requestMsg.id = "v1/auth";
+    requestMsg.httpType = HttpRequestType::GET_TYPE;
     requestMsg.inputValues = "";
+
     requestMsg.inputValues.append("{\"token\":\"");
     requestMsg.inputValues.append(token);
     requestMsg.inputValues.append("\",\"component\":\"");
@@ -334,8 +205,6 @@ HttpRequestEvent::checkPermission(const std::string &token,
     requestMsg.inputValues.append("\",\"http_type\":");
     requestMsg.inputValues.append(std::to_string(static_cast<uint32_t>(hanamiRequest.httpType)));
     requestMsg.inputValues.append("}");
-
-    requestMsg.httpType = HttpRequestType::GET_TYPE;
 
     HanamiMessaging* messaging = HanamiMessaging::getInstance();
     if(messaging->misakaClient == nullptr)
@@ -354,9 +223,9 @@ HttpRequestEvent::checkPermission(const std::string &token,
  * @param error reference for error-ourpur
  */
 void
-HttpRequestEvent::internalRequest(const Kitsunemimi::Hanami::RequestMessage &hanamiRequest,
-                                  Kitsunemimi::Hanami::ResponseMessage &responseMsg,
-                                  Kitsunemimi::ErrorContainer &error)
+internalRequest(const Kitsunemimi::Hanami::RequestMessage &hanamiRequest,
+                Kitsunemimi::Hanami::ResponseMessage &responseMsg,
+                Kitsunemimi::ErrorContainer &error)
 {
     SakuraLangInterface* interface = SakuraLangInterface::getInstance();
     Kitsunemimi::DataMap result;
@@ -408,11 +277,12 @@ HttpRequestEvent::internalRequest(const Kitsunemimi::Hanami::RequestMessage &han
  * @return true, if successful, else false
  */
 bool
-HttpRequestEvent::processControlRequest(const std::string &uri,
-                                        const std::string &token,
-                                        const std::string &inputValues,
-                                        const HttpRequestType httpType,
-                                        Kitsunemimi::ErrorContainer &error)
+processControlRequest(http::response<http::dynamic_body> &httpResponse,
+                      const std::string &uri,
+                      const std::string &token,
+                      const std::string &inputValues,
+                      const HttpRequestType httpType,
+                      Kitsunemimi::ErrorContainer &error)
 {
     std::string target = "";
     Kitsunemimi::Hanami::RequestMessage hanamiRequest;
@@ -423,24 +293,24 @@ HttpRequestEvent::processControlRequest(const std::string &uri,
     hanamiRequest.httpType = httpType;
     hanamiRequest.inputValues = inputValues;
     if(parseUri(target, token, hanamiRequest, uri, error) == false) {
-        return invalid_ResponseBuild(m_httpResponse, "failed to parse uri");
+        return invalid_ResponseBuild(httpResponse, "failed to parse uri");
     }
 
     // handle token-request
     if(hanamiRequest.id == "v1/token") {
-        return requestToken(target, hanamiRequest, hanamiResponse, error);
+        return requestToken(httpResponse, target, hanamiRequest, hanamiResponse, error);
     }
 
     // check authentication
     if(checkPermission(token, target, hanamiRequest, hanamiResponse, error) == false) {
-        return internalError_ResponseBuild(m_httpResponse, error);
+        return internalError_ResponseBuild(httpResponse, error);
     }
 
     // handle failed authentication
     if(hanamiResponse.type == Kitsunemimi::Hanami::UNAUTHORIZED_RTYPE
             || hanamiResponse.success == false)
     {
-        return genericError_ResponseBuild(m_httpResponse,
+        return genericError_ResponseBuild(httpResponse,
                                           hanamiResponse.type,
                                           hanamiResponse.responseContent);
     }
@@ -448,7 +318,7 @@ HttpRequestEvent::processControlRequest(const std::string &uri,
     // parse response to get user-uuid of the token
     Kitsunemimi::Json::JsonItem userData;
     if(userData.parse(hanamiResponse.responseContent, error) == false) {
-        return internalError_ResponseBuild(m_httpResponse, error);
+        return internalError_ResponseBuild(httpResponse, error);
     }
 
     // send audit-message to sagiri
@@ -467,25 +337,25 @@ HttpRequestEvent::processControlRequest(const std::string &uri,
         HanamiMessagingClient* client = messaging->getOutgoingClient(target);
         if(client == nullptr)
         {
-            return genericError_ResponseBuild(m_httpResponse,
+            return genericError_ResponseBuild(httpResponse,
                                               hanamiResponse.type,
                                               "Client '" + target + "' not found");
         }
 
         // make real request
         if(client->triggerSakuraFile(hanamiResponse, hanamiRequest, error) == false) {
-            return internalError_ResponseBuild(m_httpResponse, error);
+            return internalError_ResponseBuild(httpResponse, error);
         }
     }
 
     // handle error-response
     if(hanamiResponse.success == false)
     {
-        return genericError_ResponseBuild(m_httpResponse,
+        return genericError_ResponseBuild(httpResponse,
                                           hanamiResponse.type,
                                           hanamiResponse.responseContent);
     }
 
     // handle success
-    return success_ResponseBuild(m_httpResponse, hanamiResponse.responseContent);
+    return success_ResponseBuild(httpResponse, hanamiResponse.responseContent);
 }

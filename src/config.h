@@ -39,32 +39,26 @@ registerConfigs(Kitsunemimi::ErrorContainer &error)
 
     // http-section
     const std::string httpGroup = "http";
-    REGISTER_BOOL_CONFIG(   httpGroup, "enable",           error, false);
-    REGISTER_BOOL_CONFIG(   httpGroup, "enable_dashboard", error, false);
-    REGISTER_STRING_CONFIG( httpGroup, "dashboard_files",  error, "");
-    REGISTER_STRING_CONFIG( httpGroup, "certificate",      error, "",        true);
-    REGISTER_STRING_CONFIG( httpGroup, "key",              error, "",        true);
-    REGISTER_STRING_CONFIG( httpGroup, "ip",               error, "0.0.0.0", true);
-    REGISTER_INT_CONFIG(    httpGroup, "port",             error, 12345,     true);
+    REGISTER_BOOL_CONFIG(   httpGroup, "enable",            error, false);
+    REGISTER_BOOL_CONFIG(   httpGroup, "enable_dashboard",  error, false);
+    REGISTER_STRING_CONFIG( httpGroup, "dashboard_files",   error, "");
+    REGISTER_STRING_CONFIG( httpGroup, "certificate",       error, "",        true);
+    REGISTER_STRING_CONFIG( httpGroup, "key",               error, "",        true);
+    REGISTER_STRING_CONFIG( httpGroup, "ip",                error, "0.0.0.0", true);
+    REGISTER_INT_CONFIG(    httpGroup, "port",              error, 12345,     true);
     REGISTER_INT_CONFIG(    httpGroup, "number_of_threads", error, 4);
-
-    // websocket-section
-    const std::string websocketGroup = "websocket";
-    REGISTER_BOOL_CONFIG(   websocketGroup, "enable",  error, false);
-    REGISTER_INT_CONFIG(    websocketGroup, "port",    error, 13346);
-    REGISTER_STRING_CONFIG( websocketGroup, "ip",               error, "0.0.0.0", true);
 
     // sakura-section
     const std::string sakuraGroup = "sakura";
-    REGISTER_BOOL_CONFIG(   sakuraGroup, "enable",  error, false);
-    REGISTER_STRING_CONFIG( sakuraGroup, "certificate",      error, "",        true);
-    REGISTER_STRING_CONFIG( sakuraGroup, "key",              error, "",        true);
-    REGISTER_STRING_CONFIG( sakuraGroup, "ip",               error, "0.0.0.0", true);
-    REGISTER_INT_CONFIG(    sakuraGroup, "port",             error, 12345,     true);
+    REGISTER_BOOL_CONFIG(   sakuraGroup, "enable",          error, false);
+    REGISTER_STRING_CONFIG( sakuraGroup, "certificate",     error, "",        true);
+    REGISTER_STRING_CONFIG( sakuraGroup, "key",             error, "",        true);
+    REGISTER_STRING_CONFIG( sakuraGroup, "ip",              error, "0.0.0.0", true);
+    REGISTER_INT_CONFIG(    sakuraGroup, "port",            error, 12345,     true);
 }
 
 bool
-validateConfig(Kitsunemimi::ErrorContainer &error)
+validateConfig(Kitsunemimi::ErrorContainer &)
 {
     bool valid = Kitsunemimi::Config::isConfigValid();
     if(valid == false) {
@@ -77,16 +71,6 @@ validateConfig(Kitsunemimi::ErrorContainer &error)
     }
 
     if(std::filesystem::exists(fileLocation) == false) {
-        return false;
-    }
-
-    const long port = GET_INT_CONFIG("server", "websocket_port", valid);
-    if(port <= 0
-            || port > 64000)
-    {
-        error.addMeesage("port for websocket is not valid. Port in config: "
-                         + std::to_string(port));
-        LOG_ERROR(error);
         return false;
     }
 

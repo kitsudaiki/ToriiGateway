@@ -22,8 +22,7 @@
 
 #include "torii_root.h"
 
-#include <http/request_queue.h>
-#include <http/http_thread.h>
+#include <core/http_websocket_thread.h>
 
 #include <libKitsunemimiCommon/buffer/data_buffer.h>
 #include <libKitsunemimiCommon/files/text_file.h>
@@ -36,12 +35,10 @@
 
 using Kitsunemimi::Hanami::HanamiMessaging;
 
-#include <websocket/web_socket_server.h>
-#include <websocket/web_socket_session.h>
-#include <http/http_server.h>
+#include <core/http_server.h>
 #include <api/blossom_initializing.h>
 
-RequestQueue* ToriiGateway::requestQueue = new RequestQueue();
+HttpServer* ToriiGateway::httpServer = nullptr;
 
 /**
  * @brief constructor
@@ -65,13 +62,6 @@ ToriiGateway::init()
         return false;
     }
 
-    if(initWebSocketServer() == false)
-    {
-        error.addMeesage("initializing websocket-server failed");
-        LOG_ERROR(error);
-        return false;
-    }
-
     if(initSakuraServer() == false)
     {
         error.addMeesage("initializing sakura-server failed");
@@ -80,34 +70,6 @@ ToriiGateway::init()
     }
 
     initBlossoms();
-
-    return true;
-}
-
-/**
- * @brief initialze websocket server
- *
- * @param group group-name in config-file
- *
- * @return true, if successful, else false
- */
-bool
-ToriiGateway::initWebSocketServer()
-{
-    bool success = false;
-
-    // check if websocket is enabled
-    if(GET_BOOL_CONFIG("websocket", "enable", success) == false) {
-        return true;
-    }
-
-    // get stuff from config
-    const long port = GET_INT_CONFIG("websocket", "port", success);
-    const std::string ip = GET_STRING_CONFIG("websocket", "ip", success);
-
-    // start websocket-server
-    websocketServer = new WebSocketServer(ip, static_cast<uint16_t>(port));
-    websocketServer->startThread();
 
     return true;
 }
@@ -134,18 +96,19 @@ ToriiGateway::initHttpServer()
     const std::string key =          GET_STRING_CONFIG( "http", "key",               success);
     const uint32_t numberOfThreads = GET_INT_CONFIG(    "http", "number_of_threads", success);
 
-    // start threads
-    for(uint32_t i = 0; i < numberOfThreads; i++)
-    {
-        const std::string name = "HttpThread";
-        HttpThread* httpThread = new HttpThread(name);
-        httpThread->startThread();
-        m_threads.push_back(httpThread);
-    }
 
     // create server
     httpServer = new HttpServer(ip, port, cert, key);
     httpServer->startThread();
+
+    // start threads
+    for(uint32_t i = 0; i < numberOfThreads; i++)
+    {
+        const std::string name = "HttpWebsocketThread";
+        HttpWebsocketThread* httpWebsocketThread = new HttpWebsocketThread(name);
+        httpWebsocketThread->startThread();
+        m_threads.push_back(httpWebsocketThread);
+    }
 
     return true;
 }
