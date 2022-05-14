@@ -78,7 +78,9 @@ parseUri(std::string &target,
         return false;
     }
 
-    if(parsedInputValues.parse(request.inputValues, error) == false) {
+    if(parsedInputValues.parse(request.inputValues, error) == false)
+    {
+        error.addMeesage("Failes to parse input-values.");
         return false;
     }
 

@@ -45,7 +45,8 @@ void streamForwardCallback(void* target,
                            const uint64_t dataSize);
 
 void genericCallback(Kitsunemimi::Sakura::Session*,
-                     const Kitsunemimi::Json::JsonItem&,
+                     const void *,
+                     const uint64_t,
                      const uint64_t);
 
 #endif // TORIIGATEWAY_CALLBACKS_H
