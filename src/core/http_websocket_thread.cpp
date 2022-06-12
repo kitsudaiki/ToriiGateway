@@ -102,13 +102,13 @@ HttpWebsocketThread::handleSocket(tcp::socket* socket,
         // initialize new websocket-session
         websocket::stream<beast::ssl_stream<tcp::socket&>> webSocket(std::move(stream));
         m_webSocket = &webSocket;        
-        if(init(webSocket, httpRequest) == false)
+        if(init(httpRequest) == false)
         {
             error.addMeesage("Can not init websocket.");
             return false;
         }
 
-        runWebsocket(webSocket);
+        runWebsocket();
         m_session = nullptr;
     }
     else
@@ -187,13 +187,12 @@ HttpWebsocketThread::sendResponse(beast::ssl_stream<tcp::socket&> &stream,
 
 
 bool
-HttpWebsocketThread::init(websocket::stream<beast::ssl_stream<tcp::socket&>> &webSocket,
-                          http::request<http::string_body> &httpRequest)
+HttpWebsocketThread::init(http::request<http::string_body> &httpRequest)
 {
     try
     {
         // Set a decorator to change the Server of the handshake
-        webSocket.set_option(websocket::stream_base::decorator(
+        m_webSocket->set_option(websocket::stream_base::decorator(
             [](websocket::response_type& res)
             {
                 res.set(http::field::server,
@@ -202,7 +201,7 @@ HttpWebsocketThread::init(websocket::stream<beast::ssl_stream<tcp::socket&>> &we
             }));
 
         // Accept the websocket handshake
-        webSocket.accept(std::move(httpRequest));
+        m_webSocket->accept(std::move(httpRequest));
     }
     catch(const beast::system_error& se)
     {
@@ -342,7 +341,7 @@ HttpWebsocketThread::processInitialMessage(const std::string &message,
  * @param webSocket
  */
 void
-HttpWebsocketThread::runWebsocket(websocket::stream<beast::ssl_stream<tcp::socket&>> &webSocket)
+HttpWebsocketThread::runWebsocket()
 {
     try
     {
@@ -352,7 +351,7 @@ HttpWebsocketThread::runWebsocket(websocket::stream<beast::ssl_stream<tcp::socke
         {
             // read message from socket
             beast::flat_buffer buffer;
-            webSocket.read(buffer);
+            m_webSocket->read(buffer);
 
             //m_webSocket.text(m_webSocket.got_text());
             if(m_session == nullptr)
@@ -368,8 +367,8 @@ HttpWebsocketThread::runWebsocket(websocket::stream<beast::ssl_stream<tcp::socke
                     error = ErrorContainer();
                 }
 
-                webSocket.binary(true);
-                webSocket.write(net::buffer(response, response.size()));
+                m_webSocket->binary(true);
+                m_webSocket->write(net::buffer(response, response.size()));
             }
             else
             {

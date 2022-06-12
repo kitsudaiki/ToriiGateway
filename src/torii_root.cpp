@@ -36,7 +36,6 @@
 using Kitsunemimi::Hanami::HanamiMessaging;
 
 #include <core/http_server.h>
-#include <api/blossom_initializing.h>
 
 HttpServer* ToriiGateway::httpServer = nullptr;
 
@@ -68,8 +67,6 @@ ToriiGateway::init()
         LOG_ERROR(error);
         return false;
     }
-
-    initBlossoms();
 
     return true;
 }

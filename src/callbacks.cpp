@@ -27,23 +27,6 @@
 #include <libKitsunemimiSakuraNetwork/session.h>
 
 /**
- * @brief callback for stream-messages for the client
- *
- * @param target pointer to the Gateway-instance
- * @param data incoming data
- * @param dataSize number of incoming bytes
- */
-void
-clientDataCallback(void*,
-                   Kitsunemimi::Sakura::Session*,
-                   const void* data,
-                   const uint64_t dataSize)
-{
-    const std::string text(static_cast<const char*>(data), dataSize);
-
-}
-
-/**
  * @brief forward data of a stream-message to a linked session
  *
  * @param target target-session to forward to
@@ -51,24 +34,18 @@ clientDataCallback(void*,
  * @param dataSize number of bytes to forward
  */
 void
-streamForwardCallback(void* target,
+streamDataCallback(void*,
                       Kitsunemimi::Sakura::Session*,
-                      const void* data,
-                      const uint64_t dataSize)
+                      const void*,
+                      const uint64_t)
 {
-    if(target == nullptr) {
-        return;
-    }
 
-    Kitsunemimi::ErrorContainer error;
-    Kitsunemimi::Sakura::Session* tSession = static_cast<Kitsunemimi::Sakura::Session*>(target);
-    tSession->sendStreamData(data, dataSize, error);
 }
 
 
 void
 genericCallback(Kitsunemimi::Sakura::Session*,
-                const void*,
+                void*,
                 const uint64_t,
                 const uint64_t)
 {

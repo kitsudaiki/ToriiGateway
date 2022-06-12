@@ -26,26 +26,18 @@
 #include <stdint.h>
 
 namespace Kitsunemimi {
-namespace Json {
-class JsonItem;
-}
 namespace Sakura {
 class Session;
 }
 }
 
-void clientDataCallback(void*,
+void streamDataCallback(void*,
                         Kitsunemimi::Sakura::Session*,
-                        const void* data,
-                        const uint64_t dataSize);
-
-void streamForwardCallback(void* target,
-                           Kitsunemimi::Sakura::Session*,
-                           const void* data,
-                           const uint64_t dataSize);
+                        const void*,
+                        const uint64_t);
 
 void genericCallback(Kitsunemimi::Sakura::Session*,
-                     const void *,
+                     void *,
                      const uint64_t,
                      const uint64_t);
 

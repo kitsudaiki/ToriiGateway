@@ -216,56 +216,6 @@ checkPermission(const std::string &token,
 }
 
 /**
- * @brief handle api-request within the torii
- *
- * @param hanamiRequest request-data
- * @param responseMsg reference for the response-message
- * @param error reference for error-ourpur
- */
-void
-internalRequest(const Kitsunemimi::Hanami::RequestMessage &hanamiRequest,
-                Kitsunemimi::Hanami::ResponseMessage &responseMsg,
-                Kitsunemimi::ErrorContainer &error)
-{
-    SakuraLangInterface* interface = SakuraLangInterface::getInstance();
-    Kitsunemimi::DataMap result;
-    Kitsunemimi::DataMap context;
-    Kitsunemimi::Sakura::BlossomStatus status;
-
-    // parse json-formated input values
-    Kitsunemimi::Json::JsonItem inputValues;
-    if(inputValues.parse(hanamiRequest.inputValues, error) == false)
-    {
-        responseMsg.success = false;
-        responseMsg.type = Kitsunemimi::Hanami::BAD_REQUEST_RTYPE;
-        return;
-    }
-
-    // remove token from request, with would be normally done by the messaging-lib
-    Kitsunemimi::DataMap* inputs = inputValues.getItemContent()->toMap();
-    inputs->remove("token");
-
-    // trigger blossom within the torii
-    if(interface->triggerBlossom(result,
-                                 hanamiRequest.id,
-                                 "proxy",
-                                 context,
-                                 *inputs,
-                                 status,
-                                 error) == false)
-    {
-        responseMsg.success = false;
-        responseMsg.type = static_cast<HttpResponseTypes>(status.statusCode);
-        responseMsg.responseContent = status.errorMessage;
-        return;
-    }
-
-    responseMsg.success = true;
-
-    return;
-}
-
-/**
  * @brief process control request
  *
  * @param uri requested uri
@@ -328,24 +278,17 @@ processControlRequest(http::response<http::dynamic_body> &httpResponse,
                              hanamiRequest.httpType);
 
     // forward real request
-    if(target == "torii")
+    HanamiMessagingClient* client = messaging->getOutgoingClient(target);
+    if(client == nullptr)
     {
-        internalRequest(hanamiRequest, hanamiResponse, error);
+        return genericError_ResponseBuild(httpResponse,
+                                          hanamiResponse.type,
+                                          "Client '" + target + "' not found");
     }
-    else
-    {
-        HanamiMessagingClient* client = messaging->getOutgoingClient(target);
-        if(client == nullptr)
-        {
-            return genericError_ResponseBuild(httpResponse,
-                                              hanamiResponse.type,
-                                              "Client '" + target + "' not found");
-        }
 
-        // make real request
-        if(client->triggerSakuraFile(hanamiResponse, hanamiRequest, error) == false) {
-            return internalError_ResponseBuild(httpResponse, error);
-        }
+    // make real request
+    if(client->triggerSakuraFile(hanamiResponse, hanamiRequest, error) == false) {
+        return internalError_ResponseBuild(httpResponse, error);
     }
 
     // handle error-response

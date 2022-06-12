@@ -75,13 +75,12 @@ private:
                       Kitsunemimi::ErrorContainer &error);
 
     // websocket-functions and variables
-    bool init(websocket::stream<beast::ssl_stream<tcp::socket&>> &webSocket,
-              http::request<http::string_body> &httpRequest);
-    void runWebsocket(websocket::stream<beast::ssl_stream<tcp::socket&>> &webSocket);
+    bool init(http::request<http::string_body> &httpRequest);
+    void runWebsocket();
     bool processInitialMessage(const std::string &message,
                                Kitsunemimi::ErrorContainer &error);
 
-    websocket::stream<beast::ssl_stream<tcp::socket&>> *m_webSocket = nullptr;
+    websocket::stream<beast::ssl_stream<tcp::socket&>>* m_webSocket = nullptr;
     Kitsunemimi::Hanami::HanamiMessagingClient* m_session = nullptr;
 };
 
