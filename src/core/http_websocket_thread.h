@@ -59,10 +59,10 @@ class HttpWebsocketThread
 public:
     HttpWebsocketThread(const std::string &threadName);
 
+    bool sendData(const void* data, const uint64_t dataSize);
+
 protected:
     void run();
-
-    bool sendData(const void* data, const uint64_t dataSize);
 
 private:
     bool handleSocket(tcp::socket* socket,
@@ -81,7 +81,8 @@ private:
                                Kitsunemimi::ErrorContainer &error);
 
     websocket::stream<beast::ssl_stream<tcp::socket&>>* m_webSocket = nullptr;
-    Kitsunemimi::Hanami::HanamiMessagingClient* m_session = nullptr;
+    std::string m_uuid = "";
+    Kitsunemimi::Hanami::HanamiMessagingClient* m_client = nullptr;
 };
 
 #endif // TORIIGATEWAY_HTTP_THREAD_H

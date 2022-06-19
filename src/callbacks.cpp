@@ -21,6 +21,7 @@
  */
 
 #include <callbacks.h>
+#include <core/http_websocket_thread.h>
 
 #include <libKitsunemimiJson/json_item.h>
 
@@ -34,14 +35,14 @@
  * @param dataSize number of bytes to forward
  */
 void
-streamDataCallback(void*,
-                      Kitsunemimi::Sakura::Session*,
-                      const void*,
-                      const uint64_t)
+streamDataCallback(void* receiver,
+                   Kitsunemimi::Sakura::Session* session,
+                   const void* data,
+                   const uint64_t dataSize)
 {
-
+    HttpWebsocketThread* webSocket = static_cast<HttpWebsocketThread*>(receiver);
+    webSocket->sendData(data, dataSize);
 }
-
 
 void
 genericCallback(Kitsunemimi::Sakura::Session*,

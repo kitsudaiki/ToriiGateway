@@ -31,10 +31,10 @@ class Session;
 }
 }
 
-void streamDataCallback(void*,
-                        Kitsunemimi::Sakura::Session*,
-                        const void*,
-                        const uint64_t);
+void streamDataCallback(void* receiver,
+                        Kitsunemimi::Sakura::Session*session,
+                        const void* data,
+                        const uint64_t dataSize);
 
 void genericCallback(Kitsunemimi::Sakura::Session*,
                      void *,

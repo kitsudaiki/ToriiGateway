@@ -84,7 +84,7 @@ LIBS += -L../libKitsunemimiCrypto/src/debug -lKitsunemimiCrypto
 LIBS += -L../libKitsunemimiCrypto/src/release -lKitsunemimiCrypto
 INCLUDEPATH += ../libKitsunemimiCrypto/include
 
-LIBS += -lcryptopp -lssl -lcrypto
+LIBS += -lcryptopp -lssl -lcrypto -luuid
 
 INCLUDEPATH += $$PWD \
                src
