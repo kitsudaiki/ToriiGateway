@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
     if(HanamiMessaging::getInstance()->initialize("torii",
                                                   groupNames,
                                                   nullptr,
-                                                  &streamForwardCallback,
+                                                  &streamDataCallback,
                                                   &genericCallback,
                                                   error,
                                                   true) == false)

@@ -23,11 +23,13 @@
 #include "http_websocket_thread.h"
 
 #include <torii_root.h>
+#include <callbacks.h>
 #include <core/http_server.h>
 #include <core/http_processing/http_processing.h>
 
 #include <libKitsunemimiHanamiMessaging/hanami_messaging_client.h>
 #include <libKitsunemimiHanamiMessaging/hanami_messaging.h>
+#include <libKitsunemimiHanamiCommon/uuid.h>
 
 #include <libKitsunemimiCommon/threading/event.h>
 
@@ -102,14 +104,15 @@ HttpWebsocketThread::handleSocket(tcp::socket* socket,
         // initialize new websocket-session
         websocket::stream<beast::ssl_stream<tcp::socket&>> webSocket(std::move(stream));
         m_webSocket = &webSocket;        
-        if(init(webSocket, httpRequest) == false)
+        if(init(httpRequest) == false)
         {
             error.addMeesage("Can not init websocket.");
             return false;
         }
 
-        runWebsocket(webSocket);
-        m_session = nullptr;
+        runWebsocket();
+        m_client = nullptr;
+        m_uuid = "";
     }
     else
     {
@@ -187,13 +190,12 @@ HttpWebsocketThread::sendResponse(beast::ssl_stream<tcp::socket&> &stream,
 
 
 bool
-HttpWebsocketThread::init(websocket::stream<beast::ssl_stream<tcp::socket&>> &webSocket,
-                          http::request<http::string_body> &httpRequest)
+HttpWebsocketThread::init(http::request<http::string_body> &httpRequest)
 {
     try
     {
         // Set a decorator to change the Server of the handshake
-        webSocket.set_option(websocket::stream_base::decorator(
+        m_webSocket->set_option(websocket::stream_base::decorator(
             [](websocket::response_type& res)
             {
                 res.set(http::field::server,
@@ -202,7 +204,7 @@ HttpWebsocketThread::init(websocket::stream<beast::ssl_stream<tcp::socket&>> &we
             }));
 
         // Accept the websocket handshake
-        webSocket.accept(std::move(httpRequest));
+        m_webSocket->accept(std::move(httpRequest));
     }
     catch(const beast::system_error& se)
     {
@@ -325,15 +327,35 @@ HttpWebsocketThread::processInitialMessage(const std::string &message,
         return false;
     }
 
-    // get target-session by name
-    m_session = messageInterface->getOutgoingClient(target);
-    if(m_session == nullptr)
+    if(target == "sagiri")
     {
-        error.addMeesage("Forwarind of websocket to target '" + target + "' failed");
-        return false;
+        // get target-session by name
+        m_client = messageInterface->getOutgoingClient(target);
+        if(m_client == nullptr)
+        {
+            error.addMeesage("Forwarind of websocket to target '" + target + "' failed");
+            return false;
+        }
+
+        return true;
+    }
+    else if(target == "kyouko")
+    {
+        m_client = messageInterface->createTemporaryClient(m_uuid, target, error);
+        if(m_client == nullptr)
+        {
+            error.addMeesage("Forwarind of websocket to target '" + target + "' failed");
+            return false;
+        }
+
+        m_client->setStreamCallback(this, streamDataCallback);
+
+        return true;
     }
 
-    return true;
+    error.addMeesage("Session-forwarding to target '" + target + "' is not allowed");
+
+    return false;
 }
 
 /**
@@ -342,7 +364,7 @@ HttpWebsocketThread::processInitialMessage(const std::string &message,
  * @param webSocket
  */
 void
-HttpWebsocketThread::runWebsocket(websocket::stream<beast::ssl_stream<tcp::socket&>> &webSocket)
+HttpWebsocketThread::runWebsocket()
 {
     try
     {
@@ -352,28 +374,39 @@ HttpWebsocketThread::runWebsocket(websocket::stream<beast::ssl_stream<tcp::socke
         {
             // read message from socket
             beast::flat_buffer buffer;
-            webSocket.read(buffer);
+            m_webSocket->read(buffer);
 
             //m_webSocket.text(m_webSocket.got_text());
-            if(m_session == nullptr)
+            if(m_client == nullptr)
             {
                 const std::string msg(static_cast<const char*>(buffer.data().data()),
                                       buffer.data().size());
+                m_uuid = Hanami::generateUuid().toString();
+
                 LOG_DEBUG("got initial websocket-message: '" + msg + "'");
-                std::string response = "success";
+                bool success = true;
                 if(processInitialMessage(msg, error) == false)
                 {
-                    response = "failed";
+                    success = false;
                     LOG_ERROR(error);
                     error = ErrorContainer();
                 }
 
-                webSocket.binary(true);
-                webSocket.write(net::buffer(response, response.size()));
+                // build response-message
+                std::string response = "{\"success\":" + std::to_string(success);
+                if(success)
+                {
+                    response.append(",\"uuid\":");
+                    response.append(m_uuid);
+                }
+                response.append("}");
+
+                m_webSocket->binary(true);
+                m_webSocket->write(net::buffer(response, response.size()));
             }
             else
             {
-                m_session->sendStreamMessage(buffer.data().data(),
+                m_client->sendStreamMessage(buffer.data().data(),
                                              buffer.data().size(),
                                              false,
                                              error);

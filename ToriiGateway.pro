@@ -84,13 +84,12 @@ LIBS += -L../libKitsunemimiCrypto/src/debug -lKitsunemimiCrypto
 LIBS += -L../libKitsunemimiCrypto/src/release -lKitsunemimiCrypto
 INCLUDEPATH += ../libKitsunemimiCrypto/include
 
-LIBS += -lcryptopp -lssl -lcrypto
+LIBS += -lcryptopp -lssl -lcrypto -luuid
 
 INCLUDEPATH += $$PWD \
                src
 
 SOURCES += \
-        src/api/v1/proxy/forward_session.cpp \
         src/callbacks.cpp \
         src/core/http_processing/file_send.cpp \
         src/core/http_processing/http_processing.cpp \
@@ -101,8 +100,6 @@ SOURCES += \
         src/core/http_server.cpp
 
 HEADERS += \
-        src/api/blossom_initializing.h \
-        src/api/v1/proxy/forward_session.h \
         src/args.h \
         src/core/http_processing/file_send.h \
         src/core/http_processing/http_processing.h \

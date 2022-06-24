@@ -78,8 +78,4 @@ bool processControlRequest(http::response<http::dynamic_body> &httpResponse,
                            const Kitsunemimi::Hanami::HttpRequestType httpType,
                            Kitsunemimi::ErrorContainer &error);
 
-void internalRequest(const Kitsunemimi::Hanami::RequestMessage &hanamiRequest,
-                     Kitsunemimi::Hanami::ResponseMessage &responseMsg,
-                     Kitsunemimi::ErrorContainer &error);
-
 #endif // TORIIGATEWAY_HTTP_PROCESSING_H

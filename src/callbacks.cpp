@@ -21,27 +21,11 @@
  */
 
 #include <callbacks.h>
+#include <core/http_websocket_thread.h>
 
 #include <libKitsunemimiJson/json_item.h>
 
 #include <libKitsunemimiSakuraNetwork/session.h>
-
-/**
- * @brief callback for stream-messages for the client
- *
- * @param target pointer to the Gateway-instance
- * @param data incoming data
- * @param dataSize number of incoming bytes
- */
-void
-clientDataCallback(void*,
-                   Kitsunemimi::Sakura::Session*,
-                   const void* data,
-                   const uint64_t dataSize)
-{
-    const std::string text(static_cast<const char*>(data), dataSize);
-
-}
 
 /**
  * @brief forward data of a stream-message to a linked session
@@ -51,24 +35,18 @@ clientDataCallback(void*,
  * @param dataSize number of bytes to forward
  */
 void
-streamForwardCallback(void* target,
-                      Kitsunemimi::Sakura::Session*,
-                      const void* data,
-                      const uint64_t dataSize)
+streamDataCallback(void* receiver,
+                   Kitsunemimi::Sakura::Session* session,
+                   const void* data,
+                   const uint64_t dataSize)
 {
-    if(target == nullptr) {
-        return;
-    }
-
-    Kitsunemimi::ErrorContainer error;
-    Kitsunemimi::Sakura::Session* tSession = static_cast<Kitsunemimi::Sakura::Session*>(target);
-    tSession->sendStreamData(data, dataSize, error);
+    HttpWebsocketThread* webSocket = static_cast<HttpWebsocketThread*>(receiver);
+    webSocket->sendData(data, dataSize);
 }
-
 
 void
 genericCallback(Kitsunemimi::Sakura::Session*,
-                const void*,
+                void*,
                 const uint64_t,
                 const uint64_t)
 {
