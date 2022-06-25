@@ -113,6 +113,7 @@ HttpWebsocketThread::handleSocket(tcp::socket* socket,
         runWebsocket();
         m_client = nullptr;
         m_uuid = "";
+        m_target = "";
     }
     else
     {
@@ -300,7 +301,7 @@ HttpWebsocketThread::processInitialMessage(const std::string &message,
         return false;
     }
 
-    const std::string target = content.get("target").getString();
+    m_target = content.get("target").getString();
 
     Hanami::RequestMessage requestMsg;
     Hanami::ResponseMessage responseMsg;
@@ -310,7 +311,7 @@ HttpWebsocketThread::processInitialMessage(const std::string &message,
 
     // check authentication
     if(checkPermission(content.get("token").getString(),
-                       target,
+                       m_target,
                        requestMsg,
                        responseMsg,
                        error) == false)
@@ -327,24 +328,24 @@ HttpWebsocketThread::processInitialMessage(const std::string &message,
         return false;
     }
 
-    if(target == "sagiri")
+    if(m_target == "sagiri")
     {
         // get target-session by name
-        m_client = messageInterface->getOutgoingClient(target);
+        m_client = messageInterface->getOutgoingClient(m_target);
         if(m_client == nullptr)
         {
-            error.addMeesage("Forwarind of websocket to target '" + target + "' failed");
+            error.addMeesage("Forwarind of websocket to target '" + m_target + "' failed");
             return false;
         }
 
         return true;
     }
-    else if(target == "kyouko")
+    else if(m_target == "kyouko")
     {
-        m_client = messageInterface->createTemporaryClient(m_uuid, target, error);
+        m_client = messageInterface->createTemporaryClient(m_uuid, m_target, error);
         if(m_client == nullptr)
         {
-            error.addMeesage("Forwarind of websocket to target '" + target + "' failed");
+            error.addMeesage("Forwarind of websocket to target '" + m_target + "' failed");
             return false;
         }
 
@@ -353,9 +354,25 @@ HttpWebsocketThread::processInitialMessage(const std::string &message,
         return true;
     }
 
-    error.addMeesage("Session-forwarding to target '" + target + "' is not allowed");
+    error.addMeesage("Session-forwarding to target '" + m_target + "' is not allowed");
 
     return false;
+}
+
+void
+HttpWebsocketThread::closeClient(ErrorContainer &error)
+{
+    if(m_client != nullptr)
+    {
+        if(m_target == "kyouko")
+        {
+            m_client->closeClient(error);
+            LOG_ERROR(error);
+            m_client->scheduleThreadForDeletion();
+        }
+
+        m_client = nullptr;
+    }
 }
 
 /**
@@ -366,10 +383,10 @@ HttpWebsocketThread::processInitialMessage(const std::string &message,
 void
 HttpWebsocketThread::runWebsocket()
 {
+    ErrorContainer error;
+
     try
     {
-        ErrorContainer error;
-
         while(m_abort == false)
         {
             // read message from socket
@@ -407,9 +424,9 @@ HttpWebsocketThread::runWebsocket()
             else
             {
                 m_client->sendStreamMessage(buffer.data().data(),
-                                             buffer.data().size(),
-                                             false,
-                                             error);
+                                            buffer.data().size(),
+                                            false,
+                                            error);
             }
         }
     }
@@ -424,7 +441,6 @@ HttpWebsocketThread::runWebsocket()
             ErrorContainer error;
             error.addMeesage("Error while receiving data over websocket with message: "
                              + se.code().message());
-            LOG_ERROR(error);
         }
     }
     catch(const std::exception& e)
@@ -432,6 +448,8 @@ HttpWebsocketThread::runWebsocket()
         ErrorContainer error;
         error.addMeesage("Error while receiving data over websocket with message: "
                          + std::string(e.what()));
-        LOG_ERROR(error);
     }
+
+    closeClient(error);
+    LOG_ERROR(error);
 }

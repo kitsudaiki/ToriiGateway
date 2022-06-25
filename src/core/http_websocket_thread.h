@@ -77,11 +77,13 @@ private:
     // websocket-functions and variables
     bool init(http::request<http::string_body> &httpRequest);
     void runWebsocket();
+    void closeClient(Kitsunemimi::ErrorContainer &error);
     bool processInitialMessage(const std::string &message,
                                Kitsunemimi::ErrorContainer &error);
 
     websocket::stream<beast::ssl_stream<tcp::socket&>>* m_webSocket = nullptr;
     std::string m_uuid = "";
+    std::string m_target = "";
     Kitsunemimi::Hanami::HanamiMessagingClient* m_client = nullptr;
 };
 
