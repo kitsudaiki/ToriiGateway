@@ -36,7 +36,7 @@
 #include <libKitsunemimiHanamiMessaging/hanami_messaging.h>
 #include <libKitsunemimiHanamiMessaging/hanami_messaging_client.h>
 
-#include <libSagiriArchive/sagiri_send.h>
+#include <libSagiriArchive/other.h>
 
 using Kitsunemimi::Hanami::HanamiMessaging;
 using Kitsunemimi::Hanami::HanamiMessagingClient;
