@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.6.0] - 2022-06-28
+
+### Added
+- send audit-logs to sagiri
+- message-forwarding to kyouko over a temporeary session now possible, which also allows messages from kyouko to the outside
+
+### Changed
+- Websockets now on the same port like the REST-API
+- use websockets instead of sakura-network to interact with the backend
+- changes in config
+
+### Fixed
+- fixed file-requests for dashboard
+
+
 ## [0.5.0] - 2022-02-14
 
 ### Added
