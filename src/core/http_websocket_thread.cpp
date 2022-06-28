@@ -104,7 +104,7 @@ HttpWebsocketThread::handleSocket(tcp::socket* socket,
         // initialize new websocket-session
         websocket::stream<beast::ssl_stream<tcp::socket&>> webSocket(std::move(stream));
         m_webSocket = &webSocket;        
-        if(init(httpRequest) == false)
+        if(initWebsocket(httpRequest) == false)
         {
             error.addMeesage("Can not init websocket.");
             return false;
@@ -140,7 +140,11 @@ HttpWebsocketThread::handleSocket(tcp::socket* socket,
 }
 
 /**
- * @brief read message into buffer
+ * @brief handle message coming over the http-socket
+ *
+ * @param stream incoming stream
+ * @param httpRequest incoming request over the stream
+ * @param error reference for error-output
  *
  * @return true, if successful, else false
  */
@@ -160,6 +164,7 @@ HttpWebsocketThread::readMessage(beast::ssl_stream<tcp::socket&> &stream,
     if(ec)
     {
         error.addMeesage("Error while reading http-message: '" + ec.message() + "'");
+        LOG_ERROR(error);
         return false;
     }
 
@@ -167,7 +172,11 @@ HttpWebsocketThread::readMessage(beast::ssl_stream<tcp::socket&> &stream,
 }
 
 /**
- * @brief send prebuild response
+ * @brief send message over the http-socket
+ *
+ * @param stream outgoing stream
+ * @param httpResponse response to send over the stream
+ * @param error reference for error-output
  *
  * @return true, if successful, else false
  */
@@ -183,15 +192,22 @@ HttpWebsocketThread::sendResponse(beast::ssl_stream<tcp::socket&> &stream,
     if(ec)
     {
         error.addMeesage("Error while writing http-message: '" + ec.message() + "'");
+        LOG_ERROR(error);
         return false;
     }
 
     return true;
 }
 
-
+/**
+ * @brief initialize websocket-connection
+ *
+ * @param httpRequest initial http-request to init the websocket
+ *
+ * @return true, if successful, else false
+ */
 bool
-HttpWebsocketThread::init(http::request<http::string_body> &httpRequest)
+HttpWebsocketThread::initWebsocket(http::request<http::string_body> &httpRequest)
 {
     try
     {
@@ -282,12 +298,12 @@ HttpWebsocketThread::sendData(const void* data,
 }
 
 /**
- * @brief HttpWebsocketThread::processInitialMessage
+ * @brief run the initial process to forward a websocket-connection to the backend
  *
- * @param message
- * @param error
+ * @param message initial message to enable message-forwarding
+ * @param error reference for error-output
  *
- * @return
+ * @return true, if successful, else false
  */
 bool
 HttpWebsocketThread::processInitialMessage(const std::string &message,
@@ -298,6 +314,7 @@ HttpWebsocketThread::processInitialMessage(const std::string &message,
     if(content.parse(message, error) == false)
     {
         error.addMeesage("Parsing of initial websocket-message failed");
+        LOG_ERROR(error);
         return false;
     }
 
@@ -317,6 +334,7 @@ HttpWebsocketThread::processInitialMessage(const std::string &message,
                        error) == false)
     {
         error.addMeesage("Request to misaka for token-check failed");
+        LOG_ERROR(error);
         return false;
     }
 
@@ -325,9 +343,11 @@ HttpWebsocketThread::processInitialMessage(const std::string &message,
             || responseMsg.success == false)
     {
         error.addMeesage("Permission-check for token over websocket failed");
+        LOG_ERROR(error);
         return false;
     }
 
+    // forward connection to sagiri or kyouko
     if(m_target == "sagiri")
     {
         // get target-session by name
@@ -335,6 +355,7 @@ HttpWebsocketThread::processInitialMessage(const std::string &message,
         if(m_client == nullptr)
         {
             error.addMeesage("Forwarind of websocket to target '" + m_target + "' failed");
+            LOG_ERROR(error);
             return false;
         }
 
@@ -346,6 +367,7 @@ HttpWebsocketThread::processInitialMessage(const std::string &message,
         if(m_client == nullptr)
         {
             error.addMeesage("Forwarind of websocket to target '" + m_target + "' failed");
+            LOG_ERROR(error);
             return false;
         }
 
@@ -355,10 +377,16 @@ HttpWebsocketThread::processInitialMessage(const std::string &message,
     }
 
     error.addMeesage("Session-forwarding to target '" + m_target + "' is not allowed");
+    LOG_ERROR(error);
 
     return false;
 }
 
+/**
+ * @brief close temporary client, if exist
+ *
+ * @param error reference for error-output
+ */
 void
 HttpWebsocketThread::closeClient(ErrorContainer &error)
 {
@@ -367,6 +395,7 @@ HttpWebsocketThread::closeClient(ErrorContainer &error)
         if(m_target == "kyouko")
         {
             m_client->closeClient(error);
+            error.addMeesage("Failed to close temporary connection to kyouko");
             LOG_ERROR(error);
             m_client->scheduleThreadForDeletion();
         }
@@ -376,9 +405,7 @@ HttpWebsocketThread::closeClient(ErrorContainer &error)
 }
 
 /**
- * @brief HttpThread::runWebsocket
- *
- * @param webSocket
+ * @brief run the websocket
  */
 void
 HttpWebsocketThread::runWebsocket()
@@ -405,6 +432,7 @@ HttpWebsocketThread::runWebsocket()
                 if(processInitialMessage(msg, error) == false)
                 {
                     success = false;
+                    error.addMeesage("Failed initializing of websocket-forwarding");
                     LOG_ERROR(error);
                     error = ErrorContainer();
                 }

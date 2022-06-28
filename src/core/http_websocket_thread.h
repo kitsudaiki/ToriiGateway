@@ -75,7 +75,7 @@ private:
                       Kitsunemimi::ErrorContainer &error);
 
     // websocket-functions and variables
-    bool init(http::request<http::string_body> &httpRequest);
+    bool initWebsocket(http::request<http::string_body> &httpRequest);
     void runWebsocket();
     void closeClient(Kitsunemimi::ErrorContainer &error);
     bool processInitialMessage(const std::string &message,
