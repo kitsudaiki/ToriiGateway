@@ -333,7 +333,7 @@ HttpWebsocketThread::processInitialMessage(const std::string &message,
                        responseMsg,
                        error) == false)
     {
-        error.addMeesage("Request to misaka for token-check failed");
+        error.addMeesage("Request to misaki for token-check failed");
         LOG_ERROR(error);
         return false;
     }

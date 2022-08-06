@@ -126,9 +126,9 @@ processRequest(http::request<http::string_body> &httpRequest,
 }
 
 /**
- * @brief request token from misaka
+ * @brief request token from misaki
  *
- * @param target target (misaka)
+ * @param target target (misaki)
  * @param hanamiRequest hanami-request for the token-request
  * @param hanamiResponse reference for the response
  * @param error reference for error-output
@@ -173,7 +173,7 @@ requestToken(http::response<http::dynamic_body> &httpResponse,
 }
 
 /**
- * @brief send request to misaka to check permissions
+ * @brief send request to misaki to check permissions
  *
  * @param token token to validate
  * @param component requested compoent
@@ -207,12 +207,12 @@ checkPermission(const std::string &token,
     requestMsg.inputValues.append("}");
 
     HanamiMessaging* messaging = HanamiMessaging::getInstance();
-    if(messaging->misakaClient == nullptr)
+    if(messaging->misakiClient == nullptr)
     {
         // TODO: handle error
         return false;
     }
-    return messaging->misakaClient->triggerSakuraFile(responseMsg, requestMsg, error);
+    return messaging->misakiClient->triggerSakuraFile(responseMsg, requestMsg, error);
 }
 
 /**
