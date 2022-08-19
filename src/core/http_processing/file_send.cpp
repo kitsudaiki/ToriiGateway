@@ -22,7 +22,7 @@
 
 #include "file_send.h"
 
-#include <libKitsunemimiCommon/common_methods/string_methods.h>
+#include <libKitsunemimiCommon/methods/string_methods.h>
 #include <libKitsunemimiCommon/files/text_file.h>
 #include <libKitsunemimiCommon/logger.h>
 #include <libKitsunemimiConfig/config_handler.h>
