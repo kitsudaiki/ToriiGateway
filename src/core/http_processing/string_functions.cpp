@@ -22,7 +22,7 @@
 
 #include "string_functions.h"
 
-#include <libKitsunemimiCommon/common_methods/string_methods.h>
+#include <libKitsunemimiCommon/methods/string_methods.h>
 #include <libKitsunemimiJson/json_item.h>
 
 /**
@@ -67,20 +67,22 @@ parseUri(std::string &target,
     Kitsunemimi::Json::JsonItem parsedInputValues;
     std::vector<std::string> parts;
     Kitsunemimi::splitStringByDelimiter(parts, uri, '?');
-    std::string key;
-    std::string val;
 
     // check split-result
-    if(parts.size() == 0) {
+    if(parts.size() == 0)
+    {
+        error.addMeesage("Uri is empty.");
         return false;
     }
-    if(parts.at(0).find("/") == std::string::npos) {
+    if(parts.at(0).find("/") == std::string::npos)
+    {
+        error.addMeesage("Uri doesn't start with '/'.");
         return false;
     }
 
     if(parsedInputValues.parse(request.inputValues, error) == false)
     {
-        error.addMeesage("Failes to parse input-values.");
+        error.addMeesage("Failed to parse input-values.");
         return false;
     }
 
@@ -99,8 +101,8 @@ parseUri(std::string &target,
         for(const std::string &kvPair : kvPairs)
         {
             const size_t cutPos = kvPair.find('=');
-            key = kvPair.substr(0, cutPos);
-            val = kvPair.substr(cutPos + 1, kvPair.size() - 1);
+            const std::string key = kvPair.substr(0, cutPos);
+            const std::string val = kvPair.substr(cutPos + 1, kvPair.size() - 1);
             parsedInputValues.insert(key, val, true);
         }
     }

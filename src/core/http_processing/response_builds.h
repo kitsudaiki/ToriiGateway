@@ -58,13 +58,11 @@ success_ResponseBuild(http::response<http::dynamic_body> &httpResp,
  */
 bool
 invalid_ResponseBuild(http::response<http::dynamic_body> &httpResp,
-                      const std::string &message)
+                      Kitsunemimi::ErrorContainer &error)
 {
     httpResp.result(http::status::bad_request);
     httpResp.set(http::field::content_type, "text/plain");
-    beast::ostream(httpResp.body()) << message;
-    Kitsunemimi::ErrorContainer error;
-    error.addMeesage(message);
+    beast::ostream(httpResp.body()) << error.toString();
     LOG_ERROR(error);
     return false;
 }

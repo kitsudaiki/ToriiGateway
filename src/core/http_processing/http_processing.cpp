@@ -243,7 +243,7 @@ processControlRequest(http::response<http::dynamic_body> &httpResponse,
     hanamiRequest.httpType = httpType;
     hanamiRequest.inputValues = inputValues;
     if(parseUri(target, token, hanamiRequest, uri, error) == false) {
-        return invalid_ResponseBuild(httpResponse, "failed to parse uri");
+        return invalid_ResponseBuild(httpResponse, error);
     }
 
     // handle token-request
