@@ -58,8 +58,9 @@ class JsonItem;
 }
 }
 
-void processRequest(http::request<http::string_body> &httpRequest,
-                    http::response<http::dynamic_body> &httpResponse);
+bool processRequest(http::request<http::string_body> &httpRequest,
+                    http::response<http::dynamic_body> &httpResponse,
+                    Kitsunemimi::ErrorContainer &error);
 
 bool requestToken(http::response<http::dynamic_body> &httpResponse,
                   const std::string &target,

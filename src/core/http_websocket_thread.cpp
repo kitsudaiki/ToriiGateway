@@ -81,6 +81,7 @@ HttpWebsocketThread::handleSocket(tcp::socket* socket,
     beast::ssl_stream<tcp::socket&> stream{*socket, std::ref(ToriiGateway::httpServer->m_ctx)};
     http::request<http::string_body> httpRequest;
     http::response<http::dynamic_body> httpResponse;
+    bool processResult = true;
 
     // perform the SSL handshake
     beast::error_code ec;
@@ -118,7 +119,12 @@ HttpWebsocketThread::handleSocket(tcp::socket* socket,
     else
     {
         // process request
-        processRequest(httpRequest, httpResponse);
+        processResult = processRequest(httpRequest, httpResponse, error);
+        if(processResult == false)
+        {
+            error.addMeesage("Failed to process http-request.");
+            // IMPORANT: no return false here, because the reponse should retunred anyway
+        }
         if(sendResponse(stream, httpResponse, error) == false)
         {
             error.addMeesage("Can not send http-response.");
@@ -136,7 +142,7 @@ HttpWebsocketThread::handleSocket(tcp::socket* socket,
         }
     }
 
-    return true;
+    return processResult;
 }
 
 /**

@@ -72,7 +72,6 @@ HttpServer::loadCertificates(boost::asio::ssl::context &ctx,
     if(ret == false)
     {
         error.addMeesage("failed to read certificate-file: '" + m_certFilePath + "'");
-        LOG_ERROR(error);
         return false;
     }
 
@@ -81,7 +80,6 @@ HttpServer::loadCertificates(boost::asio::ssl::context &ctx,
     if(ret == false)
     {
         error.addMeesage("failed to read key-file: '" + m_certFilePath + "'");
-        LOG_ERROR(error);
         return false;
     }
 
@@ -128,8 +126,7 @@ HttpServer::run()
         const net::ip::address address = net::ip::make_address(m_address);
         net::io_context ioc{1};
         tcp::acceptor acceptor{ioc, {address, m_port}};
-        const bool loadResult = loadCertificates(m_ctx, error);
-        if(loadResult == false)
+        if(loadCertificates(m_ctx, error) == false)
         {
             LOG_ERROR(error);
             return;
