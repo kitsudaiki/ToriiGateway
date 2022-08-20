@@ -43,7 +43,7 @@ HttpServer::HttpServer(const std::string &address,
                        const std::string &certFilePath,
                        const std::string &keyFilePath)
     : Kitsunemimi::Thread("HttpServer"),
-      m_ctx{boost::asio::ssl::context::tlsv12},
+      m_ctx{boost::asio::ssl::context::tlsv13_server},
       m_address(address),
       m_port(port),
       m_certFilePath(certFilePath),
