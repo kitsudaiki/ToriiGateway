@@ -32,7 +32,7 @@ class Session;
 }
 
 void streamDataCallback(void* receiver,
-                        Kitsunemimi::Sakura::Session*session,
+                        Kitsunemimi::Sakura::Session*,
                         const void* data,
                         const uint64_t dataSize);
 

@@ -36,7 +36,7 @@
  */
 void
 streamDataCallback(void* receiver,
-                   Kitsunemimi::Sakura::Session* session,
+                   Kitsunemimi::Sakura::Session*,
                    const void* data,
                    const uint64_t dataSize)
 {
@@ -44,11 +44,12 @@ streamDataCallback(void* receiver,
     webSocket->sendData(data, dataSize);
 }
 
+/**
+ * @brief unused placeholder
+ */
 void
 genericCallback(Kitsunemimi::Sakura::Session*,
                 void*,
                 const uint64_t,
                 const uint64_t)
-{
-
-}
+{}

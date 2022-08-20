@@ -102,7 +102,6 @@ sendFileFromLocalLocation(http::response<http::dynamic_body> &response,
 
     response.result(http::status::internal_server_error);
     response.set(http::field::content_type, "text/plain");
-    LOG_ERROR(error);
 
     return false;
 }

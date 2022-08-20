@@ -93,7 +93,6 @@ SOURCES += \
         src/callbacks.cpp \
         src/core/http_processing/file_send.cpp \
         src/core/http_processing/http_processing.cpp \
-        src/core/http_processing/string_functions.cpp \
         src/core/http_websocket_thread.cpp \
         src/main.cpp \
         src/torii_root.cpp \

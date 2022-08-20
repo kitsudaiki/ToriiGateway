@@ -45,9 +45,10 @@ using Kitsunemimi::Sakura::SakuraLangInterface;
 /**
  * @brief process request and build response
  */
-void
+bool
 processRequest(http::request<http::string_body> &httpRequest,
-               http::response<http::dynamic_body> &httpResponse)
+               http::response<http::dynamic_body> &httpResponse,
+               Kitsunemimi::ErrorContainer &error)
 {
     // build default-header for response
     httpResponse.version(httpRequest.version());
@@ -55,7 +56,6 @@ processRequest(http::request<http::string_body> &httpRequest,
     httpResponse.set(http::field::server, "ToriiGateway");
     httpResponse.result(http::status::ok);
     httpResponse.set(http::field::content_type, "text/plain");
-    Kitsunemimi::ErrorContainer error;
 
     // collect and prepare relevant data
     const http::verb messageType = httpRequest.method();
@@ -65,8 +65,9 @@ processRequest(http::request<http::string_body> &httpRequest,
     // Request path must be absolute and not contain "..".
     if(checkPath(path) == false)
     {
+        error.addMeesage("Path '" + path + "' is not valid");
         httpResponse.result(http::status::bad_request);
-        return;
+        return false;
     }
 
     // check if http-type is supported
@@ -76,23 +77,23 @@ processRequest(http::request<http::string_body> &httpRequest,
             && messageType != http::verb::delete_)
     {
         httpResponse.result(http::status::bad_request);
-        Kitsunemimi::ErrorContainer error;
         error.addMeesage("Invalid request-method '"
                          + std::string(httpRequest.method_string())
                          + "'");
-        LOG_ERROR(error);
         beast::ostream(httpResponse.body()) << error.toString();
-        return;
+        return false;
     }
 
     // check for dashboard-client-request
     if(messageType == http::verb::get
-            && cutPath(path, "/client"))
+            && path.compare(0, 8, "/control") != 0)
     {
-        if(processClientRequest(httpResponse, path, error) == false) {
-            LOG_ERROR(error);
+        if(processClientRequest(httpResponse, path, error) == false)
+        {
+            error.addMeesage("Failed to send dashboard-files");
+            return false;
         }
-        return;
+        return true;
     }
 
     // get payload of message
@@ -112,17 +113,21 @@ processRequest(http::request<http::string_body> &httpRequest,
     if(cutPath(path, "/control/"))
     {
         HttpRequestType hType = static_cast<HttpRequestType>(messageType);
-        if(processControlRequest(httpResponse, path, token, payload, hType, error) == false) {
-            LOG_ERROR(error);
+        if(processControlRequest(httpResponse, path, token, payload, hType, error) == false)
+        {
+            error.addMeesage("Failed to process control-request");
+            return false;
         }
-        return;
+        return true;
     }
 
     // handle default, if nothing was found
-    error.addMeesage("no matching endpoint found");
+    error.addMeesage("no matching endpoint found for path '" + path + "'");
     genericError_ResponseBuild(httpResponse,
                                HttpResponseTypes::NOT_FOUND_RTYPE,
                                error.toString());
+
+    return false;
 }
 
 /**
