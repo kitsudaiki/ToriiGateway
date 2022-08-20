@@ -87,7 +87,7 @@ processRequest(http::request<http::string_body> &httpRequest,
 
     // check for dashboard-client-request
     if(messageType == http::verb::get
-            && cutPath(path, "/client"))
+            && cutPath(path, "/control") == false)
     {
         if(processClientRequest(httpResponse, path, error) == false) {
             LOG_ERROR(error);
