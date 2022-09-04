@@ -32,12 +32,6 @@
 using Kitsunemimi::Hanami::HttpRequestType;
 using Kitsunemimi::Hanami::HttpResponseTypes;
 
-namespace Kitsunemimi {
-namespace Json {
-class JsonItem;
-}
-}
-
 /**
  * @brief precheck path
  *

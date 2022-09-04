@@ -29,7 +29,7 @@
 #include <torii_root.h>
 
 #include <libKitsunemimiHanamiCommon/generic_main.h>
-#include <libKitsunemimiHanamiMessaging/hanami_messaging.h>
+#include <libKitsunemimiHanamiNetwork/hanami_messaging.h>
 
 #include <libAzukiHeart/azuki_input.h>
 

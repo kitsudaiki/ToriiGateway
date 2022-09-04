@@ -31,7 +31,7 @@
 #include <libKitsunemimiSakuraLang/sakura_lang_interface.h>
 #include <libKitsunemimiSakuraLang/blossom.h>
 
-#include <libKitsunemimiHanamiMessaging/hanami_messaging.h>
+#include <libKitsunemimiHanamiNetwork/hanami_messaging.h>
 
 using Kitsunemimi::Hanami::HanamiMessaging;
 

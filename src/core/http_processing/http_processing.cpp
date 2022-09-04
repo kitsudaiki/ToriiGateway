@@ -33,8 +33,8 @@
 
 #include <libKitsunemimiSakuraLang/sakura_lang_interface.h>
 
-#include <libKitsunemimiHanamiMessaging/hanami_messaging.h>
-#include <libKitsunemimiHanamiMessaging/hanami_messaging_client.h>
+#include <libKitsunemimiHanamiNetwork/hanami_messaging.h>
+#include <libKitsunemimiHanamiNetwork/hanami_messaging_client.h>
 
 #include <libSagiriArchive/other.h>
 

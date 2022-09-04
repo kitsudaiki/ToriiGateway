@@ -14,10 +14,10 @@ LIBS += -L../libAzukiHeart/src/debug -lAzukiHeart
 LIBS += -L../libAzukiHeart/src/release -lAzukiHeart
 INCLUDEPATH += ../libAzukiHeart/include
 
-LIBS += -L../libKitsunemimiHanamiMessaging/src -lKitsunemimiHanamiMessaging
-LIBS += -L../libKitsunemimiHanamiMessaging/src/debug -lKitsunemimiHanamiMessaging
-LIBS += -L../libKitsunemimiHanamiMessaging/src/release -lKitsunemimiHanamiMessaging
-INCLUDEPATH += ../libKitsunemimiHanamiMessaging/include
+LIBS += -L../libKitsunemimiHanamiNetwork/src -lKitsunemimiHanamiMessaging
+LIBS += -L../libKitsunemimiHanamiNetwork/src/debug -lKitsunemimiHanamiMessaging
+LIBS += -L../libKitsunemimiHanamiNetwork/src/release -lKitsunemimiHanamiMessaging
+INCLUDEPATH += ../libKitsunemimiHanamiNetwork/include
 
 LIBS += -L../libKitsunemimiSakuraLang/src -lKitsunemimiSakuraLang
 LIBS += -L../libKitsunemimiSakuraLang/src/debug -lKitsunemimiSakuraLang
