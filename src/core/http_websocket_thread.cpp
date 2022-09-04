@@ -27,8 +27,8 @@
 #include <core/http_server.h>
 #include <core/http_processing/http_processing.h>
 
-#include <libKitsunemimiHanamiMessaging/hanami_messaging_client.h>
-#include <libKitsunemimiHanamiMessaging/hanami_messaging.h>
+#include <libKitsunemimiHanamiNetwork/hanami_messaging_client.h>
+#include <libKitsunemimiHanamiNetwork/hanami_messaging.h>
 #include <libKitsunemimiHanamiCommon/uuid.h>
 
 #include <libKitsunemimiCommon/threading/event.h>
