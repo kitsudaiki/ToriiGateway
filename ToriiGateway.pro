@@ -4,10 +4,10 @@ TARGET = ToriiGateway
 CONFIG += console c++17
 CONFIG -= app_bundle
 
-LIBS += -L../libSagiriArchive/src -lSagiriArchive
-LIBS += -L../libSagiriArchive/src/debug -lSagiriArchive
-LIBS += -L../libSagiriArchive/src/release -lSagiriArchive
-INCLUDEPATH += ../libSagiriArchive/include
+LIBS += -L../libShioriArchive/src -lShioriArchive
+LIBS += -L../libShioriArchive/src/debug -lShioriArchive
+LIBS += -L../libShioriArchive/src/release -lShioriArchive
+INCLUDEPATH += ../libShioriArchive/include
 
 LIBS += -L../libAzukiHeart/src -lAzukiHeart
 LIBS += -L../libAzukiHeart/src/debug -lAzukiHeart

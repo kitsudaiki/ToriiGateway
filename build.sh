@@ -108,7 +108,7 @@ echo ""
 echo "###########################################################################################################"
 echo ""
 get_required_private_repo_github "libAzukiHeart" "develop" 8
-get_required_private_repo_github "libSagiriArchive" "develop" 8
+get_required_private_repo_github "libShioriArchive" "develop" 8
 echo ""
 echo "###########################################################################################################"
 

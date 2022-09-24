@@ -36,7 +36,7 @@
 #include <libKitsunemimiHanamiNetwork/hanami_messaging.h>
 #include <libKitsunemimiHanamiNetwork/hanami_messaging_client.h>
 
-#include <libSagiriArchive/other.h>
+#include <libShioriArchive/other.h>
 
 using Kitsunemimi::Hanami::HanamiMessaging;
 using Kitsunemimi::Hanami::HanamiMessagingClient;
@@ -276,8 +276,8 @@ processControlRequest(http::response<http::dynamic_body> &httpResponse,
         return internalError_ResponseBuild(httpResponse, error);
     }
 
-    // send audit-message to sagiri
-    Sagiri::sendAuditMessage(target,
+    // send audit-message to shiori
+    Shiori::sendAuditMessage(target,
                              hanamiRequest.id,
                              userData.get("uuid").getString(),
                              hanamiRequest.httpType);

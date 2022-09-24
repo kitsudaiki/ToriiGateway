@@ -353,8 +353,8 @@ HttpWebsocketThread::processInitialMessage(const std::string &message,
         return false;
     }
 
-    // forward connection to sagiri or kyouko
-    if(m_target == "sagiri")
+    // forward connection to shiori or kyouko
+    if(m_target == "shiori")
     {
         // get target-session by name
         m_client = messageInterface->getOutgoingClient(m_target);
