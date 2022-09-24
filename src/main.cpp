@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
     Azuki::initAzukiBlossoms();
 
     // initialize server and connections based on the config-file
-    const std::vector<std::string> groupNames = { "misaki", "azuki", "sagiri", "kyouko"};
+    const std::vector<std::string> groupNames = { "misaki", "azuki", "shiori", "kyouko"};
     if(HanamiMessaging::getInstance()->initialize("torii",
                                                   groupNames,
                                                   nullptr,
