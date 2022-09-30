@@ -252,7 +252,9 @@ processControlRequest(http::response<http::dynamic_body> &httpResponse,
     }
 
     // handle token-request
-    if(hanamiRequest.id == "v1/token") {
+    if(hanamiRequest.id == "v1/token"
+            && hanamiRequest.httpType == Kitsunemimi::Hanami::POST_TYPE)
+    {
         return requestToken(httpResponse, target, hanamiRequest, hanamiResponse, error);
     }
 
