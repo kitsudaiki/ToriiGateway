@@ -49,26 +49,13 @@ function get_required_kitsune_lib_repo () {
     build_kitsune_lib_repo $REPO_NAME $NUMBER_OF_THREADS
 }
 
-function get_required_private_repo_github () {
-    REPO_NAME=$1
-    TAG_OR_BRANCH=$2
-    NUMBER_OF_THREADS=$3
-
-    # clone repo
-    git clone https://kitsudaiki:$CLONE_TOKEN@github.com/kitsudaiki/$REPO_NAME.git "$PARENT_DIR/$REPO_NAME"
-    cd "$PARENT_DIR/$REPO_NAME"
-    git checkout $TAG_OR_BRANCH
-
-    build_kitsune_lib_repo $REPO_NAME $NUMBER_OF_THREADS
-}
-
-function download_private_repo_github () {
+function download_repo_github () {
     REPO_NAME=$1
     TAG_OR_BRANCH=$2
 
     # clone repo
-    git clone https://kitsudaiki:$CLONE_TOKEN@github.com/kitsudaiki/$REPO_NAME.git "$BUILD_DIR/$REPO_NAME"
-    git clone https://kitsudaiki:$CLONE_TOKEN@github.com/kitsudaiki/$REPO_NAME.git "$PARENT_DIR/$REPO_NAME"
+    git clone https://github.com/kitsudaiki/$REPO_NAME.git "$BUILD_DIR/$REPO_NAME"
+    git clone https://github.com/kitsudaiki/$REPO_NAME.git "$PARENT_DIR/$REPO_NAME"
     cd "$BUILD_DIR/$REPO_NAME"
     git checkout $TAG_OR_BRANCH
     cd "$PARENT_DIR/$REPO_NAME"
@@ -80,18 +67,15 @@ function download_private_repo_github () {
 
 echo "###########################################################################################################"
 echo ""
-get_required_kitsune_lib_repo "libKitsunemimiCommon" "v0.27.0" 8
+get_required_kitsune_lib_repo "libKitsunemimiCommon" "develop" 8
 get_required_kitsune_lib_repo "libKitsunemimiJson" "develop" 1
 get_required_kitsune_lib_repo "libKitsunemimiJinja2" "develop" 1
 get_required_kitsune_lib_repo "libKitsunemimiIni" "develop" 1
 get_required_kitsune_lib_repo "libKitsunemimiNetwork" "develop" 8
 get_required_kitsune_lib_repo "libKitsunemimiArgs" "develop" 8
 get_required_kitsune_lib_repo "libKitsunemimiConfig" "develop" 8
-echo ""
-echo "###########################################################################################################"
-echo ""
 get_required_kitsune_lib_repo "libKitsunemimiCrypto" "develop" 8
-get_required_private_repo_github "libKitsunemimiJwt" "develop" 8
+get_required_kitsune_lib_repo "libKitsunemimiJwt" "develop" 8
 echo ""
 echo "###########################################################################################################"
 echo ""
@@ -100,15 +84,15 @@ get_required_kitsune_lib_repo "libKitsunemimiSakuraLang" "develop" 1
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_private_repo_github "libKitsunemimiHanamiCommon" "develop" 8
-get_required_private_repo_github "libKitsunemimiHanamiEndpoints" "develop" 1
-get_required_private_repo_github "libKitsunemimiHanamiNetwork" "develop" 8
-download_private_repo_github "libKitsunemimiHanamiMessages" "develop"
+get_required_kitsune_lib_repo "libKitsunemimiHanamiCommon" "develop" 8
+get_required_kitsune_lib_repo "libKitsunemimiHanamiEndpoints" "develop" 1
+get_required_kitsune_lib_repo "libKitsunemimiHanamiNetwork" "develop" 8
+download_repo_github "libKitsunemimiHanamiMessages" "develop"
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_private_repo_github "libAzukiHeart" "develop" 8
-get_required_private_repo_github "libShioriArchive" "develop" 8
+get_required_kitsune_lib_repo "libAzukiHeart" "develop" 8
+get_required_kitsune_lib_repo "libShioriArchive" "develop" 8
 echo ""
 echo "###########################################################################################################"
 
