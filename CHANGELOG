@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.7.0] - 2022-10-17
+
+### Changed
+- update tls 1.2 to 1.3
+- update token-request to allow requesting new token
+
+### Fixed
+- fixed error-message in uri-paring
+
+### Removed
+- removed the "client" in the path of dashboard-files
+
+
 ## [0.6.1] - 2022-07-02
 
 ### Changed
