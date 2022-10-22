@@ -78,7 +78,7 @@ internalError_ResponseBuild(http::response<http::dynamic_body> &httpResp,
 {
     httpResp.result(http::status::internal_server_error);
     httpResp.set(http::field::content_type, "text/plain");
-    beast::ostream(httpResp.body()) << error.toString();
+    // beast::ostream(httpResp.body()) << error.toString();
     LOG_ERROR(error);
     return false;
 }
