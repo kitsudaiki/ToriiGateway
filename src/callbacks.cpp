@@ -49,6 +49,7 @@ streamDataCallback(void* receiver,
  */
 void
 genericCallback(Kitsunemimi::Sakura::Session*,
+                const uint32_t,
                 void*,
                 const uint64_t,
                 const uint64_t)

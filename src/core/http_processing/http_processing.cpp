@@ -279,10 +279,15 @@ processControlRequest(http::response<http::dynamic_body> &httpResponse,
     }
 
     // send audit-message to shiori
-    Shiori::sendAuditMessage(target,
-                             hanamiRequest.id,
-                             userData.get("uuid").getString(),
-                             hanamiRequest.httpType);
+    if(Shiori::sendAuditMessage(target,
+                                hanamiRequest.id,
+                                userData.get("uuid").getString(),
+                                hanamiRequest.httpType,
+                                error) == false)
+    {
+        error.addMeesage("Failed to send audit-log to Shiori");
+        return internalError_ResponseBuild(httpResponse, error);
+    }
 
     // forward real request
     HanamiMessagingClient* client = messaging->getOutgoingClient(target);

@@ -14,9 +14,9 @@ LIBS += -L../libAzukiHeart/src/debug -lAzukiHeart
 LIBS += -L../libAzukiHeart/src/release -lAzukiHeart
 INCLUDEPATH += ../libAzukiHeart/include
 
-LIBS += -L../libKitsunemimiHanamiNetwork/src -lKitsunemimiHanamiMessaging
-LIBS += -L../libKitsunemimiHanamiNetwork/src/debug -lKitsunemimiHanamiMessaging
-LIBS += -L../libKitsunemimiHanamiNetwork/src/release -lKitsunemimiHanamiMessaging
+LIBS += -L../libKitsunemimiHanamiNetwork/src -lKitsunemimiHanamiNetwork
+LIBS += -L../libKitsunemimiHanamiNetwork/src/debug -lKitsunemimiHanamiNetwork
+LIBS += -L../libKitsunemimiHanamiNetwork/src/release -lKitsunemimiHanamiNetwork
 INCLUDEPATH += ../libKitsunemimiHanamiNetwork/include
 
 LIBS += -L../libKitsunemimiSakuraLang/src -lKitsunemimiSakuraLang
@@ -84,7 +84,7 @@ LIBS += -L../libKitsunemimiCrypto/src/debug -lKitsunemimiCrypto
 LIBS += -L../libKitsunemimiCrypto/src/release -lKitsunemimiCrypto
 INCLUDEPATH += ../libKitsunemimiCrypto/include
 
-LIBS += -lcryptopp -lssl -lcrypto -luuid
+LIBS += -lcryptopp -lssl -lcrypto -luuid -pthread -lprotobuf
 
 INCLUDEPATH += $$PWD \
                src
@@ -109,3 +109,22 @@ HEADERS += \
         src/core/http_server.h \
         src/config.h \
         src/callbacks.h
+
+SHIORI_PROTO_BUFFER = ../libKitsunemimiHanamiMessages/protobuffers/shiori_messages.proto3
+
+OTHER_FILES += $$SHIORI_PROTO_BUFFER
+
+protobuf_decl.name = protobuf headers
+protobuf_decl.input = SHIORI_PROTO_BUFFER
+protobuf_decl.output = ${QMAKE_FILE_IN_PATH}/${QMAKE_FILE_BASE}.proto3.pb.h
+protobuf_decl.commands = protoc --cpp_out=${QMAKE_FILE_IN_PATH} --proto_path=${QMAKE_FILE_IN_PATH} ${QMAKE_FILE_NAME}
+protobuf_decl.variable_out = HEADERS
+QMAKE_EXTRA_COMPILERS += protobuf_decl
+
+protobuf_impl.name = protobuf sources
+protobuf_impl.input = SHIORI_PROTO_BUFFER
+protobuf_impl.output = ${QMAKE_FILE_IN_PATH}/${QMAKE_FILE_BASE}.proto3.pb.cc
+protobuf_impl.depends = ${QMAKE_FILE_IN_PATH}/${QMAKE_FILE_BASE}.proto3.pb.h
+protobuf_impl.commands = $$escape_expand(\n)
+protobuf_impl.variable_out = SOURCES
+QMAKE_EXTRA_COMPILERS += protobuf_impl
