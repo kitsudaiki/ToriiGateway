@@ -84,6 +84,8 @@ private:
     websocket::stream<beast::ssl_stream<tcp::socket&>>* m_webSocket = nullptr;
     std::string m_uuid = "";
     std::string m_target = "";
+    bool m_waitForInput = true;
+    bool m_websocketClosed = true;
     Kitsunemimi::Hanami::HanamiMessagingClient* m_client = nullptr;
 };
 

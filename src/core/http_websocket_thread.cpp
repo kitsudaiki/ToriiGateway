@@ -274,9 +274,22 @@ HttpWebsocketThread::sendData(const void* data,
 
     try
     {
+        while(m_waitForInput == true
+              && m_websocketClosed == false)
+        {
+            usleep(1000);
+        }
+
+        if(m_websocketClosed) {
+            return false;
+        }
+
         beast::flat_buffer buffer;
         m_webSocket->binary(true);
         m_webSocket->write(net::buffer(data, dataSize));
+        m_waitForInput = true;
+
+        return true;
     }
     catch(const beast::system_error& se)
     {
@@ -300,6 +313,8 @@ HttpWebsocketThread::sendData(const void* data,
         LOG_ERROR(error);
     }
 
+    m_waitForInput = true;
+
     return false;
 }
 
@@ -315,6 +330,7 @@ bool
 HttpWebsocketThread::processInitialMessage(const std::string &message,
                                            ErrorContainer &error)
 {
+    std::cout<<"############# "<<message<<std::endl;
     Hanami::HanamiMessaging* messageInterface = Hanami::HanamiMessaging::getInstance();
     Json::JsonItem content;
     if(content.parse(message, error) == false)
@@ -400,9 +416,11 @@ HttpWebsocketThread::closeClient(ErrorContainer &error)
     {
         if(m_target == "kyouko")
         {
-            m_client->closeClient(error);
-            error.addMeesage("Failed to close temporary connection to kyouko");
-            LOG_ERROR(error);
+            if(m_client->closeClient(error) == false)
+            {
+                error.addMeesage("Failed to close temporary connection to kyouko");
+                LOG_ERROR(error);
+            }
             m_client->scheduleThreadForDeletion();
         }
 
@@ -417,6 +435,7 @@ void
 HttpWebsocketThread::runWebsocket()
 {
     ErrorContainer error;
+    m_websocketClosed = false;
 
     try
     {
@@ -424,7 +443,18 @@ HttpWebsocketThread::runWebsocket()
         {
             // read message from socket
             beast::flat_buffer buffer;
+            while(m_waitForInput == false
+                  && m_websocketClosed == false)
+            {
+                usleep(1000);
+            }
+
+            if(m_websocketClosed) {
+                break;
+            }
+
             m_webSocket->read(buffer);
+            m_waitForInput = false;
 
             //m_webSocket.text(m_webSocket.got_text());
             if(m_client == nullptr)
@@ -454,6 +484,7 @@ HttpWebsocketThread::runWebsocket()
 
                 m_webSocket->binary(true);
                 m_webSocket->write(net::buffer(response, response.size()));
+                m_waitForInput = true;
             }
             else
             {
@@ -484,6 +515,7 @@ HttpWebsocketThread::runWebsocket()
                          + std::string(e.what()));
     }
 
+    m_websocketClosed = true;
     closeClient(error);
     LOG_ERROR(error);
 }
