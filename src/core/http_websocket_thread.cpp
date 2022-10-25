@@ -330,7 +330,6 @@ bool
 HttpWebsocketThread::processInitialMessage(const std::string &message,
                                            ErrorContainer &error)
 {
-    std::cout<<"############# "<<message<<std::endl;
     Hanami::HanamiMessaging* messageInterface = Hanami::HanamiMessaging::getInstance();
     Json::JsonItem content;
     if(content.parse(message, error) == false)
@@ -492,6 +491,10 @@ HttpWebsocketThread::runWebsocket()
                                             buffer.data().size(),
                                             false,
                                             error);
+
+                if(m_target == "shiori") {
+                    m_waitForInput = true;
+                }
             }
         }
     }
