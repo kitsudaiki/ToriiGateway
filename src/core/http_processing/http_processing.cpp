@@ -281,7 +281,7 @@ processControlRequest(http::response<http::dynamic_body> &httpResponse,
     // send audit-message to shiori
     if(Shiori::sendAuditMessage(target,
                                 hanamiRequest.id,
-                                userData.get("uuid").getString(),
+                                userData.get("id").getString(),
                                 hanamiRequest.httpType,
                                 error) == false)
     {
