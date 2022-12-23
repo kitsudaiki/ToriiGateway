@@ -31,8 +31,6 @@
 #include <libKitsunemimiJson/json_item.h>
 #include <libKitsunemimiCommon/logger.h>
 
-#include <libKitsunemimiSakuraLang/sakura_lang_interface.h>
-
 #include <libKitsunemimiHanamiNetwork/hanami_messaging.h>
 #include <libKitsunemimiHanamiNetwork/hanami_messaging_client.h>
 
@@ -40,7 +38,6 @@
 
 using Kitsunemimi::Hanami::HanamiMessaging;
 using Kitsunemimi::Hanami::HanamiMessagingClient;
-using Kitsunemimi::Sakura::SakuraLangInterface;
 
 /**
  * @brief process request and build response
