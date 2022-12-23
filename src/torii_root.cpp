@@ -28,8 +28,7 @@
 #include <libKitsunemimiCommon/files/text_file.h>
 #include <libKitsunemimiConfig/config_handler.h>
 
-#include <libKitsunemimiSakuraLang/sakura_lang_interface.h>
-#include <libKitsunemimiSakuraLang/blossom.h>
+#include <libKitsunemimiHanamiNetwork/blossom.h>
 
 #include <libKitsunemimiHanamiNetwork/hanami_messaging.h>
 

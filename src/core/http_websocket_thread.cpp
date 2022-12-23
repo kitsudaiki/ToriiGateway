@@ -32,6 +32,7 @@
 #include <libKitsunemimiHanamiCommon/uuid.h>
 
 #include <libKitsunemimiCommon/threading/event.h>
+#include <libKitsunemimiJson/json_item.h>
 
 using namespace Kitsunemimi;
 
