@@ -24,6 +24,8 @@
 #define TORIIGATEWAY_STRING_FUNCTIONS_H
 
 #include <string>
+#include <regex>
+
 #include <libKitsunemimiHanamiCommon/structs.h>
 #include <libKitsunemimiCommon/logger.h>
 #include <libKitsunemimiCommon/methods/string_methods.h>
@@ -110,7 +112,15 @@ parseUri(std::string &target,
             const size_t cutPos = kvPair.find('=');
             const std::string key = kvPair.substr(0, cutPos);
             const std::string val = kvPair.substr(cutPos + 1, kvPair.size() - 1);
-            parsedInputValues.insert(key, val, true);
+
+            // convert result if number and add to resulting map
+            if(regex_match(val, std::regex(INT_VALUE_REGEX))) {
+                parsedInputValues.insert(key, std::stoi(val.c_str(), NULL), true);
+            } else if(regex_match(val, std::regex(FLOAT_VALUE_REGEX))) {
+                parsedInputValues.insert(key, std::strtof(val.c_str(), NULL), true);
+            } else {
+                parsedInputValues.insert(key, val, true);
+            }
         }
     }
 
