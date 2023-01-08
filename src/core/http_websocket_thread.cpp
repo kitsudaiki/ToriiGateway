@@ -332,7 +332,7 @@ HttpWebsocketThread::processInitialMessage(const std::string &message,
                                            ErrorContainer &error)
 {
     Hanami::HanamiMessaging* messageInterface = Hanami::HanamiMessaging::getInstance();
-    Json::JsonItem content;
+    JsonItem content;
     if(content.parse(message, error) == false)
     {
         error.addMeesage("Parsing of initial websocket-message failed");

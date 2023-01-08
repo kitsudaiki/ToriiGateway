@@ -60,7 +60,7 @@ registerConfigs(Kitsunemimi::ErrorContainer &error)
 bool
 validateConfig(Kitsunemimi::ErrorContainer &)
 {
-    bool valid = Kitsunemimi::Config::isConfigValid();
+    bool valid = Kitsunemimi::isConfigValid();
     if(valid == false) {
         return false;
     }

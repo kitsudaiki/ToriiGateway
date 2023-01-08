@@ -270,7 +270,7 @@ processControlRequest(http::response<http::dynamic_body> &httpResponse,
     }
 
     // parse response to get user-uuid of the token
-    Kitsunemimi::Json::JsonItem userData;
+    Kitsunemimi::JsonItem userData;
     if(userData.parse(hanamiResponse.responseContent, error) == false) {
         return internalError_ResponseBuild(httpResponse, error);
     }

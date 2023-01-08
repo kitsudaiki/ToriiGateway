@@ -73,7 +73,7 @@ parseUri(std::string &target,
          Kitsunemimi::ErrorContainer &error)
 {
     // first split of uri
-    Kitsunemimi::Json::JsonItem parsedInputValues;
+    Kitsunemimi::JsonItem parsedInputValues;
     std::vector<std::string> parts;
     Kitsunemimi::splitStringByDelimiter(parts, uri, '?');
 
